@@ -7,10 +7,12 @@ import json
 mcp = FastMCP("MySQL_Server")
 
 @mcp.tool()
-def get_patients() -> str:
+def get_patients(reason: str = "None") -> str:
+# added a default argument to provide a valid schema for the LLM to target,
+# preventing validation errors if the model "hallucinates" and tries to pass extra input.
     """Get distinct patients in the database."""
-    query = '''SELECT COUNT(DISTINCT patient_ref)
-FROM tfm_datanex.g_demographics LIMIT 10;'''
+    query = '''SELECT COUNT(DISTINCT patient_ref) 
+               FROM tfm_datanex.g_demographics LIMIT 10;'''
     # Safety check to prevent destructive operations
     if not query.strip().upper().startswith("SELECT"):
         return "Error: Only SELECT queries are permitted."
