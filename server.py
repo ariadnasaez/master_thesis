@@ -7,21 +7,32 @@ import json
 mcp = FastMCP("MySQL_Server")
 
 @mcp.tool()
-def get_patients(reason: str = "None") -> str:
-# added a default argument to provide a valid schema for the LLM to target,
-# preventing validation errors if the model "hallucinates" and tries to pass extra input.
-    """Get distinct patients in the database."""
-    query = '''SELECT COUNT(DISTINCT patient_ref) 
-               FROM tfm_datanex.g_demographics LIMIT 10;'''
-    # Safety check to prevent destructive operations
+def execute_query(query: str) -> str:
+    """
+    Execute a MySQL SELECT query against the tfm_datanex database.
+    
+    Table: g_demographics
+    Columns:
+    - patient_ref (INT, PK): Unique identifier
+    - birth_date (DATE): Date of birth
+    - sex (INT): -1=Unknown, 1=Male, 2=Female, 3=Other
+    - natio_ref (CHAR): Nationality reference code
+    - natio_descr (CHAR): Country description
+    - health_area (CHAR): Health area
+    - postcode (CHAR): Postal code
+    - load_date (DATETIME): Update timestamp
+    
+    Example: To find female patients, use 'WHERE sex = 2'.
+    Only SELECT queries are permitted.
+    """
     if not query.strip().upper().startswith("SELECT"):
         return "Error: Only SELECT queries are permitted."
         
     db_config = {
         "host": "127.0.0.1",
         "user": "root",
-        "password": "",      # Replace with your MySQL 8.0 password
-        "database": "tfm_datanex",      # Replace with your database name
+        "password": "", 
+        "database": "tfm_datanex",
         "port": 3306
     }
     
