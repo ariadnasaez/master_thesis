@@ -17,9 +17,11 @@ db_config = {
 # Add or edit entries here to guide the LLM toward the right table.
 # ----------------------------
 TABLE_DESCRIPTIONS = {
-    "g_demographics": "Primary patient table. One row per patient. Use this to count patients or get demographic info. sex: 1=male/hombre, 2=female/mujer.",
+    "g_demographics": "Primary patient table. One row per patient. Use this to count patients or get demographic info. sex: 1=male/hombre, 2=female/mujer. natio_descr sample values: Espana, Europa, América, África, Marruecos, Pakistan, Andorra, Resto del mundo.",
     "g_administrations": "Drug administration records. One row per drug administration event. Multiple rows per patient.",
-    "g_health_issues": "Patient diagnoses and health conditions. Use this for any question about diseases, conditions, or diagnoses. Column snomed_descr contains the condition name in Spanish.",
+    "g_health_issues": "Patient diagnoses and health conditions. Use this for any question about diseases, conditions, or diagnoses. Column snomed_descr contains the condition name in Spanish. Always GROUP BY snomed_descr, never by snomed_ref. ou_med_ref is the medical unit that recorded the diagnosis (e.g. RMT=rheumatology, HEM=hematology, PSI=psychiatry, CAR=cardiology, NRL=neurology). Join with g_labs on patient_ref only (episode_ref types are incompatible).",
+    "g_labs": "Lab test results. Use this for any question about lab values or analytical results (e.g. PCR, glucose, hemoglobin). result_num is the numeric result. lab_descr is the test name — always filter with LIKE 'pcr%' not exact match. ou_med_ref is the requesting unit but filter on g_health_issues.ou_med_ref to scope by medical specialty. Join with g_health_issues on patient_ref only (episode_ref types are incompatible).",
+    "g_micro": "Microbiology results (cultures, microorganisms). Use this for questions about infections or microorganisms, NOT for lab values like PCR.",
 }
 
 # ----------------------------

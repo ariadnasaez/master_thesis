@@ -24,12 +24,16 @@ def fix_sql(query: str, schema: dict) -> str:
     }
 
     def replacer(match):
-        column, value = match.group(1), match.group(2)
+        table_prefix, column, value = match.group(1), match.group(2), match.group(3)
         if column.lower() in text_columns:
-            return f"LOWER({column}) LIKE '%{value.lower()}%'"
+            qualified = f"{table_prefix}{column}" if table_prefix else column
+            return f"LOWER({qualified}) LIKE '%{value.lower()}%'"
         return match.group(0)
 
-    return re.sub(r"(\w+)\s*=\s*'([^']*)'", replacer, query, flags=re.IGNORECASE)
+    # Match optional table prefix: col = 'val' or table.col = 'val' (single and double quotes)
+    query = re.sub(r"(\w+\.)?"r"(\w+)\s*=\s*'([^']*)'", replacer, query, flags=re.IGNORECASE)
+    query = re.sub(r"(\w+\.)?"r'(\w+)\s*=\s*"([^"]*)"', replacer, query, flags=re.IGNORECASE)
+    return query
 
 
 async def main():
@@ -80,7 +84,15 @@ async def main():
                 "- Only SELECT queries are allowed.\n"
                 "- Use LIKE for text/varchar column searches, not =.\n"
                 "- Never invent table or column names not listed in the schema below.\n"
-                "- To count distinct patients, use COUNT(DISTINCT patient_ref) from the table that contains patient_ref.\n\n"
+                "- To count distinct patients, use COUNT(DISTINCT patient_ref) from the table that contains patient_ref.\n"
+                "- To get average lab values per diagnosis for a medical unit: always start from g_health_issues, "
+                "LEFT JOIN g_labs on patient_ref, filter g_health_issues.ou_med_ref for the unit and g_labs.lab_descr for the test, "
+                "GROUP BY g_health_issues.snomed_descr. Example:\n"
+                "  SELECT h.snomed_descr, AVG(l.result_num)\n"
+                "  FROM g_health_issues h\n"
+                "  LEFT JOIN g_labs l ON h.patient_ref = l.patient_ref\n"
+                "  WHERE h.ou_med_ref = 'RMT' AND LOWER(l.lab_descr) LIKE 'pcr%'\n"
+                "  GROUP BY h.snomed_descr ORDER BY AVG(l.result_num) DESC;\n\n"
                 f"Database schema:\n{schema_text}"
             )
 
@@ -102,7 +114,7 @@ async def main():
                 malformed_count = 0
                 for _ in range(6):  # max steps
                     print("⏳ Thinking...", end="\r", flush=True)
-                    response = ollama.chat(model="llama3.2", messages=messages, tools=ollama_tools)
+                    response = ollama.chat(model="llama3.1:8b", messages=messages, tools=ollama_tools)
                     print("             ", end="\r", flush=True)  # clear line
                     msg = response["message"]
                     messages.append(msg)
