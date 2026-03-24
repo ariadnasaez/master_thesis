@@ -1,3 +1,5 @@
+# MCP server: connects to the MySQL database and exposes it to the client.
+# Provides a schema resource (fetched once at startup) and an execute_query tool (called per question).
 from fastmcp import FastMCP
 import mysql.connector
 import json
@@ -19,7 +21,7 @@ db_config = {
 TABLE_DESCRIPTIONS = {
     "g_demographics": "Primary patient table. One row per patient. Use this to count patients or get demographic info. sex: 1=male/hombre, 2=female/mujer. natio_descr sample values: Espana, Europa, América, África, Marruecos, Pakistan, Andorra, Resto del mundo.",
     "g_administrations": "Drug administration records. One row per drug administration event. Multiple rows per patient.",
-    "g_health_issues": "Patient diagnoses and health conditions. Use this for any question about diseases, conditions, or diagnoses. Column snomed_descr contains the condition name in Spanish. Always GROUP BY snomed_descr, never by snomed_ref. ou_med_ref is the medical unit that recorded the diagnosis (e.g. RMT=rheumatology, HEM=hematology, PSI=psychiatry, CAR=cardiology, NRL=neurology). Join with g_labs on patient_ref only (episode_ref types are incompatible).",
+    "g_health_issues": "Patient diagnoses and health conditions. Use this for any question about diseases, conditions, or diagnoses. Column snomed_descr contains the condition name in Spanish. Always SELECT and GROUP BY snomed_descr to include condition names in results, never by snomed_ref. ou_med_ref is the medical unit that recorded the diagnosis (e.g. RMT=rheumatology, HEM=hematology, PSI=psychiatry, CAR=cardiology, NRL=neurology). Join with g_labs on patient_ref only (episode_ref types are incompatible).",
     "g_labs": "Lab test results. Use this for any question about lab values or analytical results (e.g. PCR, glucose, hemoglobin). result_num is the numeric result. lab_descr is the test name — always filter with LIKE 'pcr%' not exact match. ou_med_ref is the requesting unit but filter on g_health_issues.ou_med_ref to scope by medical specialty. Join with g_health_issues on patient_ref only (episode_ref types are incompatible).",
     "g_micro": "Microbiology results (cultures, microorganisms). Use this for questions about infections or microorganisms, NOT for lab values like PCR.",
 }
@@ -51,52 +53,7 @@ def get_full_schema() -> str:
         return f"Error: {str(e)}"
 
 # ----------------------------
-# TOOL 1: Dynamic table descriptions
-# ----------------------------
-@mcp.tool()
-def get_table_descriptions() -> str:
-    """Return all tables and optional comments dynamically."""
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
-        cursor.execute("SHOW TABLES;")
-        tables = [row[0] for row in cursor.fetchall()]
-
-        descriptions = {}
-        for table in tables:
-            # Try to get table comment
-            cursor.execute(f"SHOW TABLE STATUS LIKE '{table}';")
-            status = cursor.fetchone()
-            comment = status[17] if status and len(status) > 17 else ""
-            descriptions[table] = comment or "No description available"
-
-        conn.close()
-        return json.dumps(descriptions)
-
-    except Exception as e:
-        return f"Database Error: {str(e)}"
-
-# ----------------------------
-# TOOL 2: Schema for selected tables
-# ----------------------------
-@mcp.tool()
-def get_schema_for_tables(tables: list[str]) -> str:
-    """Retrieve schema only for selected tables."""
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
-        schema = {}
-        for table in tables:
-            cursor.execute(f"DESCRIBE {table};")
-            columns = cursor.fetchall()
-            schema[table] = [{"column_name": col[0], "data_type": col[1]} for col in columns]
-        conn.close()
-        return json.dumps(schema, indent=2)
-    except Exception as e:
-        return f"Database Error: {str(e)}"
-
-# ----------------------------
-# TOOL 3: Execute SQL SELECT query
+# TOOL: Execute SQL SELECT query
 # ----------------------------
 @mcp.tool()
 def execute_query(query: str) -> str:

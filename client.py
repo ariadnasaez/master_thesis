@@ -1,3 +1,5 @@
+# MCP client: orchestrates the conversation between the user and the LLM (llama3.1:8b via ollama).
+# Fetches the DB schema once at startup, builds the system prompt, and manages the tool-calling loop.
 import asyncio
 from mcp.client.stdio import stdio_client, StdioServerParameters
 from mcp.client.session import ClientSession
@@ -42,7 +44,9 @@ async def main():
         async with ClientSession(read, write) as session:
             await session.initialize()
 
-            # Fetch live schema from server resource
+            # Fetch live schema from server resource ONCE at startup.
+            # The schema is stored in memory and reused in every question via the system prompt.
+            # The DB is only queried again if the client is restarted.
             # schema_resource calls the get_full_schema resource on the server, which connects to MySQL, runs DESCRIBE on every table,
             # and returns the result as a string. That string is then stored in schema_text and injected into the system prompt.
             schema_resource = await session.read_resource("schema://full")
@@ -85,14 +89,10 @@ async def main():
                 "- Use LIKE for text/varchar column searches, not =.\n"
                 "- Never invent table or column names not listed in the schema below.\n"
                 "- To count distinct patients, use COUNT(DISTINCT patient_ref) from the table that contains patient_ref.\n"
+                "- When grouping by a description column (e.g. snomed_descr), always include it in the SELECT clause so names appear in results.\n"
                 "- To get average lab values per diagnosis for a medical unit: always start from g_health_issues, "
                 "LEFT JOIN g_labs on patient_ref, filter g_health_issues.ou_med_ref for the unit and g_labs.lab_descr for the test, "
-                "GROUP BY g_health_issues.snomed_descr. Example:\n"
-                "  SELECT h.snomed_descr, AVG(l.result_num)\n"
-                "  FROM g_health_issues h\n"
-                "  LEFT JOIN g_labs l ON h.patient_ref = l.patient_ref\n"
-                "  WHERE h.ou_med_ref = 'RMT' AND LOWER(l.lab_descr) LIKE 'pcr%'\n"
-                "  GROUP BY h.snomed_descr ORDER BY AVG(l.result_num) DESC;\n\n"
+                "GROUP BY g_health_issues.snomed_descr.\n\n"
                 f"Database schema:\n{schema_text}"
             )
 
