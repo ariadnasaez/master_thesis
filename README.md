@@ -52,7 +52,7 @@ mcp_mysql/
 ```bash
 # Clone the repository
 git clone https://github.com/ariadnasaez/master_thesis.git
-cd mcp_mysql
+cd master_thesis
 
 # Create and activate a virtual environment
 python -m venv venv
