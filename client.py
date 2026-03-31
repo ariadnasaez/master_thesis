@@ -1,4 +1,4 @@
-# MCP client: orchestrates the conversation between the user and the LLM (llama3.1:8b via ollama).
+# MCP client: orchestrates the conversation between the user and the LLM (qwen2.5:9b via ollama).
 # Fetches the DB schema once at startup, builds the system prompt, and manages the tool-calling loop.
 import asyncio
 from mcp.client.stdio import stdio_client, StdioServerParameters
@@ -114,7 +114,7 @@ async def main():
                 malformed_count = 0
                 for _ in range(6):  # max steps
                     print("⏳ Thinking...", end="\r", flush=True)
-                    response = ollama.chat(model="llama3.1:8b", messages=messages, tools=ollama_tools)
+                    response = ollama.chat(model="qwen3.5:9b", messages=messages, tools=ollama_tools)
                     print("             ", end="\r", flush=True)  # clear line
                     msg = response["message"]
                     messages.append(msg)
