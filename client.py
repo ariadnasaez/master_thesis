@@ -14,8 +14,12 @@ def is_text_column(data_type: str) -> bool:
     return any(t in data_type.lower() for t in TEXT_TYPES)
 
 
+CODE_COLUMNS = {"ou_med_ref", "episode_type_ref", "care_level_ref", "sex", "natio_ref",
+                "diag_ref", "lab_sap_ref", "lab_ref", "ou_loc_ref", "care_level_type_ref",
+                "facility_ref", "rc_sap_ref", "rc_ref", "catalog", "code"}
+
 def fix_sql(query: str, schema: dict) -> str:
-    """Convert exact-match conditions to LIKE for text columns."""
+    """Convert exact-match conditions to LIKE for text columns, excluding controlled code columns."""
     if not query or not schema:
         return query
     text_columns = {
@@ -23,7 +27,7 @@ def fix_sql(query: str, schema: dict) -> str:
         for entry in schema.values()
         for col in (entry["columns"] if isinstance(entry, dict) and "columns" in entry else entry)
         if is_text_column(col.get("type", ""))
-    }
+    } - CODE_COLUMNS
 
     def replacer(match):
         table_prefix, column, value = match.group(1), match.group(2), match.group(3)
@@ -90,6 +94,11 @@ async def main():
                 "- Never invent table or column names not listed in the schema below.\n"
                 "- To count distinct patients, use COUNT(DISTINCT patient_ref) from the table that contains patient_ref.\n"
                 "- When grouping by a description column (e.g. snomed_descr), always include it in the SELECT clause so names appear in results.\n"
+                "- When a question mentions a medical specialty (cardiology, rheumatology, etc.), first query g_movements to find the ou_med_ref code for that specialty, then use it as an exact filter.\n"
+                "- When a query returns non-empty results, use them immediately to answer. Do not keep refining or retrying.\n"
+                "- Only return columns that are directly relevant to the question asked. Do not add extra columns like sex, age, or nationality unless explicitly requested.\n"
+                "- When filtering lab_descr, always use LIKE 'term%' (starts with) not LIKE '%term%' (contains) to avoid matching compound tests and ratios.\n"
+                "- Always add ORDER BY to sort results alphabetically by the main description column.\n"
                 "- To get average lab values per diagnosis for a medical unit: always start from g_health_issues, "
                 "LEFT JOIN g_labs on patient_ref, filter g_health_issues.ou_med_ref for the unit and g_labs.lab_descr for the test, "
                 "GROUP BY g_health_issues.snomed_descr.\n\n"
@@ -112,7 +121,7 @@ async def main():
 
                 tool_was_called = False
                 malformed_count = 0
-                for _ in range(6):  # max steps
+                for _ in range(10):  # max steps
                     print("⏳ Thinking...", end="\r", flush=True)
                     response = ollama.chat(model="qwen3.5:9b", messages=messages, tools=ollama_tools)
                     print("             ", end="\r", flush=True)  # clear line
