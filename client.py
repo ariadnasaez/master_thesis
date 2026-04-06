@@ -95,13 +95,30 @@ async def main():
                 "- To count distinct patients, use COUNT(DISTINCT patient_ref) from the table that contains patient_ref.\n"
                 "- When grouping by a description column (e.g. snomed_descr), always include it in the SELECT clause so names appear in results.\n"
                 "- When a question mentions a medical specialty (cardiology, rheumatology, etc.), first query g_movements to find the ou_med_ref code for that specialty, then use it as an exact filter.\n"
+                "- For procedure-based questions: do exactly ONE lookup query using BOTH the procedure type keyword AND the anatomy keyword (e.g. WHERE descr LIKE '%sustitucion%' AND descr LIKE '%cadera%'). Use ALL codes returned by the lookup in code IN (...) in the final query — do not add or remove any codes.\n"
+                "- When a question asks about ingresos or hospitalizations after an event: filter g_episodes with episode_type_ref='HOSP' AND admission_date > event_date (strictly greater — do not include the same day).\n"
                 "- When a query returns non-empty results, use them immediately to answer. Do not keep refining or retrying.\n"
                 "- Only return columns that are directly relevant to the question asked. Do not add extra columns like sex, age, or nationality unless explicitly requested.\n"
                 "- When filtering lab_descr, always use LIKE 'term%' (starts with) not LIKE '%term%' (contains) to avoid matching compound tests and ratios.\n"
                 "- Always add ORDER BY to sort results alphabetically by the main description column.\n"
                 "- To get average lab values per diagnosis for a medical unit: always start from g_health_issues, "
                 "LEFT JOIN g_labs on patient_ref, filter g_health_issues.ou_med_ref for the unit and g_labs.lab_descr for the test, "
-                "GROUP BY g_health_issues.snomed_descr.\n\n"
+                "GROUP BY g_health_issues.snomed_descr.\n"
+                "- TEMPORAL LAB-PROCEDURE QUERIES (first/last lab value before/after a procedure per episode):\n"
+                "  Use a CTE pattern with ROW_NUMBER(). MANDATORY rules:\n"
+                "  1) Join g_procedures to g_labs on BOTH episode_ref AND patient_ref — never patient_ref alone.\n"
+                "  2) Use extrac_date (blood draw time), NOT result_date (report time), when comparing to procedure start_date.\n"
+                "  3) For 'after': filter extrac_date >= start_date. For 'before': filter extrac_date < start_date.\n"
+                "  4) Use ROW_NUMBER() OVER (PARTITION BY episode_ref ORDER BY extrac_date ASC) for first, DESC for last.\n"
+                "  5) Filter WHERE rn = 1 in the outer query.\n"
+                "  Template:\n"
+                "    WITH proc AS (SELECT episode_ref, patient_ref, code, descr, start_date FROM g_procedures WHERE code IN (...)),\n"
+                "         lab AS (SELECT episode_ref, patient_ref, extrac_date, lab_descr, result_num FROM g_labs WHERE lab_descr LIKE 'Term%' AND result_num IS NOT NULL),\n"
+                "         joined AS (SELECT proc.*, lab.extrac_date, lab.lab_descr, lab.result_num,\n"
+                "                    ROW_NUMBER() OVER (PARTITION BY proc.episode_ref ORDER BY lab.extrac_date ASC) AS rn\n"
+                "                    FROM proc JOIN lab ON lab.episode_ref = proc.episode_ref AND lab.patient_ref = proc.patient_ref\n"
+                "                    AND lab.extrac_date >= proc.start_date)\n"
+                "    SELECT episode_ref, code, descr, start_date, lab_descr, result_num, extrac_date FROM joined WHERE rn = 1;\n\n"
                 f"Database schema:\n{schema_text}"
             )
 
@@ -189,12 +206,25 @@ async def main():
                         tool_was_called = True
                         messages.append({"role": "tool", "name": tool_name, "content": result_text})
 
-                # Find the last assistant text message as the answer
+                # If the loop exhausted and the last message is a tool result,
+                # make one final call WITHOUT tools to force a text answer.
                 answer = next(
                     (m["content"] for m in reversed(messages)
                      if m.get("role") == "assistant" and m.get("content")),
                     None
                 )
+                if not answer and tool_was_called:
+                    messages.append({
+                        "role": "user",
+                        "content": "Summarize the results you have so far and answer the original question. Do not call any more tools."
+                    })
+                    print("⏳ Generating final answer...", end="\r", flush=True)
+                    final = ollama.chat(model="qwen3.5:9b", messages=messages)
+                    final_msg = final["message"]
+                    messages.append(final_msg)
+                    answer = final_msg.get("content")
+                    print("                              ", end="\r", flush=True)
+
                 print(f"\n✅ Answer:\n{answer}" if answer else "\n⚠️  No answer returned by model.")
 
 
