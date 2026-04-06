@@ -104,7 +104,7 @@ async def main():
                 "- To get average lab values per diagnosis for a medical unit: always start from g_health_issues, "
                 "LEFT JOIN g_labs on patient_ref, filter g_health_issues.ou_med_ref for the unit and g_labs.lab_descr for the test, "
                 "GROUP BY g_health_issues.snomed_descr.\n"
-                "- TEMPORAL LAB-PROCEDURE QUERIES (first/last lab value before/after a procedure per episode):\n"
+                "- FIRST/LAST LAB VALUE BEFORE/AFTER A PROCEDURE (per episode):\n"
                 "  Use a CTE pattern with ROW_NUMBER(). MANDATORY rules:\n"
                 "  1) Join g_procedures to g_labs on BOTH episode_ref AND patient_ref — never patient_ref alone.\n"
                 "  2) Use extrac_date (blood draw time), NOT result_date (report time), when comparing to procedure start_date.\n"
