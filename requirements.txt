@@ -1,3 +1,4 @@
 fastmcp
 mysql-connector-python
 ollama
+gradio

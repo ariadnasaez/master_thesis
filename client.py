@@ -125,6 +125,12 @@ async def main():
                 "- Calculate age: TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE())\n"
                 "- ALWAYS explicitly JOIN g_demographics — never reference it without joining.\n\n"
 
+                "=== DRUGS / MEDICATIONS ===\n"
+                "- For drug administration questions, use g_administrations. For prescription questions, use g_prescriptions.\n"
+                "- ALWAYS filter by atc_descr (standardized drug name like 'Apixaban'), NEVER by drug_descr (which includes dosage forms like 'APIXABAN, 2,5 MG COMP' and would split one drug into multiple rows).\n"
+                "- Lookup first: SELECT DISTINCT atc_descr FROM g_administrations WHERE atc_descr LIKE '%keyword%'. Then use atc_descr IN (...) in the main query.\n"
+                "- given = 'X' means the drug was actually administered. Filter given = 'X' when the question asks about drugs actually given.\n\n"
+
                 "=== LAB TESTS ===\n"
                 "- Lookup first: SELECT DISTINCT lab_sap_ref, lab_descr, units FROM g_labs WHERE lab_descr LIKE '%keyword%'. Then filter by lab_sap_ref IN (...). Lab names are in Spanish.\n"
                 "- UNIT CONVERSION: When different lab codes have different units, convert with CASE in AVG. HbA1c IFCC→NGSP: (result_num / 10.929) + 2.15. GROUP BY lab_descr.\n\n"
