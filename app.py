@@ -305,11 +305,11 @@ def ask_question(message, history):
         print(f"Error processing question:\n{tb}")
         return f"❌ Error: {tb}"
 
-    # Build response with tool calls shown
+    # Show only the last SQL query executed
     response = ""
     if tool_log:
-        response += "**🔍 SQL queries executed (" + str(len(tool_log)) + "):**\n\n"
-        response += "\n\n".join(tool_log)
+        response += "**🔍 Final SQL query:**\n\n"
+        response += tool_log[-1]
         response += "\n\n---\n\n"
     response += answer
     return response
@@ -333,4 +333,4 @@ demo = gr.ChatInterface(
 )
 
 if __name__ == "__main__":
-    demo.launch(theme=gr.themes.Soft())
+    demo.launch(theme=gr.themes.Soft(), share=True)
