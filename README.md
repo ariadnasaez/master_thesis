@@ -4,7 +4,7 @@ A natural-language interface to a clinical MySQL database, built with the **Mode
 
 ## Overview
 
-This project connects a local LLM ([Qwen 3.5:9B](https://ollama.com/library/qwen3.5) via [Ollama](https://ollama.com)) to a MySQL database containing de-identified clinical data from ~300 patients. The system uses MCP to expose database tools to the LLM, which autonomously writes and executes SQL queries to answer user questions.
+This project connects a local LLM ([Qwen 3.5:9B](https://ollama.com/library/qwen3.5) via [Ollama](https://ollama.com)) to a MySQL database containing de-identified clinical data from 300 patients. The system uses MCP to expose database tools to the LLM, which autonomously writes and executes SQL queries to answer user questions.
 
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
