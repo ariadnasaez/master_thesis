@@ -1,1 +1,25 @@
+# Python
 venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store
+
+# Gradio
+.gradio/
+
+# Clinical data — NEVER commit
+database/*.csv
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+
+# Environment
+.env
