@@ -7,7 +7,71 @@ import ollama
 import json
 import re
 
+CLARIFY_PREFIX = "CLARIFY:"
+CLARIFY_DISPLAY = "🤔 Necesito una aclaración:"
+
 TEXT_TYPES = {"char", "varchar", "text", "mediumtext", "longtext"}
+
+
+def is_ambiguous(question: str) -> dict:
+    """Pre-flight ambiguity check. Calls Ollama WITHOUT tools so the model evaluates ambiguity
+    instead of jumping to execute_query.
+    Returns {"clear": True} or {"clear": False, "clarification": "<question>"}.
+    """
+    prompt = (
+        "Eres un asistente que decide si una pregunta clínica es lo suficientemente clara para responderla con SQL, "
+        "o si requiere UNA aclaración del usuario.\n\n"
+        "Solo pide aclaración en casos EXTREMOS de ambigüedad: cuando la misma palabra se refiere a entidades clínicas "
+        "distintas y NO se puede adivinar la intención. En el 99% de los casos la pregunta es clara.\n\n"
+        "Ejemplos que NECESITAN aclaración:\n"
+        "- 'Cuál es el valor medio de hemoglobina?' → ambigua (Hb total vs HbA1c)\n"
+        "- 'Cuántos diabéticos hay?' → ambigua (tipo 1, tipo 2 o ambos)\n\n"
+        "Ejemplos CLAROS (NO pidas aclaración):\n"
+        "- 'Cuántos ingresos por ictus isquémico hubo en 2024?' → claro\n"
+        "- 'Qué microorganismos se aislaron en hemocultivos positivos?' → claro\n"
+        "- 'Cuál fue la primera troponina tras un cateterismo?' → claro\n"
+        "- 'Pacientes con neumonía atendidos por nefrología' → claro\n"
+        "- 'Cuántas mujeres tienen fibrilación auricular?' → claro\n\n"
+        "Responde SOLO con un objeto JSON con uno de estos dos formatos exactos:\n"
+        '  {"clear": true}\n'
+        '  {"clear": false, "clarification": "<una pregunta corta en el idioma del usuario>"}\n\n'
+        f"Pregunta del usuario: {question}\n"
+        "JSON:"
+    )
+    try:
+        response = ollama.chat(
+            model="qwen3.5:9b",
+            messages=[{"role": "user", "content": prompt}],
+            format="json",
+        )
+        content = (response["message"].get("content") or "").strip()
+        result = json.loads(content)
+        if not isinstance(result, dict):
+            return {"clear": True}
+        return result
+    except Exception:
+        return {"clear": True}
+
+
+def refine_question(original: str, clarification_answer: str) -> str:
+    """Combine the original question with the user's clarification into a single refined question."""
+    prompt = (
+        "Combina la pregunta original con la aclaración del usuario en una sola pregunta refinada. "
+        "Responde SOLO con la pregunta refinada, sin explicaciones, comillas ni prefijos. "
+        "Mantén el mismo idioma que la pregunta original.\n\n"
+        f"Pregunta original: {original}\n"
+        f"Aclaración del usuario: {clarification_answer}\n\n"
+        "Pregunta refinada:"
+    )
+    try:
+        response = ollama.chat(
+            model="qwen3.5:9b",
+            messages=[{"role": "user", "content": prompt}],
+        )
+        refined = (response["message"].get("content") or "").strip().strip('"').strip("'")
+        return refined or f"{original} ({clarification_answer})"
+    except Exception:
+        return f"{original} ({clarification_answer})"
 
 
 def is_text_column(data_type: str) -> bool:
@@ -89,6 +153,20 @@ async def main():
                 "You are a MySQL expert. You MUST always call the execute_query tool to answer questions. "
                 "Never answer from memory. Always run SQL first, then explain the result.\n\n"
 
+                "=== RESPONSE FORMAT (MANDATORY) ===\n"
+                "Answer in 1–3 short sentences in the same language as the user's question. Give ONLY the direct "
+                "answer to what was asked — a single number, a single value, or a short list. Nothing else.\n"
+                "DO NOT:\n"
+                "- list the lookup queries you ran\n"
+                "- show variant codes, lab method names, or schema details\n"
+                "- include sample rows or per-patient data unless explicitly asked\n"
+                "- add normal-range commentary, clinical interpretation, or caveats\n"
+                "- offer follow-up suggestions or 'would you like me to...' menus\n"
+                "- repeat the user's question back to them\n"
+                "If the result is a single aggregate (mean, count, etc.), reply with one sentence: "
+                "'<value> <units>.' That's it.\n"
+                "If the result is a list, reply with the items separated by commas in one sentence.\n\n"
+
                 "=== CRITICAL RULES (read first) ===\n"
                 "1. DIAGNOSIS FILTERING — ALWAYS use g_diagnostics (ICD codes), NOT g_health_issues, as your FIRST choice:\n"
                 "   - Step 1: Lookup ICD codes: SELECT DISTINCT code, diag_descr FROM g_diagnostics WHERE diag_descr LIKE '%keyword1%' OR diag_descr LIKE '%keyword2%'\n"
@@ -169,14 +247,31 @@ async def main():
             print("  GROUNDED MYSQL AGENT")
             print("=" * 60)
 
+            pending_original = None  # set when waiting for the user to answer a clarification
+
             while True:
                 user_input = input("\nAsk: ").strip()
                 if user_input.lower() in ["exit", "quit"]:
                     break
+                if not user_input:
+                    continue
+
+                if pending_original is not None:
+                    refined = refine_question(pending_original, user_input)
+                    print(f"\n📝 Pregunta refinada: {refined}")
+                    question_to_process = refined
+                    pending_original = None
+                else:
+                    check = is_ambiguous(user_input)
+                    if not check.get("clear", True) and check.get("clarification"):
+                        print(f"\n{CLARIFY_DISPLAY} {check['clarification']}")
+                        pending_original = user_input
+                        continue
+                    question_to_process = user_input
 
                 messages = [
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_input},
+                    {"role": "user", "content": question_to_process},
                 ]
 
                 tool_was_called = False

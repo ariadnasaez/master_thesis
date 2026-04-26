@@ -10,6 +10,9 @@ import json
 import re
 import gradio as gr
 
+CLARIFY_PREFIX = "CLARIFY:"
+CLARIFY_DISPLAY = "🤔 **Necesito una aclaración:**"
+
 TEXT_TYPES = {"char", "varchar", "text", "mediumtext", "longtext"}
 
 def is_text_column(data_type: str) -> bool:
@@ -56,6 +59,31 @@ def build_system_prompt(schema_text):
         "You are a MySQL expert. You MUST always call the execute_query tool to answer questions. "
         "Never answer from memory. Always run SQL first, then explain the result.\n\n"
 
+        "=== TWO-STAGE QUERY PATTERN (MANDATORY) ===\n"
+        "Most questions require TWO execute_query calls in sequence:\n"
+        "  1) LOOKUP — find the codes / IDs you need (e.g. SELECT DISTINCT lab_sap_ref ...).\n"
+        "  2) MAIN QUERY — use those codes to actually answer the user (e.g. SELECT AVG(...) WHERE lab_sap_ref IN (...)).\n"
+        "Lookup results are INTERMEDIATE. They are NEVER the final answer to show the user. "
+        "After ANY lookup query, you MUST call execute_query AGAIN with the main aggregation/filter query "
+        "that directly answers the user's question. Only after the main query runs are you allowed to stop.\n"
+        "If you ran a SELECT DISTINCT or any code-discovery query and have not yet computed the aggregate "
+        "(AVG/COUNT/MIN/MAX/etc.) the user asked for, you are NOT done — call execute_query again.\n\n"
+
+        "=== RESPONSE FORMAT (MANDATORY) ===\n"
+        "The final answer must come from the MAIN query result, NEVER from a lookup result.\n"
+        "Answer in 1–3 short sentences in the same language as the user's question. Give ONLY the direct "
+        "answer to what was asked — a single number, a single value, or a short list. Nothing else.\n"
+        "DO NOT:\n"
+        "- list the lookup queries you ran\n"
+        "- show variant codes, lab method names, or schema details\n"
+        "- include sample rows or per-patient data unless explicitly asked\n"
+        "- add normal-range commentary, clinical interpretation, or caveats\n"
+        "- offer follow-up suggestions or 'would you like me to...' menus\n"
+        "- repeat the user's question back to them\n"
+        "If the result is a single aggregate (mean, count, etc.), reply with one sentence: "
+        "'<value> <units>.' That's it.\n"
+        "If the result is a list, reply with the items separated by commas in one sentence.\n\n"
+
         "=== CRITICAL RULES (read first) ===\n"
         "1. DIAGNOSIS FILTERING — ALWAYS use g_diagnostics (ICD codes), NOT g_health_issues, as your FIRST choice:\n"
         "   - Step 1: Lookup ICD codes: SELECT DISTINCT code, diag_descr FROM g_diagnostics WHERE diag_descr LIKE '%keyword1%' OR diag_descr LIKE '%keyword2%'\n"
@@ -66,7 +94,13 @@ def build_system_prompt(schema_text):
         "   - Only use g_health_issues (SNOMED) when the question specifically requires SNOMED codes or when ICD lookup returns nothing.\n"
         "2. LOOKUP EFFICIENCY: Run at most 2 lookup queries total. Combine keywords with OR. If the first lookup returns results, proceed immediately.\n"
         "3. COUNTING ADMISSIONS BY DIAGNOSIS — use this exact pattern:\n"
-        "   SELECT COUNT(DISTINCT e.episode_ref) FROM g_episodes e JOIN g_diagnostics gd ON e.patient_ref = gd.patient_ref AND e.episode_ref = gd.episode_ref WHERE e.episode_type_ref = 'HOSP' AND e.start_date >= 'YYYY-01-01' AND e.start_date < 'YYYY+1-01-01' AND gd.code LIKE 'prefix%'\n\n"
+        "   SELECT COUNT(DISTINCT e.episode_ref) FROM g_episodes e JOIN g_diagnostics gd ON e.patient_ref = gd.patient_ref AND e.episode_ref = gd.episode_ref WHERE e.episode_type_ref = 'HOSP' AND e.start_date >= 'YYYY-01-01' AND e.start_date < 'YYYY+1-01-01' AND gd.code LIKE 'prefix%'\n"
+        "4. NEVER DROP FILTERS FROM THE QUESTION — If the user mentions a clinical condition "
+        "('en pacientes diabéticos', 'con hipertensión', 'con ictus', 'oncológicos', 'con fibrilación auricular', etc.), "
+        "you MUST include a filter for that condition (typically a JOIN with g_diagnostics + ICD code prefix like "
+        "'E10%' or 'E11%' for diabetes, 'I10%' for hypertension, 'I63%' for stroke, 'I48%' for atrial fibrillation, etc.). "
+        "Same for sex ('mujeres' → sex='F'), age, ward, or any other constraint mentioned. "
+        "Dropping any filter from the question changes the meaning of the answer and is WRONG.\n\n"
 
         "=== GENERAL RULES ===\n"
         "- Only SELECT queries are allowed.\n"
@@ -74,7 +108,7 @@ def build_system_prompt(schema_text):
         "- Never invent table or column names not in the schema below.\n"
         "- To count distinct patients, use COUNT(DISTINCT patient_ref).\n"
         "- When grouping by a description column, always include it in SELECT.\n"
-        "- When a query returns non-empty results, use them immediately. Do not keep refining.\n"
+        "- After a lookup, feed the codes into the MAIN query — never describe the lookup to the user.\n"
         "- Only return columns directly relevant to the question.\n"
         "- Do NOT add episode_type_ref = 'HOSP' or g_episodes joins unless the question specifically asks about hospitalizations/ingresos.\n"
         "- Always add ORDER BY to sort results.\n\n"
@@ -100,7 +134,10 @@ def build_system_prompt(schema_text):
 
         "=== LAB TESTS ===\n"
         "- Lookup first: SELECT DISTINCT lab_sap_ref, lab_descr, units FROM g_labs WHERE lab_descr LIKE '%keyword%'. Then filter by lab_sap_ref IN (...). Lab names are in Spanish.\n"
-        "- UNIT CONVERSION: When different lab codes have different units, convert with CASE in AVG. HbA1c IFCC→NGSP: (result_num / 10.929) + 2.15. GROUP BY lab_descr.\n\n"
+        "- UNIT CONVERSION: When different lab codes have different units, convert with CASE inside AVG to unify units "
+        "(e.g. HbA1c IFCC→NGSP: (result_num / 10.929) + 2.15). After unifying units, return a SINGLE AVG WITHOUT GROUP BY — "
+        "the user wants one number, not a per-method breakdown. Only use GROUP BY lab_descr when you genuinely cannot "
+        "convert variants to the same unit.\n\n"
 
         "=== PROCEDURES ===\n"
         "- Lookup codes first: SELECT DISTINCT code, descr FROM g_procedures WHERE descr LIKE '%type%' AND descr LIKE '%anatomy%'. Use ALL returned codes.\n"
@@ -151,6 +188,8 @@ def process_question(user_input, ollama_tools, system_prompt, schema_cache):
 
     tool_was_called = False
     malformed_count = 0
+    lookup_only_nudges = 0
+    last_sql = ""
     for _ in range(10):
         response = ollama.chat(model="qwen3.5:9b", messages=messages, tools=ollama_tools)
         msg = response["message"]
@@ -165,6 +204,23 @@ def process_question(user_input, ollama_tools, system_prompt, schema_cache):
                     "content": "You must call execute_query with a SQL SELECT statement. Do not answer without querying the database."
                 })
                 malformed_count += 1
+                continue
+
+            sql_lower = last_sql.lower()
+            looks_like_lookup = (
+                "select distinct" in sql_lower
+                and not any(agg in sql_lower for agg in ("avg(", "count(", "sum(", "min(", "max("))
+            )
+            if looks_like_lookup and lookup_only_nudges < 1:
+                messages.append({
+                    "role": "user",
+                    "content": (
+                        "That was only a lookup query — it does not answer the user's question. "
+                        "Now call execute_query again with the MAIN query that uses these codes "
+                        "(e.g. AVG/COUNT/etc. with lab_sap_ref IN (...)) to actually answer the question."
+                    )
+                })
+                lookup_only_nudges += 1
                 continue
             break
 
@@ -188,7 +244,8 @@ def process_question(user_input, ollama_tools, system_prompt, schema_cache):
                 malformed_count += 1
                 continue
 
-            tool_log.append(f"🔧 **{tool_name}**\n```sql\n{args.get('query', '')}\n```")
+            last_sql = args.get("query", "")
+            tool_log.append(f"🔧 **{tool_name}**\n```sql\n{last_sql}\n```")
 
             result = _call_tool(tool_name, args)
             result_text = result.content[0].text
@@ -293,20 +350,138 @@ def _run_mcp_loop():
     _loop.run_until_complete(_init_mcp())
 
 
+def _normalize_history(history):
+    """Convert Gradio history (either list of dicts or list of [user, assistant] tuples)
+    into a uniform list of {"role", "content"} dicts.
+    """
+    if not history:
+        return []
+    normalized = []
+    for turn in history:
+        if isinstance(turn, dict):
+            normalized.append({"role": turn.get("role", ""), "content": turn.get("content", "") or ""})
+        elif isinstance(turn, (list, tuple)) and len(turn) >= 2:
+            user_msg, asst_msg = turn[0], turn[1]
+            if user_msg:
+                normalized.append({"role": "user", "content": user_msg})
+            if asst_msg:
+                normalized.append({"role": "assistant", "content": asst_msg})
+    return normalized
+
+
+def _clarification_context(history):
+    """If the last assistant message was a clarification request, return the original user question.
+    Otherwise return None.
+    """
+    norm = _normalize_history(history)
+    if not norm:
+        return None
+    last_asst_idx = None
+    for i in range(len(norm) - 1, -1, -1):
+        if norm[i]["role"] == "assistant":
+            last_asst_idx = i
+            break
+    if last_asst_idx is None:
+        return None
+    if CLARIFY_DISPLAY not in norm[last_asst_idx]["content"]:
+        return None
+    for i in range(last_asst_idx - 1, -1, -1):
+        if norm[i]["role"] == "user":
+            return norm[i]["content"].strip()
+    return None
+
+
+def is_ambiguous(question: str) -> dict:
+    """Pre-flight ambiguity check. Runs a separate Ollama call WITHOUT tools so the model
+    actually evaluates ambiguity instead of jumping to execute_query.
+    Returns {"clear": True} or {"clear": False, "clarification": "<question>"}.
+    """
+    prompt = (
+        "Eres un asistente que decide si una pregunta clínica es lo suficientemente clara para responderla con SQL, "
+        "o si requiere UNA aclaración del usuario.\n\n"
+        "Solo pide aclaración en casos EXTREMOS de ambigüedad: cuando la misma palabra se refiere a entidades clínicas "
+        "distintas y NO se puede adivinar la intención. En el 99% de los casos la pregunta es clara.\n\n"
+        "Ejemplos que NECESITAN aclaración:\n"
+        "- 'Cuál es el valor medio de hemoglobina?' → ambigua (Hb total vs HbA1c)\n"
+        "- 'Cuántos diabéticos hay?' → ambigua (tipo 1, tipo 2 o ambos)\n\n"
+        "Ejemplos CLAROS (NO pidas aclaración):\n"
+        "- 'Cuántos ingresos por ictus isquémico hubo en 2024?' → claro\n"
+        "- 'Qué microorganismos se aislaron en hemocultivos positivos?' → claro\n"
+        "- 'Cuál fue la primera troponina tras un cateterismo?' → claro\n"
+        "- 'Pacientes con neumonía atendidos por nefrología' → claro\n"
+        "- 'Cuántas mujeres tienen fibrilación auricular?' → claro\n\n"
+        "Responde SOLO con un objeto JSON con uno de estos dos formatos exactos:\n"
+        '  {"clear": true}\n'
+        '  {"clear": false, "clarification": "<una pregunta corta en el idioma del usuario>"}\n\n'
+        f"Pregunta del usuario: {question}\n"
+        "JSON:"
+    )
+    try:
+        response = ollama.chat(
+            model="qwen3.5:9b",
+            messages=[{"role": "user", "content": prompt}],
+            format="json",
+        )
+        content = (response["message"].get("content") or "").strip()
+        result = json.loads(content)
+        if not isinstance(result, dict):
+            return {"clear": True}
+        return result
+    except Exception:
+        return {"clear": True}
+
+
+def refine_question(original: str, clarification_answer: str) -> str:
+    """Combine the original question with the user's clarification into a single refined question."""
+    prompt = (
+        "Combina la pregunta original con la aclaración del usuario en una sola pregunta refinada. "
+        "Responde SOLO con la pregunta refinada, sin explicaciones, comillas ni prefijos. "
+        "Mantén el mismo idioma que la pregunta original.\n\n"
+        f"Pregunta original: {original}\n"
+        f"Aclaración del usuario: {clarification_answer}\n\n"
+        "Pregunta refinada:"
+    )
+    response = ollama.chat(
+        model="qwen3.5:9b",
+        messages=[{"role": "user", "content": prompt}],
+    )
+    refined = (response["message"].get("content") or "").strip()
+    return refined.strip('"').strip("'") or f"{original} ({clarification_answer})"
+
+
 def ask_question(message, history):
     """Gradio chat handler. Runs the agent and returns the response."""
     if not agent_state["ready"]:
         return "⏳ Agent is still initializing, please wait..."
 
+    refined_question = None
+    original_question = _clarification_context(history)
+    if original_question:
+        try:
+            refined_question = refine_question(original_question, message)
+        except Exception:
+            refined_question = f"{original_question} ({message})"
+    else:
+        check = is_ambiguous(message)
+        if not check.get("clear", True) and check.get("clarification"):
+            return f"{CLARIFY_DISPLAY} {check['clarification']}"
+
+    question_to_process = refined_question or message
+
     try:
-        answer, tool_log = process_question(message, _ollama_tools, _system_prompt, _schema_cache)
+        answer, tool_log = process_question(question_to_process, _ollama_tools, _system_prompt, _schema_cache)
     except Exception:
         tb = traceback.format_exc()
         print(f"Error processing question:\n{tb}")
         return f"❌ Error: {tb}"
 
-    # Show only the last SQL query executed
+    if answer and answer.strip().startswith(CLARIFY_PREFIX):
+        clarification = answer.strip()[len(CLARIFY_PREFIX):].strip()
+        return f"{CLARIFY_DISPLAY} {clarification}"
+
     response = ""
+    if refined_question:
+        response += f"**📝 Pregunta refinada:** {refined_question}\n\n---\n\n"
     if tool_log:
         response += "**🔍 Final SQL query:**\n\n"
         response += tool_log[-1]
