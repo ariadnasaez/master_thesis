@@ -2,6 +2,7 @@
 # Launches a chat interface where users can ask questions about the database.
 import asyncio
 import threading
+import time
 import traceback
 
 import gradio as gr
@@ -78,6 +79,7 @@ def ask_question(message, history):
     if not agent_state["ready"]:
         return "⏳ Agent is still initializing, please wait..."
 
+    started = time.monotonic()
     try:
         answer, tool_log = run_agent_loop_sync(
             message,
@@ -90,6 +92,14 @@ def ask_question(message, history):
         tb = traceback.format_exc()
         print(f"Error processing question:\n{tb}")
         return f"❌ Error: {tb}"
+    elapsed = time.monotonic() - started
+
+    n_correction = sum(1 for e in tool_log if e.get("correction"))
+    correction_flag = "yes" if n_correction else "no"
+    short_q = (message[:80] + "…") if len(message) > 80 else message
+    print(f"[Q] {short_q}")
+    print(f"[A] {len(tool_log)} tool calls ({n_correction} correction), "
+          f"correction_pass={correction_flag}, total {elapsed:.1f}s")
 
     response = ""
     if tool_log:

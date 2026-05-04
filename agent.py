@@ -12,6 +12,7 @@ Single source of truth for:
 - The LLM tool-calling loop (sync and async variants)
 """
 
+import asyncio
 import json
 import re
 import ollama
@@ -82,7 +83,8 @@ def parse_schema_cache(schema_text: str) -> dict:
 
 
 def build_ollama_tools(mcp_tools_response):
-    """Convert MCP tools response to Ollama tool format. Only exposes execute_query."""
+    """Convert MCP tools response to Ollama tool format. Exposes ALL tools the server publishes
+    (e.g. lookup_codes, list_distinct_values, execute_query) so the LLM can pick the right one."""
     return [
         {
             "type": "function",
@@ -93,20 +95,35 @@ def build_ollama_tools(mcp_tools_response):
             },
         }
         for t in mcp_tools_response.tools
-        if t.name == "execute_query"
     ]
 
 
 def build_system_prompt(schema_text: str) -> str:
     """Build the LLM system prompt with the database schema injected at the end."""
     return (
-        "You are a MySQL expert. You MUST always call the execute_query tool to answer questions. "
-        "Never answer from memory. Always run SQL first, then explain the result.\n\n"
+        "You are a MySQL expert with three tools available. Choose the RIGHT tool for the job. "
+        "Never answer from memory — always run a tool first, then explain the result.\n\n"
+
+        "=== AVAILABLE TOOLS — READ FIRST ===\n"
+        "1. lookup_codes(table, descr_column, keyword) — call this BEFORE filtering on a coded "
+        "column (ICD codes, lab_sap_ref, ou_med_ref, snomed_ref, atc_descr) when the user mentions "
+        "a clinical concept by name. Returns DISTINCT (code, description) pairs. Use plain ASCII "
+        "for the keyword (e.g. 'diabetes' not 'diabéticos').\n"
+        "2. list_distinct_values(table, column) — call this BEFORE filtering on any varchar column "
+        "whose actual stored values you don't know. Avoids guessing 'España' vs 'Espana', "
+        "'Catalunya' vs 'Cataluña', etc. ALWAYS use this for natio_descr, ou_med_descr, "
+        "ou_loc_descr, episode_type_ref, mue_descr, sensitivity, given, etc., before filtering.\n"
+        "3. execute_query(query) — the MAIN SELECT/WITH query that actually answers the user. Call "
+        "this LAST, after any code/value lookups are done. Never guess literals here — every "
+        "filter on a code or string column must be backed by a previous lookup.\n"
+        "Workflow: discover (tools 1 and 2) → answer (tool 3). Most questions need 1–2 lookups "
+        "before the final execute_query.\n\n"
 
         "=== CRITICAL RULES (read first) ===\n"
         "1. DIAGNOSIS FILTERING — ALWAYS use g_diagnostics (ICD codes), NOT g_health_issues, as your FIRST choice:\n"
         "   - Step 1: Lookup ICD codes: SELECT DISTINCT code, diag_descr FROM g_diagnostics WHERE diag_descr LIKE '%keyword1%' OR diag_descr LIKE '%keyword2%'\n"
         "   - Step 2: From the lookup results, identify the common ICD prefix (e.g. I21.3, I21.4 → prefix is 'I21'). In the main query, ALWAYS use code LIKE 'prefix%' — NEVER list individual codes with IN (...). Examples: code LIKE 'I63%' for stroke, 'I21%' for MI, 'E11%' for diabetes tipo 2, 'J18%' for pneumonia. This catches ALL subtypes including ones not yet in the data.\n"
+        "   - GENERAL vs SPECIFIC conditions: when the question names a broad condition (e.g. 'diabéticos', 'cardiopatía', 'enfermedad renal') without a subtype, the lookup will typically return MULTIPLE prefix families (different chapters AND legacy 3-digit ICD-9 families that coexist with ICD-10). Use ALL the prefix families found, joined with OR. Only narrow to one prefix when the question explicitly names a subtype (e.g. 'tipo 2', 'isquémico', 'fase 5').\n"
         "   - NEVER add diag_descr LIKE '%keyword%' as a fallback alongside the code filter. Description matching catches unrelated conditions (e.g. '%miocardio%' matches miocardiopatía and infarto antiguo, not just acute MI). The ICD prefix alone is sufficient and more precise.\n"
         "   - Step 3: Join g_diagnostics to g_episodes on BOTH patient_ref AND episode_ref.\n"
         "   - NEVER use g_health_issues for counting admissions — its episode_ref is DOUBLE and incompatible with g_episodes.\n"
@@ -133,7 +150,11 @@ def build_system_prompt(schema_text: str) -> str:
         "- Always add ORDER BY to sort results.\n"
         "- PARENTHESES: when mixing OR and AND in a WHERE clause, ALWAYS wrap the OR group in parentheses. "
         "AND binds tighter than OR, so missing parens silently change the query meaning. "
-        "Example: WHERE (code LIKE 'E10%' OR code LIKE 'E11%') AND lab_sap_ref IN (...).\n\n"
+        "Example: WHERE (code LIKE 'E10%' OR code LIKE 'E11%') AND lab_sap_ref IN (...).\n"
+        "- DATE DURATION: for length-of-stay or any 'how many days' filter, use DATEDIFF(end, start) or "
+        "TIMESTAMPDIFF(DAY, start, end). NEVER write (end_date - start_date) — in MySQL that returns a numeric "
+        "expression, NOT days, and silently produces wrong results. "
+        "Example: DATEDIFF(e.end_date, e.start_date) > 7 (admission longer than 7 days).\n\n"
 
         "=== MEDICAL SPECIALTY FILTER ===\n"
         "- 'Problemas de [specialty]' / 'pacientes de [specialty]' / 'diagnosed by' → use g_health_issues filtered by ou_med_ref. This gives all health issues recorded by that specialty. Do NOT search for ICD codes manually — just filter ou_med_ref.\n"
@@ -156,10 +177,12 @@ def build_system_prompt(schema_text: str) -> str:
 
         "=== LAB TESTS ===\n"
         "- Lookup first: SELECT DISTINCT lab_sap_ref, lab_descr, units FROM g_labs WHERE lab_descr LIKE '%keyword%'. Then filter by lab_sap_ref IN (...). Lab names are in Spanish.\n"
-        "- UNIT CONVERSION: When different lab codes have different units, convert with CASE inside AVG to unify "
-        "(e.g. HbA1c IFCC→NGSP: (result_num / 10.929) + 2.15). After unifying units, return a SINGLE AVG WITHOUT "
-        "GROUP BY — one number, not a per-method breakdown. Only use GROUP BY lab_descr if you genuinely cannot "
-        "unify variants to the same unit.\n"
+        "- UNIT CONVERSION: The lookup query (SELECT DISTINCT lab_sap_ref, lab_descr, units …) returns the units column "
+        "specifically so you can spot heterogeneous units. If two or more rows have different units (e.g. % vs mmol/mol, "
+        "mg/dL vs mmol/L), you MUST convert with a CASE inside AVG to unify them BEFORE averaging — averaging across "
+        "different units produces meaningless numbers. Branch the CASE on the lab_sap_ref values that the lookup returned, "
+        "not on the units column. Known conversion: HbA1c IFCC (mmol/mol) → NGSP (%): (result_num / 10.929) + 2.15. "
+        "After unifying, return a SINGLE AVG WITHOUT GROUP BY — one number, not a per-method breakdown.\n"
         "- LAB + CHRONIC CONDITION (diabetes, hipertensión, CKD, etc.): filter patients via subquery, NOT a JOIN. "
         "Use: WHERE l.patient_ref IN (SELECT DISTINCT patient_ref FROM g_diagnostics WHERE code LIKE 'X%'). "
         "Joining on episode_ref restricts to labs in the same encounter as the diagnosis, which is wrong for "
@@ -188,11 +211,122 @@ def build_system_prompt(schema_text: str) -> str:
         "=== LOCATION-BASED QUESTIONS ===\n"
         "- Use g_movements for ward/location questions. Lookup: SELECT DISTINCT ou_loc_ref, ou_loc_descr FROM g_movements WHERE ou_loc_descr LIKE '%keyword%'. Filter by ou_loc_ref.\n\n"
 
-        "=== HOSPITALIZATION RULES ===\n"
-        "- 'ingresos' or 'hospitalizations' → filter g_episodes.episode_type_ref = 'HOSP'.\n"
+        "=== EPISODE TYPE RULES ===\n"
+        "- All encounter/visit/episode questions go through g_episodes — there is NO separate g_encounters table. "
+        "Filter by g_episodes.episode_type_ref to pick the right kind of encounter:\n"
+        "  • 'ingresos' / 'hospitalizations' / 'hospitalizados' → episode_type_ref = 'HOSP'\n"
+        "  • 'ambulatorios' / 'consulta externa' / 'visita externa' → episode_type_ref = 'AM'\n"
+        "  • 'urgencias' / 'emergencias' / 'emergency' → episode_type_ref = 'EM'\n"
+        "- If the question doesn't specify an encounter type, do NOT filter on episode_type_ref at all.\n"
         "- After an event → e.start_date > event_date (strictly greater).\n\n"
 
         f"Database schema:\n{schema_text}"
+    )
+
+
+def _verify_answer(messages, answer, model):
+    """Explicit verify pass. Asks the model to re-check whether its answer correctly addresses
+    the user's question, given the tool calls and results so far. Returns the (possibly revised)
+    answer.
+
+    Adds one extra LLM call per question. No tool calls allowed in the verify pass — the model
+    can only restate, refine, or flag the answer.
+    """
+    verify_messages = messages + [
+        {"role": "user", "content": (
+            "VERIFY YOUR ANSWER (this is a verification pass — do NOT call any more tools).\n"
+            "Check carefully:\n"
+            "1. Does your answer address the user's ORIGINAL question precisely "
+            "(not a related but different one)?\n"
+            "2. Did you apply EVERY filter mentioned in the question "
+            "(sex, condition, year, specialty, location, etc.)?\n"
+            "3. Are the codes/values you used the correct ones from the lookup results?\n"
+            "4. If the question asks for a count, average, or list, is that exactly what you returned?\n\n"
+            "If correct, RESTATE the answer concisely with no preamble.\n"
+            "If you spot an error, reply: 'CORRECTION NEEDED: <one sentence describing what is wrong>'."
+        )}
+    ]
+    try:
+        response = ollama.chat(
+            model=model,
+            messages=verify_messages,
+            options=LLM_OPTIONS,
+            keep_alive=LLM_KEEP_ALIVE,
+        )
+        verified = (response["message"].get("content") or "").strip()
+        return verified or answer
+    except Exception:
+        return answer
+
+
+CORRECTION_MARKER = "CORRECTION NEEDED"
+MAX_CORRECTION_STEPS = 3
+
+
+def _needs_correction(verify_result: str) -> bool:
+    return bool(verify_result) and verify_result.strip().upper().startswith(CORRECTION_MARKER)
+
+
+def _correction_user_message(verify_result: str) -> dict:
+    return {
+        "role": "user",
+        "content": (
+            f"Verification flagged your answer: {verify_result}\n"
+            "Use additional tool calls if needed (lookup_codes, list_distinct_values, execute_query) "
+            "to fix this, then provide the corrected answer. Do not run verify again."
+        ),
+    }
+
+
+def _run_correction_pass_sync(messages, ollama_tools, call_tool, model, tool_log,
+                              max_steps=MAX_CORRECTION_STEPS):
+    """After a failed verify, give the agent a bounded chance to fix its answer.
+    Mirrors the main loop body but caps iterations and tags tool_log entries as 'correction'.
+    """
+    for _ in range(max_steps):
+        response = ollama.chat(
+            model=model, messages=messages, tools=ollama_tools,
+            options=LLM_OPTIONS, keep_alive=LLM_KEEP_ALIVE,
+        )
+        msg = response["message"]
+        messages.append(msg)
+        if not msg.get("tool_calls"):
+            return  # revised text answer produced, exit
+        for tool_call in msg["tool_calls"]:
+            tool_name, args, ok = _validate_tool_args(tool_call)
+            if not ok:
+                continue
+            tool_log.append({"name": tool_name, "args": args, "correction": True})
+            result_text = call_tool(tool_name, args)
+            messages.append({"role": "tool", "name": tool_name, "content": result_text})
+
+
+async def _run_correction_pass_async(messages, ollama_tools, call_tool, model, tool_log,
+                                     max_steps=MAX_CORRECTION_STEPS):
+    """Async twin of _run_correction_pass_sync."""
+    for _ in range(max_steps):
+        response = await _ollama_chat_async(
+            model=model, messages=messages, tools=ollama_tools,
+            options=LLM_OPTIONS, keep_alive=LLM_KEEP_ALIVE,
+        )
+        msg = response["message"]
+        messages.append(msg)
+        if not msg.get("tool_calls"):
+            return
+        for tool_call in msg["tool_calls"]:
+            tool_name, args, ok = _validate_tool_args(tool_call)
+            if not ok:
+                continue
+            tool_log.append({"name": tool_name, "args": args, "correction": True})
+            result_text = await call_tool(tool_name, args)
+            messages.append({"role": "tool", "name": tool_name, "content": result_text})
+
+
+def _extract_last_assistant_answer(messages):
+    return next(
+        (m["content"] for m in reversed(messages)
+         if m.get("role") == "assistant" and m.get("content")),
+        None,
     )
 
 
@@ -246,6 +380,29 @@ def _next_step(messages, ollama_tools, model, tool_was_called, malformed_count):
     return msg, ("tool_calls", msg["tool_calls"])
 
 
+async def _ollama_chat_async(model, messages, tools=None, options=None, keep_alive=None):
+    """Run ollama.chat in a thread executor so the event loop stays free and asyncio.wait_for can fire."""
+    loop = asyncio.get_event_loop()
+    kwargs = {"model": model, "messages": messages, "options": options, "keep_alive": keep_alive}
+    if tools is not None:
+        kwargs["tools"] = tools
+    return await loop.run_in_executor(None, lambda: ollama.chat(**kwargs))
+
+
+async def _next_step_async(messages, ollama_tools, model, tool_was_called, malformed_count):
+    """Async twin of _next_step — ollama.chat runs in a thread so the event loop stays responsive."""
+    response = await _ollama_chat_async(
+        model=model, messages=messages, tools=ollama_tools,
+        options=LLM_OPTIONS, keep_alive=LLM_KEEP_ALIVE,
+    )
+    msg = response["message"]
+    if not msg.get("tool_calls"):
+        if not tool_was_called:
+            return msg, ("nudge_no_tool",)
+        return msg, ("done",)
+    return msg, ("tool_calls", msg["tool_calls"])
+
+
 def _validate_tool_args(tool_call):
     """Unwrap and validate tool call args. Returns (tool_name, args, ok). If not ok, args is the failure reason."""
     tool_name = tool_call["function"]["name"]
@@ -280,10 +437,13 @@ def run_agent_loop_sync(user_input,
                         ollama_tools,
                         call_tool,
                         model=DEFAULT_MODEL,
-                        max_steps=MAX_AGENT_STEPS):
+                        max_steps=MAX_AGENT_STEPS,
+                        verify=True):
     """LLM tool-calling loop with a SYNC tool caller.
 
     call_tool: callable (tool_name: str, args: dict) -> result_text: str
+    verify: if True, run an explicit verify pass after the answer is produced (+1 LLM call).
+            Disable to measure baseline cost without verification.
     Returns: (answer: str, tool_log: list[dict])
     Each tool_log entry is {"name": str, "args": dict}.
     """
@@ -306,7 +466,7 @@ def run_agent_loop_sync(user_input,
             if malformed_count >= 2:
                 return "⚠️ Model failed to produce a valid tool call. Try rephrasing.", tool_log
             messages.append({"role": "user",
-                             "content": "You must call execute_query with a SQL SELECT statement. Do not answer without querying the database."})
+                             "content": "You must call one of the available tools (lookup_codes, list_distinct_values, or execute_query) before answering. Do not respond from memory."})
             malformed_count += 1
             continue
 
@@ -349,6 +509,15 @@ def run_agent_loop_sync(user_input,
         )
         answer = final["message"].get("content")
 
+    if verify and answer and tool_was_called:
+        verify_result = _verify_answer(messages, answer, model)
+        if _needs_correction(verify_result):
+            messages.append(_correction_user_message(verify_result))
+            _run_correction_pass_sync(messages, ollama_tools, call_tool, model, tool_log)
+            answer = _extract_last_assistant_answer(messages) or verify_result
+        else:
+            answer = verify_result or answer
+
     return answer or "⚠️ No answer returned by model.", tool_log
 
 
@@ -358,10 +527,13 @@ async def run_agent_loop_async(user_input,
                                ollama_tools,
                                call_tool,
                                model=DEFAULT_MODEL,
-                               max_steps=MAX_AGENT_STEPS):
+                               max_steps=MAX_AGENT_STEPS,
+                               verify=True):
     """LLM tool-calling loop with an ASYNC tool caller.
 
     call_tool: async callable (tool_name: str, args: dict) -> result_text: str
+    verify: if True, run an explicit verify pass after the answer is produced (+1 LLM call).
+            Disable to measure baseline cost without verification.
     Returns: (answer: str, tool_log: list[dict])
     """
     tool_log = []
@@ -373,7 +545,7 @@ async def run_agent_loop_async(user_input,
     malformed_count = 0
 
     for _ in range(max_steps):
-        msg, action = _next_step(messages, ollama_tools, model, tool_was_called, malformed_count)
+        msg, action = await _next_step_async(messages, ollama_tools, model, tool_was_called, malformed_count)
         messages.append(msg)
 
         if action[0] == "done":
@@ -383,7 +555,7 @@ async def run_agent_loop_async(user_input,
             if malformed_count >= 2:
                 return "⚠️ Model failed to produce a valid tool call. Try rephrasing.", tool_log
             messages.append({"role": "user",
-                             "content": "You must call execute_query with a SQL SELECT statement. Do not answer without querying the database."})
+                             "content": "You must call one of the available tools (lookup_codes, list_distinct_values, or execute_query) before answering. Do not respond from memory."})
             malformed_count += 1
             continue
 
@@ -417,12 +589,22 @@ async def run_agent_loop_async(user_input,
     if not answer and tool_was_called:
         messages.append({"role": "user",
                          "content": "Summarize the results you have so far and answer the original question. Do not call any more tools."})
-        final = ollama.chat(
+        final = await _ollama_chat_async(
             model=model,
             messages=messages,
             options=LLM_OPTIONS,
             keep_alive=LLM_KEEP_ALIVE,
         )
         answer = final["message"].get("content")
+
+    if verify and answer and tool_was_called:
+        loop = asyncio.get_event_loop()
+        verify_result = await loop.run_in_executor(None, lambda: _verify_answer(messages, answer, model))
+        if _needs_correction(verify_result):
+            messages.append(_correction_user_message(verify_result))
+            await _run_correction_pass_async(messages, ollama_tools, call_tool, model, tool_log)
+            answer = _extract_last_assistant_answer(messages) or verify_result
+        else:
+            answer = verify_result or answer
 
     return answer or "⚠️ No answer returned by model.", tool_log

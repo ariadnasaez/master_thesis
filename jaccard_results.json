@@ -1,0 +1,447 @@
+{
+  "questions_evaluated": 23,
+  "runs_per_question": 1,
+  "mean_accuracy_sql_jaccard": 0.5313959716988789,
+  "mean_accuracy_rows_jaccard": 0.2608695652173913,
+  "mean_elapsed_seconds_per_question": 225.67,
+  "total_elapsed_seconds": 5190.4,
+  "per_question": [
+    {
+      "id": 1,
+      "question": "¿Cuántos pacientes hay en la base de datos?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.8,
+      "accuracy_rows_jaccard": 1.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        39.2
+      ],
+      "mean_elapsed_seconds": 39.2,
+      "agent_sqls": [
+        "SELECT COUNT(DISTINCT patient_ref) AS total_patients FROM g_demographics"
+      ],
+      "agent_row_counts": [
+        1
+      ]
+    },
+    {
+      "id": 2,
+      "question": "¿Cuántas mujeres con diabetes tipo 2 hay en la base de datos?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.6785714285714286,
+      "accuracy_rows_jaccard": 1.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        95.2
+      ],
+      "mean_elapsed_seconds": 95.2,
+      "agent_sqls": [
+        "SELECT COUNT(DISTINCT d.patient_ref) AS women_with_type2_diabetes\nFROM g_diagnostics gd\nJOIN g_demographics d ON d.patient_ref = gd.patient_ref\nWHERE gd.code LIKE 'E11%'\nAND d.sex = 2"
+      ],
+      "agent_row_counts": [
+        1
+      ]
+    },
+    {
+      "id": 3,
+      "question": "¿Cuántos pacientes españoles hay en la base de datos?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.8571428571428571,
+      "accuracy_rows_jaccard": 1.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        74.27
+      ],
+      "mean_elapsed_seconds": 74.27,
+      "agent_sqls": [
+        "SELECT COUNT(DISTINCT patient_ref) AS spanish_patients_count FROM g_demographics WHERE natio_descr = 'Espana'"
+      ],
+      "agent_row_counts": [
+        1
+      ]
+    },
+    {
+      "id": 4,
+      "question": "¿Cuál es el valor medio de PCR para cada problemas de salud codificado por reumatologia?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.3958333333333333,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        130.63
+      ],
+      "mean_elapsed_seconds": 130.63,
+      "agent_sqls": [
+        "SELECT hi.snomed_descr, AVG(l.result_num) AS avg_pcr\nFROM g_health_issues hi\nJOIN g_labs l ON hi.patient_ref = l.patient_ref\nWHERE hi.ou_med_ref = 'RMT'\n  AND l.lab_sap_ref = 'LAB2575'\n  AND l.result_num IS NOT NULL\nGROUP BY hi.snomed_descr\nORDER BY avg_pcr DESC"
+      ],
+      "agent_row_counts": [
+        2
+      ]
+    },
+    {
+      "id": 5,
+      "question": "En pacientes sometidos a un cateterismo cardíaco, ¿cuál es el primer valor de troponina medido después del procedimiento en cada episodio?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.7419354838709677,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        151.98
+      ],
+      "mean_elapsed_seconds": 151.98,
+      "agent_sqls": [
+        "WITH proc AS (\n  SELECT episode_ref, patient_ref, code, descr, start_date\n  FROM g_procedures\n  WHERE code IN ('37.21', '37.22')\n),\nlab AS (\n  SELECT episode_ref, patient_ref, extrac_date, lab_descr, result_num\n  FROM g_labs\n  WHERE lab_sap_ref IN ('LABTROPSU', 'LAB2967', 'LABTPNAS')\n  AND result_num IS NOT NULL\n),\njoined AS (\n  SELECT \n    proc.episode_ref,\n    proc.patient_ref,\n    proc.start_date,\n    lab.extrac_date,\n    lab.lab_descr,\n    lab.result_num,\n    ROW_NUMBER() OVER (PARTITION BY proc.episode_ref ORDER BY lab.extrac_date ASC) AS rn\n  FROM proc\n  JOIN lab ON lab.episode_ref = proc.episode_ref \n    AND lab.patient_ref = proc.patient_ref\n    AND lab.extrac_date >= proc.start_date\n)\nSELECT episode_ref, patient_ref, lab_descr, result_num, extrac_date\nFROM joined\nWHERE rn = 1\nORDER BY episode_ref"
+      ],
+      "agent_row_counts": [
+        5
+      ]
+    },
+    {
+      "id": 6,
+      "question": "¿Qué pacientes han tenido un ingreso dentro de los tres meses posteriores a un recambio de cadera o rodilla?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.3404255319148936,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        485.76
+      ],
+      "mean_elapsed_seconds": 485.76,
+      "agent_sqls": [
+        "SELECT DISTINCT \n    e.patient_ref,\n    d.sex,\n    d.natio_descr,\n    d.health_area,\n    p.code,\n    p.descr,\n    p.start_date AS procedure_date,\n    e.start_date AS hospitalization_date,\n    e.end_date\nFROM g_procedures p\nJOIN g_episodes e ON p.patient_ref = e.patient_ref\nJOIN g_demographics d ON e.patient_ref = d.patient_ref\nWHERE p.code IN ('81.51', '81.52', '0SRE01Z', '0SRR01A', '0SR904A', '0SRA01Z', '0SR902A', '0SRR01Z', '0SRB02A', '0SRC0J9', '0SRD0J9', '0SRC0L9', '0SRD0N9', '0SRC069', '0SRD0L9', '0SRW0J9', '0SRD069', '81.54', '81.55')\nAND e.episode_type_ref = 'HOSP'\nAND e.start_date >= p.start_date\nAND e.start_date <= DATE_ADD(p.start_date, INTERVAL 3 MONTH)\nORDER BY e.patient_ref, e.start_date"
+      ],
+      "agent_row_counts": [
+        9
+      ]
+    },
+    {
+      "id": 7,
+      "question": "En pacientes con diagnóstico de glaucoma, ¿qué procedimientos quirúrgicos relacionados con glaucoma han sido realizados y cuándo ocurrieron en relación con el diagnóstico?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.28,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        431.67
+      ],
+      "mean_elapsed_seconds": 431.67,
+      "agent_sqls": [
+        "SELECT DISTINCT\n    e.episode_ref,\n    e.patient_ref,\n    gd.diag_descr AS diagnosis_description,\n    e.start_date AS diagnosis_date,\n    p.start_date AS procedure_date,\n    p.code AS procedure_code,\n    p.descr AS procedure_description,\n    TIMESTAMPDIFF(DAY, e.start_date, p.start_date) AS days_after_diagnosis\nFROM g_episodes e\nJOIN g_diagnostics gd ON e.patient_ref = gd.patient_ref AND e.episode_ref = gd.episode_ref\nJOIN g_procedures p ON e.patient_ref = p.patient_ref AND e.episode_ref = p.episode_ref\nWHERE gd.code LIKE 'H40%'\n    AND p.code IN ('12.64', '12.91', '08133J4', '08123J4', '08133Z4', '089330Z', '08923ZX', '12.67', '12.21')\nORDER BY e.patient_ref, e.start_date, p.start_date"
+      ],
+      "agent_row_counts": [
+        17
+      ]
+    },
+    {
+      "id": 8,
+      "question": "¿Qué valor medio tienen de HbA1c los diabéticos tipo 2 atendidos por endocrinología?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.3793103448275862,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        193.29
+      ],
+      "mean_elapsed_seconds": 193.29,
+      "agent_sqls": [
+        "SELECT AVG(l.result_num) AS avg_hba1c\nFROM g_labs l\nWHERE l.lab_sap_ref IN ('LABHG1', 'LABHG2', 'LABHG3', 'LAB1368')\n  AND l.ou_med_ref = 'END'\n  AND l.patient_ref IN (\n    SELECT DISTINCT patient_ref\n    FROM g_diagnostics\n    WHERE code LIKE 'E11%'\n  )"
+      ],
+      "agent_row_counts": [
+        1
+      ]
+    },
+    {
+      "id": 9,
+      "question": "¿Cuantos ingresos por ictus isquemico hubo en 2024?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.0,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        225.09
+      ],
+      "mean_elapsed_seconds": 225.09,
+      "agent_sqls": [
+        ""
+      ],
+      "agent_row_counts": [
+        0
+      ]
+    },
+    {
+      "id": 10,
+      "question": "¿Cuantos pacientes estuvieron hospitalizados por neumonia mas de 2 dias en 2025?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.6862745098039216,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        188.77
+      ],
+      "mean_elapsed_seconds": 188.77,
+      "agent_sqls": [
+        "SELECT COUNT(DISTINCT e.patient_ref) AS patient_count\nFROM g_episodes e\nJOIN g_diagnostics gd ON e.patient_ref = gd.patient_ref AND e.episode_ref = gd.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\nAND e.start_date >= '2025-01-01'\nAND e.start_date < '2026-01-01'\nAND (gd.code LIKE 'J13%' OR gd.code LIKE 'J18%' OR gd.code = '486')\nAND TIMESTAMPDIFF(DAY, e.start_date, e.end_date) > 2"
+      ],
+      "agent_row_counts": [
+        1
+      ]
+    },
+    {
+      "id": 11,
+      "question": "¿Cual es el valor maximo y valor minimo de creatinina encontrado en pacientes de entre 50 y 70 años con enfermedad renal crónica?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.68,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        236.05
+      ],
+      "mean_elapsed_seconds": 236.05,
+      "agent_sqls": [
+        "SELECT MIN(l.result_num) AS min_creatinina, MAX(l.result_num) AS max_creatinina\nFROM g_labs l\nJOIN g_demographics d ON d.patient_ref = l.patient_ref\nWHERE l.lab_sap_ref = 'LAB2467'\nAND l.patient_ref IN (\n  SELECT DISTINCT patient_ref \n  FROM g_diagnostics \n  WHERE code LIKE 'N18%'\n)\nAND TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE()) BETWEEN 50 AND 70"
+      ],
+      "agent_row_counts": [
+        1
+      ]
+    },
+    {
+      "id": 12,
+      "question": "¿Cuántos pacientes mayores de 65 años fueron sometidos a colecistectomía laparoscópica en 2024?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.825,
+      "accuracy_rows_jaccard": 1.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        110.01
+      ],
+      "mean_elapsed_seconds": 110.01,
+      "agent_sqls": [
+        "SELECT COUNT(DISTINCT e.patient_ref) AS patient_count\nFROM g_procedures p\nJOIN g_episodes e ON e.patient_ref = p.patient_ref AND e.episode_ref = p.episode_ref\nJOIN g_demographics d ON d.patient_ref = e.patient_ref\nWHERE p.code = '51.23'\n  AND e.start_date >= '2024-01-01'\n  AND e.start_date < '2025-01-01'\n  AND TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE()) > 65"
+      ],
+      "agent_row_counts": [
+        1
+      ]
+    },
+    {
+      "id": 13,
+      "question": "¿Cuál  es el valor medio de Hb1Ac en pacientes diabéticos?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.68,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        162.47
+      ],
+      "mean_elapsed_seconds": 162.47,
+      "agent_sqls": [
+        "SELECT AVG(CASE WHEN units = 'mmol/mol' THEN (result_num / 10.929) + 2.15 ELSE result_num END) AS avg_hba1c FROM g_labs l WHERE l.lab_sap_ref IN ('LABHG1', 'LABHG2', 'LABHG3', 'LAB1368') AND l.patient_ref IN (SELECT DISTINCT patient_ref FROM g_diagnostics WHERE code LIKE 'E10%' OR code LIKE 'E11%')"
+      ],
+      "agent_row_counts": [
+        1
+      ]
+    },
+    {
+      "id": 14,
+      "question": "¿Cuál es el valor medio de potasio en sangre en pacientes ingresados por insuficiencia cardíaca?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.5094339622641509,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        591.66
+      ],
+      "mean_elapsed_seconds": 591.66,
+      "agent_sqls": [
+        "SELECT DISTINCT l.lab_sap_ref, l.lab_descr, l.units, AVG(l.result_num) AS avg_val FROM g_labs l WHERE l.patient_ref IN (SELECT DISTINCT gd.patient_ref FROM g_diagnostics gd JOIN g_episodes e ON gd.patient_ref = e.patient_ref AND gd.episode_ref = e.episode_ref WHERE e.episode_type_ref = 'HOSP' AND gd.code LIKE 'I50%') GROUP BY l.lab_sap_ref, l.lab_descr, l.units"
+      ],
+      "agent_row_counts": [
+        796
+      ]
+    },
+    {
+      "id": 16,
+      "question": "¿Cuántos ingresos por enfermedad renal crónica duraron más de una semana?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.8787878787878788,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        93.82
+      ],
+      "mean_elapsed_seconds": 93.82,
+      "agent_sqls": [
+        "SELECT COUNT(DISTINCT e.episode_ref) AS hospitalization_count\nFROM g_episodes e\nJOIN g_diagnostics gd ON e.patient_ref = gd.patient_ref AND e.episode_ref = gd.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\nAND gd.code LIKE 'N18%'\nAND (e.end_date - e.start_date) > 7"
+      ],
+      "agent_row_counts": [
+        1
+      ]
+    },
+    {
+      "id": 17,
+      "question": "¿Cuántas mujeres tienen diagnóstico de fibrilación o flutter auricular?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.38636363636363635,
+      "accuracy_rows_jaccard": 1.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        137.81
+      ],
+      "mean_elapsed_seconds": 137.81,
+      "agent_sqls": [
+        "SELECT COUNT(DISTINCT d.patient_ref) AS women_count\nFROM g_diagnostics d\nJOIN g_episodes e ON d.patient_ref = e.patient_ref AND d.episode_ref = e.episode_ref\nJOIN g_demographics dem ON d.patient_ref = dem.patient_ref\nWHERE d.code IN ('I48.0', 'I48.19', 'I48.20', 'I48.21', 'I48.3', 'I48.91', 'I48.92', '427.31')\nAND dem.sex = 2"
+      ],
+      "agent_row_counts": [
+        1
+      ]
+    },
+    {
+      "id": 18,
+      "question": "¿Qué microorganismos se aislaron en hemocultivos positivos de pacientes hospitalizados y cuántos pacientes afectó cada uno?",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.9411764705882353,
+      "accuracy_rows_jaccard": 1.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        146.96
+      ],
+      "mean_elapsed_seconds": 146.96,
+      "agent_sqls": [
+        "SELECT \n    m.micro_descr,\n    COUNT(DISTINCT m.patient_ref) AS patients_count\nFROM g_micro m\nJOIN g_episodes e ON m.patient_ref = e.patient_ref AND m.episode_ref = e.episode_ref\nWHERE m.mue_descr = 'Hemocultiu' \n    AND m.positive = 'X'\n    AND e.episode_type_ref = 'HOSP'\nGROUP BY m.micro_descr\nORDER BY patients_count DESC"
+      ],
+      "agent_row_counts": [
+        18
+      ]
+    },
+    {
+      "id": 20,
+      "question": "Muestra los episodios de pacientes hospitalizados a cargo de cardiología en el año 2023.",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.3953488372093023,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        311.03
+      ],
+      "mean_elapsed_seconds": 311.03,
+      "agent_sqls": [
+        "SELECT DISTINCT e.episode_ref, e.patient_ref, e.start_date, e.end_date, e.episode_type_ref, m.ou_med_ref, m.ou_med_descr\nFROM g_episodes e\nJOIN g_movements m ON e.patient_ref = m.patient_ref AND e.episode_ref = m.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\nAND e.start_date >= '2023-01-01'\nAND e.start_date < '2024-01-01'\nAND m.ou_med_ref = 'CAR'\nORDER BY e.start_date"
+      ],
+      "agent_row_counts": [
+        18
+      ]
+    },
+    {
+      "id": 21,
+      "question": "Muestra la cantidad de episodios con diagnóstico de infarto agudo de miocardio por cada mes, focalizándose en episodios de hospitalización que ingresan en el año 2023.",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.4067796610169492,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        117.82
+      ],
+      "mean_elapsed_seconds": 117.82,
+      "agent_sqls": [
+        "SELECT \n    DATE_FORMAT(e.start_date, '%Y-%m') AS mes,\n    COUNT(DISTINCT e.episode_ref) AS cantidad_episodios\nFROM g_episodes e\nJOIN g_diagnostics gd ON e.patient_ref = gd.patient_ref AND e.episode_ref = gd.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\n    AND e.start_date >= '2023-01-01'\n    AND e.start_date < '2024-01-01'\n    AND gd.code LIKE 'I21%'\nGROUP BY DATE_FORMAT(e.start_date, '%Y-%m')\nORDER BY mes"
+      ],
+      "agent_row_counts": [
+        3
+      ]
+    },
+    {
+      "id": 22,
+      "question": "Muestra una fila por cada combinación de paciente con Diabetes Mellitus (DM) y su tipo de DM. Centrate solamente en pacientes ambulatorios (consulta externa)",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.2830188679245283,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        543.03
+      ],
+      "mean_elapsed_seconds": 543.03,
+      "agent_sqls": [
+        "SELECT DISTINCT \n    d.patient_ref,\n    d.code,\n    d.diag_descr,\n    e.date,\n    e.encounter_type\nFROM g_diagnostics d\nJOIN g_encounters e ON d.patient_ref = e.patient_ref AND d.episode_ref = e.episode_ref\nWHERE d.code LIKE 'E10%' OR d.code LIKE 'E11%'\nORDER BY d.patient_ref, d.code"
+      ],
+      "agent_row_counts": [
+        2413
+      ]
+    },
+    {
+      "id": 23,
+      "question": "Muestra una fila por cada combinación de microbio y antibiótico con el nombre del microbio, el nombre del antibiótico y la cantidad de veces que esa combinación de microbio y antibiótico ha sido probada en los antibiogramas.",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.5454545454545454,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        278.62
+      ],
+      "mean_elapsed_seconds": 278.62,
+      "agent_sqls": [
+        "SELECT micro_descr, antibiotic_descr, COUNT(*) as count\nFROM g_antibiograms\nGROUP BY micro_descr, antibiotic_descr\nORDER BY count DESC"
+      ],
+      "agent_row_counts": [
+        510
+      ]
+    },
+    {
+      "id": 25,
+      "question": "Muestra una tabla de episodios de urgencias que sucedieron en abril de 2020 con la edad del paciente al inicio del episodio en años.",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.5,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        112.05
+      ],
+      "mean_elapsed_seconds": 112.05,
+      "agent_sqls": [
+        "SELECT \n    e.episode_ref,\n    e.start_date,\n    TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE()) AS age\nFROM g_episodes e\nJOIN g_demographics d ON e.patient_ref = d.patient_ref\nWHERE e.episode_type_ref = 'EM'\n    AND e.start_date >= '2020-04-01'\n    AND e.start_date < '2020-05-01'\nORDER BY e.start_date"
+      ],
+      "agent_row_counts": [
+        9
+      ]
+    },
+    {
+      "id": 27,
+      "question": "Muestra la tasa de positividad de CAM-ICU (escala de evaluación de delirio en pacientes de UCI) por unidad y año, considerando las UCIs 'E016', 'E103', 'E014', 'E015', 'E037', 'E057', 'E073' y 'E043' durante el periodo 2018–2025. Clasifica los resultados como positivos (DELIRIO_CAM-ICU_2 → delirio), negativos (DELIRIO_CAM-ICU_1) u otros (DELIRIO_CAM-ICU_3). Solo deben considerarse los CAM-ICU registrados durante estancias reales (con cama asignada) en estas unidades. La tabla debe contener una fila por combinación de unidad y año, con las columnas: 'ou_loc_ref' (código de la unidad), 'yr' (año), 'total_cam' (total de CAM-ICU registrados), 'n_positive' (número de resultados positivos), 'n_negative' (número de resultados negativos), 'n_other' (número de resultados clasificados como 'otros'), 'pct_positive' (porcentaje de positivos sobre el total) y 'pct_negative' (porcentaje de negativos sobre el total).",
+      "runs": 1,
+      "accuracy_sql_jaccard": 0.03125,
+      "accuracy_rows_jaccard": 0.0,
+      "determinism_sql_jaccard": null,
+      "determinism_rows_jaccard": null,
+      "elapsed_seconds_per_run": [
+        333.21
+      ],
+      "mean_elapsed_seconds": 333.21,
+      "agent_sqls": [
+        "SELECT DISTINCT form_ref, form_descr, question_ref, question_descr, value_text, value_descr\nFROM g_dynamic_forms\nWHERE value_text LIKE '%DELIRIO%' OR value_text LIKE '%delirio%' OR question_descr LIKE '%delirio%' OR question_descr LIKE '%delirium%' OR value_text LIKE '%CAM-ICU%' OR value_text LIKE '%CAMICU%'\nLIMIT 50"
+      ],
+      "agent_row_counts": [
+        8
+      ]
+    }
+  ]
+}
