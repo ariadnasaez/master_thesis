@@ -99,6 +99,40 @@ def rows_to_set(rows) -> set:
     return out
 
 
+def rows_to_value_set(rows) -> set:
+    """Flatten ALL cell values across rows and columns into a single set.
+    Used for a 'loose' Jaccard that ignores schema/column-count differences —
+    rewards the agent for surfacing the right values even when it returns
+    extra explanatory columns.
+    """
+    if rows is None:
+        return set()
+    out = set()
+    for row in rows:
+        if isinstance(row, dict):
+            cells = row.values()
+        elif isinstance(row, (list, tuple)):
+            cells = row
+        else:
+            cells = [row]
+        for v in cells:
+            out.add(str(v))
+    return out
+
+
+def count_ratio(agent_rows, golden_rows) -> float:
+    """How close the agent's row count is to the golden's. 1.0 = exact match,
+    0.0 = one is empty and the other isn't. Useful for list-shaped questions.
+    """
+    a = len(agent_rows or [])
+    g = len(golden_rows or [])
+    if a == 0 and g == 0:
+        return 1.0
+    if a == 0 or g == 0:
+        return 0.0
+    return min(a, g) / max(a, g)
+
+
 # ---------------------------------------------------------------------------
 # Subprocess-based question runner with hard timeout + post-timeout recovery
 # ---------------------------------------------------------------------------
@@ -207,11 +241,16 @@ async def evaluate(runs_per_question: int):
             # Accuracy: mean Jaccard of each run vs the golden
             golden_sql_tokens = sql_to_tokens(golden_sql)
             expected_rows_set = rows_to_set(expected_rows)
+            expected_values_set = rows_to_value_set(expected_rows)
 
             acc_sql_per_run = [jaccard(sql_to_tokens(sql), golden_sql_tokens) for sql, _, _ in runs]
             acc_rows_per_run = [jaccard(rows_to_set(rows), expected_rows_set) for _, rows, _ in runs]
+            acc_values_per_run = [jaccard(rows_to_value_set(rows), expected_values_set) for _, rows, _ in runs]
+            count_ratio_per_run = [count_ratio(rows, expected_rows) for _, rows, _ in runs]
             accuracy_sql = mean(acc_sql_per_run) if acc_sql_per_run else 0.0
             accuracy_rows = mean(acc_rows_per_run) if acc_rows_per_run else 0.0
+            accuracy_values = mean(acc_values_per_run) if acc_values_per_run else 0.0
+            accuracy_count = mean(count_ratio_per_run) if count_ratio_per_run else 0.0
 
             # Determinism: pairwise Jaccard within the N runs
             if runs_per_question >= 2:
@@ -230,6 +269,8 @@ async def evaluate(runs_per_question: int):
                 "runs": runs_per_question,
                 "accuracy_sql_jaccard": accuracy_sql,
                 "accuracy_rows_jaccard": accuracy_rows,
+                "accuracy_values_jaccard": accuracy_values,
+                "accuracy_count_ratio": accuracy_count,
                 "determinism_sql_jaccard": determinism_sql,
                 "determinism_rows_jaccard": determinism_rows,
                 "elapsed_seconds_per_run": elapsed_per_run,
@@ -238,7 +279,10 @@ async def evaluate(runs_per_question: int):
                 "agent_row_counts": [len(rows) for _, rows, _ in runs],
             })
 
-            line = f"  → accuracy SQL={accuracy_sql:.3f}  rows={accuracy_rows:.3f}"
+            line = (
+                f"  → accuracy SQL={accuracy_sql:.3f}  rows={accuracy_rows:.3f}"
+                f"  values={accuracy_values:.3f}  count={accuracy_count:.3f}"
+            )
             if determinism_sql is not None:
                 line += f"  | determinism SQL={determinism_sql:.3f}  rows={determinism_rows:.3f}"
             latency_label = "mean" if runs_per_question > 1 else "elapsed"
@@ -254,6 +298,8 @@ async def evaluate(runs_per_question: int):
 
     mean_acc_sql = mean(q["accuracy_sql_jaccard"] for q in per_question)
     mean_acc_rows = mean(q["accuracy_rows_jaccard"] for q in per_question)
+    mean_acc_values = mean(q["accuracy_values_jaccard"] for q in per_question)
+    mean_acc_count = mean(q["accuracy_count_ratio"] for q in per_question)
     mean_elapsed_all = mean(q["mean_elapsed_seconds"] for q in per_question)
     total_elapsed_all = sum(
         elapsed for q in per_question for elapsed in q["elapsed_seconds_per_run"]
@@ -262,7 +308,8 @@ async def evaluate(runs_per_question: int):
     print("=" * 70)
     print(f"SUMMARY — {len(per_question)} questions × {runs_per_question} run(s)")
     print("=" * 70)
-    print(f"Accuracy (vs golden):     SQL={mean_acc_sql:.3f}   rows={mean_acc_rows:.3f}")
+    print(f"Accuracy (vs golden):     SQL={mean_acc_sql:.3f}   rows={mean_acc_rows:.3f}   "
+          f"values={mean_acc_values:.3f}   count={mean_acc_count:.3f}")
     print(f"Latency:                  mean per question {mean_elapsed_all:.1f}s   "
           f"total wall clock {total_elapsed_all:.0f}s")
 
@@ -271,6 +318,8 @@ async def evaluate(runs_per_question: int):
         "runs_per_question": runs_per_question,
         "mean_accuracy_sql_jaccard": mean_acc_sql,
         "mean_accuracy_rows_jaccard": mean_acc_rows,
+        "mean_accuracy_values_jaccard": mean_acc_values,
+        "mean_accuracy_count_ratio": mean_acc_count,
         "mean_elapsed_seconds_per_question": round(mean_elapsed_all, 2),
         "total_elapsed_seconds": round(total_elapsed_all, 2),
     }
