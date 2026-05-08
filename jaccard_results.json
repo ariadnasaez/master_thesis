@@ -10,8 +10,8 @@
     29,
     30
   ],
-  "mean_jaccard_similarity_sql": 0.5711666666666667,
-  "mean_jaccard_similarity_output": 0.34624999999999995,
+  "mean_jaccard_similarity_sql": 0.5726666666666667,
+  "mean_jaccard_similarity_output": 0.38833333333333336,
   "mean_elapsed_seconds_per_question": 202.22,
   "total_elapsed_seconds": 14559.72,
   "mean_determinism_sql_similarity": 1.0,
@@ -147,7 +147,7 @@
       "question": "¿Qué pacientes han tenido un ingreso dentro de los tres meses posteriores a un recambio de cadera o rodilla?",
       "runs": 3,
       "jaccard_similarity_sql": 0.16901408450704225,
-      "jaccard_similarity_output": 0.0297029702970297,
+      "jaccard_similarity_output": 0.04,
       "determinism_sql_similarity": 1.0,
       "determinism_output_similarity": 1.0,
       "elapsed_seconds_per_run": [
@@ -196,7 +196,7 @@
       "id": 8,
       "question": "¿Qué valor medio tienen de HbA1c los diabéticos tipo 2 atendidos por endocrinología?",
       "runs": 3,
-      "jaccard_similarity_sql": 0.4827586206896552,
+      "jaccard_similarity_sql": 0.5185185185185185,
       "jaccard_similarity_output": 0.0,
       "determinism_sql_similarity": 1.0,
       "determinism_output_similarity": 1.0,
@@ -222,7 +222,7 @@
       "question": "¿Cuantos ingresos por ictus isquemico hubo en 2024?",
       "runs": 3,
       "jaccard_similarity_sql": 0.9375,
-      "jaccard_similarity_output": 0.0,
+      "jaccard_similarity_output": 1.0,
       "determinism_sql_similarity": 1.0,
       "determinism_output_similarity": 1.0,
       "elapsed_seconds_per_run": [
