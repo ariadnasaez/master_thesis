@@ -1,109 +1,76 @@
 """
-Jaccard evaluation for the local Qwen agent.
+Evaluation phase — reads raw agent outputs from generation_results.json and
+computes Jaccard similarity metrics against the golden dataset.
 
-Reads the questions from `golden_dataset.json`, runs each through the MCP agent,
-and computes Jaccard similarity at two levels:
+This phase is FAST (pure Python + pandas, no LLM calls). Re-run as many times
+as you want to refine metrics, fix bugs, or add new analyses without paying
+the LLM inference cost again.
 
-    - Query level:  agent's generated SQL vs golden_query
-    - Output level: agent's returned rows vs expected_rows
+Pipeline:
+    python generate.py --runs N    # expensive: runs the LLM, writes generation_results.json
+    python evaluate.py             # cheap: reads it, computes metrics, writes jaccard_results.json
 
-Optionally runs each question N times to also report determinism
-(pairwise Jaccard between the N runs of the same question).
+Two primary metrics, both Jaccard similarity coefficients (higher = better,
+1.0 = identical, 0.0 = disjoint):
+    - jaccard_similarity_sql:    similarity between agent SQL tokens and golden SQL tokens
+    - jaccard_similarity_output: similarity between agent's output values and golden's output values
+                                 (values are flattened across rows and columns, making the metric
+                                 schema-agnostic so extra/renamed columns don't hurt the score)
 
-Usage:
-    python evaluate.py                # 1 run per question (accuracy only)
-    python evaluate.py --runs 3       # 3 runs per question (accuracy + determinism)
-
-Output:
-    Console summary + jaccard_results.json with per-question details.
+Plus pairwise Jaccard similarity between runs (determinism) when runs >= 2.
 """
 
-import argparse
-import asyncio
 import json
 import re
-import subprocess
-import sys
-import time
 from itertools import combinations
 from pathlib import Path
-from statistics import mean
 
-from mcp.client.stdio import stdio_client, StdioServerParameters
-from mcp.client.session import ClientSession
-
-from agent import (
-    DEFAULT_MODEL,
-    build_ollama_tools,
-    build_system_prompt,
-    warmup_model,
-)
+import pandas as pd
 
 
 HERE = Path(__file__).parent
 GOLDEN_PATH = HERE / "golden_dataset.json"
+GENERATION_PATH = HERE / "generation_results.json"
 OUTPUT_PATH = HERE / "jaccard_results.json"
-WORKER_PATH = HERE / "_worker.py"
-
-QUESTION_TIMEOUT = 10 * 60  # seconds — questions that exceed this are skipped
-COOLDOWN_AFTER_TIMEOUT = 60  # seconds to let CPU/GPU recover after a timeout
 
 
 # ---------------------------------------------------------------------------
-# Jaccard helpers
+# Jaccard primitives
 # ---------------------------------------------------------------------------
 
-def jaccard(a: set, b: set) -> float:
+def jaccard_similarity(a: set, b: set) -> float:
+    """Standard Jaccard similarity coefficient: |A ∩ B| / |A ∪ B|.
+    1.0 = identical sets, 0.0 = disjoint sets.
+    Two empty sets are considered identical (1.0).
+    """
     if not a and not b:
         return 1.0
     union = a | b
-    return len(a & b) / len(union) if union else 1.0
+    if not union:
+        return 1.0
+    return len(a & b) / len(union)
 
 
-def pairwise_jaccard(items: list[set]) -> float:
+def pairwise_jaccard_similarity(items: list[set]) -> float:
     pairs = list(combinations(items, 2))
     if not pairs:
         return 1.0
-    return mean(jaccard(a, b) for a, b in pairs)
+    return sum(jaccard_similarity(a, b) for a, b in pairs) / len(pairs)
 
-
-# ---------------------------------------------------------------------------
-# Normalization for SQL and rows
-# ---------------------------------------------------------------------------
 
 def sql_to_tokens(sql: str) -> set:
-    """Normalize SQL → set of tokens. Case-insensitive, whitespace/quote-insensitive."""
+    """Normalize SQL → set of tokens. Case- and whitespace-insensitive."""
     if not sql:
         return set()
     s = sql.lower().replace("`", " ").replace('"', " ")
     s = re.sub(r"\s+", " ", s).strip()
-    tokens = re.findall(r"[\w_.%]+|[<>=!]+|[(),;]", s)
-    return set(tokens)
+    return set(re.findall(r"[\w_.%]+|[<>=!]+|[(),;]", s))
 
 
-def rows_to_set(rows) -> set:
-    """Convert a list of rows (dicts or tuples) into a set of value-tuples for comparison.
-    Cell values are stringified so int/str/Decimal are comparable.
-    """
-    if rows is None:
-        return set()
-    out = set()
-    for row in rows:
-        if isinstance(row, dict):
-            values = [str(v) for _, v in sorted(row.items())]
-        elif isinstance(row, (list, tuple)):
-            values = [str(v) for v in row]
-        else:
-            values = [str(row)]
-        out.add(tuple(values))
-    return out
-
-
-def rows_to_value_set(rows) -> set:
+def output_to_value_set(rows) -> set:
     """Flatten ALL cell values across rows and columns into a single set.
-    Used for a 'loose' Jaccard that ignores schema/column-count differences —
-    rewards the agent for surfacing the right values even when it returns
-    extra explanatory columns.
+    Schema-agnostic: rewards correct values regardless of column count, names,
+    or ordering — robust to the agent returning extra explanatory columns.
     """
     if rows is None:
         return set()
@@ -120,231 +87,130 @@ def rows_to_value_set(rows) -> set:
     return out
 
 
-def count_ratio(agent_rows, golden_rows) -> float:
-    """How close the agent's row count is to the golden's. 1.0 = exact match,
-    0.0 = one is empty and the other isn't. Useful for list-shaped questions.
+# ---------------------------------------------------------------------------
+# Per-question scoring
+# ---------------------------------------------------------------------------
+
+def score_question(agent_runs: list[dict], golden_sql: str, expected_rows: list) -> dict:
+    """Compute the two Jaccard similarity scores for one question, averaged across runs.
+    Higher is better; 1.0 = identical sets, 0.0 = disjoint sets.
     """
-    a = len(agent_rows or [])
-    g = len(golden_rows or [])
-    if a == 0 and g == 0:
-        return 1.0
-    if a == 0 or g == 0:
-        return 0.0
-    return min(a, g) / max(a, g)
+    golden_sql_tokens = sql_to_tokens(golden_sql)
+    golden_output_set = output_to_value_set(expected_rows)
 
+    sqls = [r.get("sql", "") for r in agent_runs]
+    rows = [r.get("rows", []) for r in agent_runs]
+    elapsed = [r.get("elapsed_seconds", 0.0) for r in agent_runs]
 
-# ---------------------------------------------------------------------------
-# Subprocess-based question runner with hard timeout + post-timeout recovery
-# ---------------------------------------------------------------------------
+    sim_sql = [jaccard_similarity(sql_to_tokens(s), golden_sql_tokens) for s in sqls]
+    sim_output = [jaccard_similarity(output_to_value_set(r), golden_output_set) for r in rows]
 
-def _run_question_sync(question: str, schema_file: str, output_file: str):
-    """Spawn _worker.py as a subprocess to evaluate one question.
-    Raises subprocess.TimeoutExpired if it exceeds QUESTION_TIMEOUT.
-    Returns (sql, rows, elapsed_seconds) on success.
-    """
-    subprocess.run(
-        [sys.executable, str(WORKER_PATH), question, schema_file, output_file],
-        timeout=QUESTION_TIMEOUT,
-        capture_output=True,
-        cwd=str(HERE),
-        check=False,
-    )
-    try:
-        data = json.loads(Path(output_file).read_text())
-        return data.get("sql", ""), data.get("rows", []), float(data.get("elapsed", 0.0))
-    except (FileNotFoundError, json.JSONDecodeError):
-        return "", [], 0.0
+    n = len(agent_runs)
+    if n >= 2:
+        det_sql = pairwise_jaccard_similarity([sql_to_tokens(s) for s in sqls])
+        det_output = pairwise_jaccard_similarity([output_to_value_set(r) for r in rows])
+    else:
+        det_sql = None
+        det_output = None
 
-
-def _recover_after_timeout(system_prompt: str, ollama_tools: list) -> None:
-    """Force-abort any in-progress Ollama generation, cool down, then re-warmup.
-    Called after a question times out, to prevent the orphaned generation from
-    cascading into the next question.
-    """
-    subprocess.run(["ollama", "stop", DEFAULT_MODEL], capture_output=True, check=False)
-    time.sleep(COOLDOWN_AFTER_TIMEOUT)
-    warmup_model(system_prompt, ollama_tools)
-
-
-# ---------------------------------------------------------------------------
-# Main evaluation loop
-# ---------------------------------------------------------------------------
-
-async def evaluate(runs_per_question: int):
-    with open(GOLDEN_PATH) as f:
-        golden = json.load(f)
-    print(f"Loaded {len(golden)} entries from {GOLDEN_PATH.name}")
-
-    server_params = StdioServerParameters(command="python", args=["server.py"])
-    async with stdio_client(server_params) as (read, write):
-        async with ClientSession(read, write) as session:
-            await session.initialize()
-
-            schema_resource = await session.read_resource("schema://full")
-            schema_text = schema_resource.contents[0].text
-            mcp_tools = await session.list_tools()
-            ollama_tools = build_ollama_tools(mcp_tools)
-            system_prompt = build_system_prompt(schema_text)
-
-            print("⏳ Warming up the model...")
-            warmup_model(system_prompt, ollama_tools)
-            print("✅ Warmed up. Starting evaluation.\n")
-
-    # MCP session above is only used for schema fetch + warmup. Each question
-    # runs in its own subprocess (with its own MCP session) so it can be killed
-    # cleanly when QUESTION_TIMEOUT fires.
-    schema_file = HERE / "_eval_schema.txt"
-    schema_file.write_text(schema_text)
-
-    per_question = []
-    loop = asyncio.get_running_loop()
-    try:
-        for i, item in enumerate(golden, 1):
-            question = item.get("question", "")
-            golden_sql = item.get("golden_query", "")
-            expected_rows = item.get("expected_rows", [])
-            qid = item.get("id", i)
-
-            if not question:
-                continue
-
-            print(f"[{i}/{len(golden)}] (id={qid}) {question[:80]}")
-
-            runs = []  # list of (sql, rows, elapsed_seconds)
-            timed_out = False
-            for r in range(runs_per_question):
-                output_file = HERE / f"_eval_q{i}_r{r}.json"
-                try:
-                    try:
-                        sql, rows, elapsed = await loop.run_in_executor(
-                            None,
-                            _run_question_sync,
-                            question, str(schema_file), str(output_file),
-                        )
-                    except subprocess.TimeoutExpired:
-                        print(f"    ⏰ TIMEOUT ({QUESTION_TIMEOUT // 60}min) — skipping question {qid}")
-                        timed_out = True
-                        print(f"    🔄 Aborting Ollama and cooling down ({COOLDOWN_AFTER_TIMEOUT}s)...")
-                        await loop.run_in_executor(
-                            None, _recover_after_timeout, system_prompt, ollama_tools
-                        )
-                        print("    ✅ Recovered. Continuing.")
-                        break
-                    runs.append((sql, rows, elapsed))
-                    print(f"    run {r+1}/{runs_per_question}: {len(rows)} rows  ({elapsed:.1f}s)")
-                finally:
-                    output_file.unlink(missing_ok=True)
-
-            if timed_out or not runs:
-                continue
-
-            # Accuracy: mean Jaccard of each run vs the golden
-            golden_sql_tokens = sql_to_tokens(golden_sql)
-            expected_rows_set = rows_to_set(expected_rows)
-            expected_values_set = rows_to_value_set(expected_rows)
-
-            acc_sql_per_run = [jaccard(sql_to_tokens(sql), golden_sql_tokens) for sql, _, _ in runs]
-            acc_rows_per_run = [jaccard(rows_to_set(rows), expected_rows_set) for _, rows, _ in runs]
-            acc_values_per_run = [jaccard(rows_to_value_set(rows), expected_values_set) for _, rows, _ in runs]
-            count_ratio_per_run = [count_ratio(rows, expected_rows) for _, rows, _ in runs]
-            accuracy_sql = mean(acc_sql_per_run) if acc_sql_per_run else 0.0
-            accuracy_rows = mean(acc_rows_per_run) if acc_rows_per_run else 0.0
-            accuracy_values = mean(acc_values_per_run) if acc_values_per_run else 0.0
-            accuracy_count = mean(count_ratio_per_run) if count_ratio_per_run else 0.0
-
-            # Determinism: pairwise Jaccard within the N runs
-            if runs_per_question >= 2:
-                determinism_sql = pairwise_jaccard([sql_to_tokens(sql) for sql, _, _ in runs])
-                determinism_rows = pairwise_jaccard([rows_to_set(rows) for _, rows, _ in runs])
-            else:
-                determinism_sql = None
-                determinism_rows = None
-
-            elapsed_per_run = [round(elapsed, 2) for _, _, elapsed in runs]
-            mean_elapsed = round(mean(elapsed_per_run), 2) if elapsed_per_run else 0.0
-
-            per_question.append({
-                "id": qid,
-                "question": question,
-                "runs": runs_per_question,
-                "accuracy_sql_jaccard": accuracy_sql,
-                "accuracy_rows_jaccard": accuracy_rows,
-                "accuracy_values_jaccard": accuracy_values,
-                "accuracy_count_ratio": accuracy_count,
-                "determinism_sql_jaccard": determinism_sql,
-                "determinism_rows_jaccard": determinism_rows,
-                "elapsed_seconds_per_run": elapsed_per_run,
-                "mean_elapsed_seconds": mean_elapsed,
-                "agent_sqls": [sql for sql, _, _ in runs],
-                "agent_row_counts": [len(rows) for _, rows, _ in runs],
-            })
-
-            line = (
-                f"  → accuracy SQL={accuracy_sql:.3f}  rows={accuracy_rows:.3f}"
-                f"  values={accuracy_values:.3f}  count={accuracy_count:.3f}"
-            )
-            if determinism_sql is not None:
-                line += f"  | determinism SQL={determinism_sql:.3f}  rows={determinism_rows:.3f}"
-            latency_label = "mean" if runs_per_question > 1 else "elapsed"
-            line += f"  | {latency_label} {mean_elapsed:.1f}s"
-            print(line + "\n")
-    finally:
-        schema_file.unlink(missing_ok=True)
-
-    # ---------- summary ----------
-    if not per_question:
-        print("No questions evaluated.")
-        return
-
-    mean_acc_sql = mean(q["accuracy_sql_jaccard"] for q in per_question)
-    mean_acc_rows = mean(q["accuracy_rows_jaccard"] for q in per_question)
-    mean_acc_values = mean(q["accuracy_values_jaccard"] for q in per_question)
-    mean_acc_count = mean(q["accuracy_count_ratio"] for q in per_question)
-    mean_elapsed_all = mean(q["mean_elapsed_seconds"] for q in per_question)
-    total_elapsed_all = sum(
-        elapsed for q in per_question for elapsed in q["elapsed_seconds_per_run"]
-    )
-
-    print("=" * 70)
-    print(f"SUMMARY — {len(per_question)} questions × {runs_per_question} run(s)")
-    print("=" * 70)
-    print(f"Accuracy (vs golden):     SQL={mean_acc_sql:.3f}   rows={mean_acc_rows:.3f}   "
-          f"values={mean_acc_values:.3f}   count={mean_acc_count:.3f}")
-    print(f"Latency:                  mean per question {mean_elapsed_all:.1f}s   "
-          f"total wall clock {total_elapsed_all:.0f}s")
-
-    summary = {
-        "questions_evaluated": len(per_question),
-        "runs_per_question": runs_per_question,
-        "mean_accuracy_sql_jaccard": mean_acc_sql,
-        "mean_accuracy_rows_jaccard": mean_acc_rows,
-        "mean_accuracy_values_jaccard": mean_acc_values,
-        "mean_accuracy_count_ratio": mean_acc_count,
-        "mean_elapsed_seconds_per_question": round(mean_elapsed_all, 2),
-        "total_elapsed_seconds": round(total_elapsed_all, 2),
+    return {
+        "runs": n,
+        "jaccard_similarity_sql": sum(sim_sql) / n,
+        "jaccard_similarity_output": sum(sim_output) / n,
+        "determinism_sql_similarity": det_sql,
+        "determinism_output_similarity": det_output,
+        "elapsed_seconds_per_run": [round(e, 2) for e in elapsed],
+        "mean_elapsed_seconds": round(sum(elapsed) / n, 2) if n else 0.0,
+        "agent_sqls": sqls,
+        "agent_row_counts": [len(r) for r in rows],
     }
 
-    if runs_per_question >= 2:
-        det_sql_vals = [q["determinism_sql_jaccard"] for q in per_question if q["determinism_sql_jaccard"] is not None]
-        det_rows_vals = [q["determinism_rows_jaccard"] for q in per_question if q["determinism_rows_jaccard"] is not None]
-        mean_det_sql = mean(det_sql_vals) if det_sql_vals else 0.0
-        mean_det_rows = mean(det_rows_vals) if det_rows_vals else 0.0
-        print(f"Determinism (run-vs-run): SQL={mean_det_sql:.3f}   rows={mean_det_rows:.3f}")
-        summary["mean_determinism_sql_jaccard"] = mean_det_sql
-        summary["mean_determinism_rows_jaccard"] = mean_det_rows
 
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main():
+    if not GENERATION_PATH.exists():
+        print(f"❌ {GENERATION_PATH.name} not found. Run `python generate.py` first.")
+        return
+
+    with open(GENERATION_PATH) as f:
+        gen = json.load(f)
+    with open(GOLDEN_PATH) as f:
+        golden = json.load(f)
+    golden_by_id = {item.get("id"): item for item in golden}
+
+    runs_per_question = gen.get("runs_per_question", 1)
+    print(f"Loaded {len(gen['per_question'])} questions from {GENERATION_PATH.name} "
+          f"(model: {gen.get('model', 'unknown')}, runs: {runs_per_question})\n")
+
+    # Score every question
+    rows_for_df = []
+    per_question_records = []
+    for q in gen["per_question"]:
+        qid = q["id"]
+        gold = golden_by_id.get(qid, {})
+        scored = score_question(
+            q["runs"],
+            gold.get("golden_query", ""),
+            gold.get("expected_rows", []),
+        )
+        record = {"id": qid, "question": q["question"], **scored}
+        per_question_records.append(record)
+        rows_for_df.append({
+            "id": qid,
+            "sql_sim":    round(scored["jaccard_similarity_sql"], 3),
+            "output_sim": round(scored["jaccard_similarity_output"], 3),
+            "det_sql":    None if scored["determinism_sql_similarity"]    is None else round(scored["determinism_sql_similarity"],    3),
+            "det_output": None if scored["determinism_output_similarity"] is None else round(scored["determinism_output_similarity"], 3),
+            "elapsed_s": scored["mean_elapsed_seconds"],
+            "agent_n": max(scored["agent_row_counts"]) if scored["agent_row_counts"] else 0,
+        })
+
+    df = pd.DataFrame(rows_for_df).sort_values("id").reset_index(drop=True)
+
+    # Per-question table
+    print("=" * 90)
+    print("PER-QUESTION METRICS")
+    print("=" * 90)
+    print(df.to_string(index=False))
+    print()
+
+    # Aggregate summary
+    summary = {
+        "questions_evaluated": len(df),
+        "runs_per_question": runs_per_question,
+        "questions_total":      gen.get("questions_total"),
+        "timed_out_ids":        gen.get("timed_out_ids", []),
+        "mean_jaccard_similarity_sql":    df["sql_sim"].mean(),
+        "mean_jaccard_similarity_output": df["output_sim"].mean(),
+        "mean_elapsed_seconds_per_question": round(df["elapsed_s"].mean(), 2),
+        "total_elapsed_seconds": round(df["elapsed_s"].sum() * runs_per_question, 2),
+    }
+    if runs_per_question >= 2:
+        summary["mean_determinism_sql_similarity"]    = df["det_sql"].dropna().mean()
+        summary["mean_determinism_output_similarity"] = df["det_output"].dropna().mean()
+
+    print("=" * 90)
+    print(f"SUMMARY — {len(df)} questions × {runs_per_question} run(s)")
+    print("=" * 90)
+    print(f"Jaccard similarity (higher = better):")
+    print(f"  SQL:    {summary['mean_jaccard_similarity_sql']:.3f}")
+    print(f"  Output: {summary['mean_jaccard_similarity_output']:.3f}")
+    if runs_per_question >= 2:
+        print(f"Determinism (pairwise similarity, higher = more deterministic):")
+        print(f"  SQL:    {summary['mean_determinism_sql_similarity']:.3f}")
+        print(f"  Output: {summary['mean_determinism_output_similarity']:.3f}")
+    print(f"Latency:     mean per question {summary['mean_elapsed_seconds_per_question']:.1f}s")
+    if summary["timed_out_ids"]:
+        print(f"Timed out:   {summary['timed_out_ids']}")
+
+    # Persist full results (summary + per_question raw scores)
     with open(OUTPUT_PATH, "w") as f:
-        json.dump({**summary, "per_question": per_question}, f, indent=2, ensure_ascii=False)
+        json.dump({**summary, "per_question": per_question_records}, f, indent=2, ensure_ascii=False)
     print(f"\nDetailed results → {OUTPUT_PATH.name}")
 
 
-# ---------------------------------------------------------------------------
-# Entrypoint
-# ---------------------------------------------------------------------------
-
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--runs", type=int, default=1,
-                        help="Number of times to run each question (>=2 enables determinism metrics).")
-    args = parser.parse_args()
-    asyncio.run(evaluate(args.runs))
+    main()
