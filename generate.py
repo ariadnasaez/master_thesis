@@ -17,6 +17,7 @@ Output:
 import argparse
 import asyncio
 import json
+import os
 import subprocess
 import sys
 import time
@@ -26,17 +27,27 @@ from pathlib import Path
 from mcp.client.stdio import stdio_client, StdioServerParameters
 from mcp.client.session import ClientSession
 
-from agent import (
-    DEFAULT_MODEL,
-    build_ollama_tools,
-    build_system_prompt,
-    warmup_model,
-)
+# Backend selection (set BEFORE importing agent module so subprocess inherits it).
+AGENT_BACKEND = os.getenv("AGENT_BACKEND", "ollama")
+if AGENT_BACKEND == "bedrock":
+    from agent_bedrock import (
+        DEFAULT_MODEL,
+        build_ollama_tools,
+        build_system_prompt,
+        warmup_model,
+    )
+else:
+    from agent import (
+        DEFAULT_MODEL,
+        build_ollama_tools,
+        build_system_prompt,
+        warmup_model,
+    )
 
 
 HERE = Path(__file__).parent
 GOLDEN_PATH = HERE / "golden_dataset.json"
-OUTPUT_PATH = HERE / "generation_results.json"
+DEFAULT_OUTPUT_PATH = HERE / "generation_result_2.json"
 WORKER_PATH = HERE / "_worker.py"
 
 QUESTION_TIMEOUT = 10 * 60  # seconds — questions that exceed this are skipped
@@ -69,10 +80,11 @@ def _recover_after_timeout(system_prompt: str, ollama_tools: list) -> None:
     warmup_model(system_prompt, ollama_tools)
 
 
-async def generate(runs_per_question: int):
+async def generate(runs_per_question: int, output_path: Path):
     with open(GOLDEN_PATH) as f:
         golden = json.load(f)
     print(f"Loaded {len(golden)} entries from {GOLDEN_PATH.name}")
+    print(f"Backend: {AGENT_BACKEND}  •  Model: {DEFAULT_MODEL}  •  Output → {output_path.name}\n")
 
     server_params = StdioServerParameters(command="python", args=["server.py"])
     async with stdio_client(server_params) as (read, write):
@@ -153,13 +165,13 @@ async def generate(runs_per_question: int):
         "timed_out_ids": timed_out_ids,
         "per_question": per_question,
     }
-    with open(OUTPUT_PATH, "w") as f:
+    with open(output_path, "w") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
     print("=" * 70)
     print(f"Generation complete: {len(per_question)}/{len(golden)} questions, "
           f"{len(timed_out_ids)} timed out")
-    print(f"Raw outputs → {OUTPUT_PATH.name}")
+    print(f"Raw outputs → {output_path.name}")
     print("Run `python evaluate.py` to compute metrics.")
 
 
@@ -167,5 +179,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--runs", type=int, default=1,
                         help="Number of times to run each question (>=2 enables determinism metrics).")
+    parser.add_argument("--output", type=str, default=None,
+                        help="Output filename. Defaults to generation_result_2.json (ollama) "
+                             "or generation_result_deepseek.json (bedrock).")
     args = parser.parse_args()
-    asyncio.run(generate(args.runs))
+
+    if args.output:
+        output_path = HERE / args.output
+    elif AGENT_BACKEND == "bedrock":
+        output_path = HERE / "generation_result_deepseek.json"
+    else:
+        output_path = DEFAULT_OUTPUT_PATH
+
+    asyncio.run(generate(args.runs, output_path))

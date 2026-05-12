@@ -5,6 +5,7 @@ to the output file. Designed to be killed cleanly via subprocess.run(timeout=...
 """
 import asyncio
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -15,7 +16,12 @@ from mcp.client.session import ClientSession
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE))
 
-from agent import build_ollama_tools, build_system_prompt, parse_schema_cache, run_agent_loop_async
+# Choose backend via env var: AGENT_BACKEND=bedrock or AGENT_BACKEND=ollama (default).
+AGENT_BACKEND = os.getenv("AGENT_BACKEND", "ollama")
+if AGENT_BACKEND == "bedrock":
+    from agent_bedrock import build_ollama_tools, build_system_prompt, parse_schema_cache, run_agent_loop_async
+else:
+    from agent import build_ollama_tools, build_system_prompt, parse_schema_cache, run_agent_loop_async
 
 
 async def run(question: str, schema_text: str, output_path: str) -> None:
