@@ -1,11 +1,12 @@
+import os
 import boto3
 
-client = boto3.client(
-    'bedrock-runtime',
-    region_name='us-east-2',
-)
+MODEL_ID = os.getenv("BEDROCK_MODEL_ID", "deepseek.v3.2")
+REGION = os.getenv("BEDROCK_REGION", "us-east-2")
 
-MODEL_ID = "deepseek.v3.2"
+print(f"Testing model: {MODEL_ID} in {REGION}")
+
+client = boto3.client('bedrock-runtime', region_name=REGION)
 
 response = client.converse(
     modelId=MODEL_ID,

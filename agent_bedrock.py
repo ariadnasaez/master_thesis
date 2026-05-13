@@ -17,6 +17,7 @@ return here is Bedrock's toolConfig, not Ollama's.
 
 import asyncio
 import json
+import os
 
 import boto3
 
@@ -30,8 +31,10 @@ from agent import (
 )
 
 
-DEFAULT_MODEL = "deepseek.v3.2"
-REGION = "us-east-2"
+# Default model can be overridden via BEDROCK_MODEL_ID env var so you can swap
+# between DeepSeek V3.2, Claude Sonnet, etc. without touching code.
+DEFAULT_MODEL = os.getenv("BEDROCK_MODEL_ID", "deepseek.v3.2")
+REGION = os.getenv("BEDROCK_REGION", "us-east-2")
 INFERENCE_CONFIG = {"temperature": 0, "maxTokens": 8192}
 
 

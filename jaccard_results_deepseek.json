@@ -1,0 +1,764 @@
+{
+  "questions_evaluated": 30,
+  "runs_per_question": 3,
+  "questions_total": 30,
+  "timed_out_ids": [],
+  "mean_jaccard_similarity_sql": 0.5041,
+  "mean_jaccard_similarity_output": 0.5570999999999999,
+  "mean_elapsed_seconds_per_question": 48.98,
+  "total_elapsed_seconds": 4408.2,
+  "mean_determinism_sql_similarity": 0.7458666666666667,
+  "mean_determinism_output_similarity": 0.7011666666666667,
+  "per_question": [
+    {
+      "id": 1,
+      "question": "¿Cuántos pacientes hay en la base de datos?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.8000000000000002,
+      "jaccard_similarity_output": 1.0,
+      "determinism_sql_similarity": 1.0,
+      "determinism_output_similarity": 1.0,
+      "elapsed_seconds_per_run": [
+        5.62,
+        10.61,
+        9.41
+      ],
+      "mean_elapsed_seconds": 8.55,
+      "agent_sqls": [
+        "SELECT COUNT(DISTINCT patient_ref) as total_pacientes FROM g_demographics",
+        "SELECT COUNT(DISTINCT patient_ref) as total_pacientes FROM g_demographics",
+        "SELECT COUNT(DISTINCT patient_ref) as total_pacientes FROM g_demographics"
+      ],
+      "agent_row_counts": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": 2,
+      "question": "¿Cuántas mujeres con diabetes tipo 2 hay en la base de datos?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.5759856630824373,
+      "jaccard_similarity_output": 1.0,
+      "determinism_sql_similarity": 0.7777777777777777,
+      "determinism_output_similarity": 1.0,
+      "elapsed_seconds_per_run": [
+        50.96,
+        21.48,
+        31.42
+      ],
+      "mean_elapsed_seconds": 34.62,
+      "agent_sqls": [
+        "SELECT COUNT(DISTINCT d.patient_ref) as mujeres_con_diabetes_tipo2\nFROM g_demographics d\nWHERE d.sex = 2\n  AND d.patient_ref IN (\n    SELECT DISTINCT patient_ref \n    FROM g_diagnostics \n    WHERE (code LIKE 'E11%' OR code = '250.00')\n  )",
+        "SELECT COUNT(DISTINCT d.patient_ref) as mujeres_con_diabetes_tipo2\nFROM g_diagnostics d\nJOIN g_demographics dm ON d.patient_ref = dm.patient_ref\nWHERE dm.sex = 2\n  AND (d.code LIKE 'E11%' OR d.code = '250.00')",
+        "SELECT COUNT(DISTINCT d.patient_ref) as mujeres_con_diabetes_tipo2\nFROM g_diagnostics d\nJOIN g_demographics dm ON d.patient_ref = dm.patient_ref\nWHERE (d.code LIKE 'E11%' OR d.code = '250.00')\n  AND dm.sex = 2"
+      ],
+      "agent_row_counts": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": 3,
+      "question": "¿Cuántos pacientes españoles hay en la base de datos?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.8571428571428571,
+      "jaccard_similarity_output": 1.0,
+      "determinism_sql_similarity": 1.0,
+      "determinism_output_similarity": 1.0,
+      "elapsed_seconds_per_run": [
+        17.69,
+        9.98,
+        18.25
+      ],
+      "mean_elapsed_seconds": 15.31,
+      "agent_sqls": [
+        "SELECT COUNT(DISTINCT patient_ref) as pacientes_espanoles\nFROM g_demographics\nWHERE natio_descr = 'Espana'",
+        "SELECT COUNT(DISTINCT patient_ref) as pacientes_espanoles\nFROM g_demographics\nWHERE natio_descr = 'Espana'",
+        "SELECT COUNT(DISTINCT patient_ref) as pacientes_espanoles\nFROM g_demographics \nWHERE natio_descr = 'Espana'"
+      ],
+      "agent_row_counts": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": 4,
+      "question": "¿Cuál es el valor medio de PCR para cada problemas de salud codificado por reumatologia?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.3306878306878307,
+      "jaccard_similarity_output": 0.32539682539682535,
+      "determinism_sql_similarity": 0.6004839018298639,
+      "determinism_output_similarity": 0.47222222222222215,
+      "elapsed_seconds_per_run": [
+        40.25,
+        29.14,
+        55.51
+      ],
+      "mean_elapsed_seconds": 41.63,
+      "agent_sqls": [
+        "WITH problemas_reumatologia AS (\n    SELECT DISTINCT \n        patient_ref,\n        snomed_ref,\n        snomed_descr\n    FROM g_health_issues \n    WHERE ou_med_ref = 'RMT'\n),\npcr_labs AS (\n    SELECT \n        patient_ref,\n        episode_ref,\n        result_num\n    FROM g_labs \n    WHERE lab_sap_ref IN ('LAB2575', 'LABPCRUS') \n        AND result_num IS NOT NULL\n)\nSELECT \n    pr.snomed_descr AS problema_salud,\n    COUNT(DISTINCT pr.patient_ref) AS num_pacientes,\n    COUNT(pcr.result_num) AS num_valores_pcr,\n    AVG(pcr.result_num) AS valor_medio_pcr\nFROM problemas_reumatologia pr\nLEFT JOIN pcr_labs pcr ON pr.patient_ref = pcr.patient_ref\nGROUP BY pr.snomed_ref, pr.snomed_descr\nHAVING COUNT(pcr.result_num) > 0\nORDER BY num_valores_pcr DESC",
+        "WITH problemas_reumatologia AS (\n    SELECT DISTINCT \n        hi.patient_ref,\n        hi.snomed_descr\n    FROM g_health_issues hi\n    WHERE hi.ou_med_ref = 'RMT'\n),\npcr_labs AS (\n    SELECT \n        l.patient_ref,\n        l.result_num,\n        l.lab_descr\n    FROM g_labs l\n    WHERE l.lab_sap_ref IN ('LAB2575', 'LABPCRUS')\n    AND l.result_num IS NOT NULL\n)\nSELECT \n    pr.snomed_descr AS problema_salud,\n    COUNT(DISTINCT pr.patient_ref) AS num_pacientes,\n    COUNT(pl.result_num) AS num_valores_pcr,\n    AVG(pl.result_num) AS valor_medio_pcr,\n    MIN(pl.result_num) AS valor_minimo_pcr,\n    MAX(pl.result_num) AS valor_maximo_pcr\nFROM problemas_reumatologia pr\nLEFT JOIN pcr_labs pl ON pr.patient_ref = pl.patient_ref\nGROUP BY pr.snomed_descr\nHAVING COUNT(pl.result_num) > 0\nORDER BY num_valores_pcr DESC",
+        "SELECT \n    hi.snomed_descr AS problema_salud,\n    COUNT(DISTINCT l.patient_ref) AS pacientes_con_PCR,\n    COUNT(l.result_num) AS mediciones_PCR,\n    AVG(l.result_num) AS valor_medio_PCR,\n    MIN(l.result_num) AS valor_minimo_PCR,\n    MAX(l.result_num) AS valor_maximo_PCR\nFROM g_health_issues hi\nLEFT JOIN g_labs l ON hi.patient_ref = l.patient_ref \n    AND l.lab_sap_ref = 'LAB2575' \n    AND l.result_num IS NOT NULL\nWHERE hi.ou_med_ref = 'RMT'\nGROUP BY hi.snomed_descr\nHAVING COUNT(l.result_num) > 0\nORDER BY pacientes_con_PCR DESC, valor_medio_PCR DESC"
+      ],
+      "agent_row_counts": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "id": 5,
+      "question": "En pacientes sometidos a un cateterismo cardíaco, ¿cuál es el primer valor de troponina medido después del procedimiento en cada episodio?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.38646891744171463,
+      "jaccard_similarity_output": 0.2464285714285714,
+      "determinism_sql_similarity": 0.8190928270042194,
+      "determinism_output_similarity": 0.912280701754386,
+      "elapsed_seconds_per_run": [
+        45.65,
+        45.25,
+        55.75
+      ],
+      "mean_elapsed_seconds": 48.88,
+      "agent_sqls": [
+        "WITH procedimientos AS (\n    SELECT \n        patient_ref,\n        episode_ref,\n        code,\n        descr,\n        start_date\n    FROM g_procedures \n    WHERE code IN ('37.21', '37.22')\n),\ntroponinas AS (\n    SELECT \n        patient_ref,\n        episode_ref,\n        extrac_date,\n        lab_sap_ref,\n        lab_descr,\n        result_num,\n        units\n    FROM g_labs\n    WHERE lab_sap_ref IN ('LABTROPSU', 'LAB2967', 'LABTPNAS')\n        AND result_num IS NOT NULL\n),\ncombinados AS (\n    SELECT \n        p.patient_ref,\n        p.episode_ref,\n        p.code AS codigo_procedimiento,\n        p.descr AS descripcion_procedimiento,\n        p.start_date AS fecha_procedimiento,\n        t.extrac_date AS fecha_extraccion_troponina,\n        t.lab_sap_ref AS codigo_troponina,\n        t.lab_descr AS descripcion_troponina,\n        t.result_num AS valor_troponina,\n        t.units AS unidades,\n        ROW_NUMBER() OVER (\n            PARTITION BY p.patient_ref, p.episode_ref, p.code\n            ORDER BY t.extrac_date ASC\n        ) AS rn\n    FROM procedimientos p\n    JOIN troponinas t ON t.patient_ref = p.patient_ref \n        AND t.episode_ref = p.episode_ref\n        AND t.extrac_date >= p.start_date\n)\nSELECT \n    patient_ref,\n    episode_ref,\n    codigo_procedimiento,\n    descripcion_procedimiento,\n    fecha_procedimiento,\n    fecha_extraccion_troponina,\n    codigo_troponina,\n    descripcion_troponina,\n    valor_troponina,\n    unidades\nFROM combinados\nWHERE rn = 1\nORDER BY patient_ref, episode_ref, fecha_procedimiento",
+        "WITH procedimientos AS (\n    SELECT \n        patient_ref,\n        episode_ref,\n        code,\n        descr,\n        start_date\n    FROM g_procedures\n    WHERE code IN ('37.21', '37.22')\n),\ntroponinas AS (\n    SELECT \n        patient_ref,\n        episode_ref,\n        extrac_date,\n        lab_sap_ref,\n        lab_descr,\n        result_num,\n        result_txt,\n        units\n    FROM g_labs\n    WHERE lab_sap_ref IN ('LABTROPSU', 'LAB2967', 'LABTPNAS')\n        AND result_num IS NOT NULL\n),\ncombinados AS (\n    SELECT \n        p.patient_ref,\n        p.episode_ref,\n        p.code AS codigo_procedimiento,\n        p.descr AS descripcion_procedimiento,\n        p.start_date AS fecha_procedimiento,\n        t.extrac_date AS fecha_troponina,\n        t.lab_sap_ref,\n        t.lab_descr,\n        t.result_num AS valor_troponina,\n        t.result_txt,\n        t.units,\n        ROW_NUMBER() OVER (\n            PARTITION BY p.patient_ref, p.episode_ref, p.start_date \n            ORDER BY t.extrac_date ASC\n        ) AS rn\n    FROM procedimientos p\n    JOIN troponinas t ON p.patient_ref = t.patient_ref \n        AND p.episode_ref = t.episode_ref\n        AND t.extrac_date >= p.start_date\n)\nSELECT \n    patient_ref,\n    episode_ref,\n    codigo_procedimiento,\n    descripcion_procedimiento,\n    fecha_procedimiento,\n    fecha_troponina,\n    lab_sap_ref,\n    lab_descr,\n    valor_troponina,\n    result_txt,\n    units,\n    DATEDIFF(fecha_troponina, fecha_procedimiento) AS dias_desde_procedimiento\nFROM combinados\nWHERE rn = 1\nORDER BY patient_ref, episode_ref, fecha_procedimiento",
+        "WITH procedimientos_cateterismo AS (\n    SELECT \n        patient_ref,\n        episode_ref,\n        code,\n        descr,\n        start_date\n    FROM g_procedures\n    WHERE code IN ('37.22', '37.21')  -- Cateterismos cardíacos\n),\ntroponinas AS (\n    SELECT \n        patient_ref,\n        episode_ref,\n        extrac_date,\n        lab_sap_ref,\n        lab_descr,\n        result_num,\n        units\n    FROM g_labs\n    WHERE lab_sap_ref IN ('LABTROPSU', 'LAB2967', 'LABTPNAS')\n        AND result_num IS NOT NULL\n),\ncombinados AS (\n    SELECT \n        p.patient_ref,\n        p.episode_ref,\n        p.code AS codigo_procedimiento,\n        p.descr AS descripcion_procedimiento,\n        p.start_date AS fecha_procedimiento,\n        t.extrac_date AS fecha_troponina,\n        t.lab_sap_ref,\n        t.lab_descr,\n        t.result_num AS valor_troponina,\n        t.units,\n        ROW_NUMBER() OVER (\n            PARTITION BY p.patient_ref, p.episode_ref, p.start_date \n            ORDER BY t.extrac_date ASC\n        ) AS rn\n    FROM procedimientos_cateterismo p\n    JOIN troponinas t ON p.patient_ref = t.patient_ref \n        AND p.episode_ref = t.episode_ref\n        AND t.extrac_date >= p.start_date  -- Solo troponinas después del procedimiento\n)\nSELECT \n    patient_ref,\n    episode_ref,\n    codigo_procedimiento,\n    descripcion_procedimiento,\n    fecha_procedimiento,\n    fecha_troponina,\n    lab_sap_ref,\n    lab_descr,\n    valor_troponina,\n    units\nFROM combinados\nWHERE rn = 1  -- Primer valor de troponina después del procedimiento\nORDER BY patient_ref, episode_ref, fecha_procedimiento"
+      ],
+      "agent_row_counts": [
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "id": 6,
+      "question": "¿Qué pacientes han tenido un ingreso dentro de los tres meses posteriores a un recambio de cadera o rodilla?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.31600752128275067,
+      "jaccard_similarity_output": 0.3545098039215686,
+      "determinism_sql_similarity": 0.6182321247552526,
+      "determinism_output_similarity": 0.4525724819842467,
+      "elapsed_seconds_per_run": [
+        60.0,
+        73.68,
+        74.7
+      ],
+      "mean_elapsed_seconds": 69.46,
+      "agent_sqls": [
+        "WITH procedimientos AS (\n    SELECT \n        p.patient_ref,\n        p.episode_ref as procedimiento_episode_ref,\n        p.start_date as procedimiento_fecha,\n        p.code as procedimiento_codigo,\n        p.descr as procedimiento_descripcion\n    FROM g_procedures p\n    WHERE p.code IN ('81.51', '81.52', '81.53', '81.54', '81.55')\n),\ningresos_posteriores AS (\n    SELECT \n        pr.patient_ref,\n        pr.procedimiento_fecha,\n        pr.procedimiento_codigo,\n        pr.procedimiento_descripcion,\n        e.episode_ref as ingreso_episode_ref,\n        e.start_date as ingreso_fecha,\n        e.end_date as ingreso_fin_fecha,\n        DATEDIFF(e.start_date, pr.procedimiento_fecha) as dias_desde_procedimiento\n    FROM procedimientos pr\n    INNER JOIN g_episodes e ON pr.patient_ref = e.patient_ref\n    WHERE e.episode_type_ref = 'HOSP'  -- Solo ingresos hospitalarios\n    AND e.start_date > pr.procedimiento_fecha  -- Ingreso después del procedimiento\n    AND DATEDIFF(e.start_date, pr.procedimiento_fecha) <= 90  -- Dentro de 3 meses (90 días)\n)\nSELECT DISTINCT\n    ip.patient_ref,\n    ip.procedimiento_codigo,\n    ip.procedimiento_descripcion,\n    ip.procedimiento_fecha,\n    ip.ingreso_fecha,\n    ip.dias_desde_procedimiento,\n    ip.ingreso_episode_ref\nFROM ingresos_posteriores ip\nORDER BY ip.patient_ref, ip.procedimiento_fecha, ip.ingreso_fecha",
+        "WITH procedimientos_cadera_rodilla AS (\n    SELECT \n        p.patient_ref,\n        p.episode_ref as procedimiento_episode_ref,\n        p.start_date as procedimiento_fecha,\n        p.code as procedimiento_codigo,\n        p.descr as procedimiento_descripcion\n    FROM g_procedures p\n    WHERE (\n        -- Códigos de cadera\n        p.code LIKE '81.5%' OR  -- Incluye 81.51, 81.52, 81.53\n        p.code LIKE '0SR%' AND p.descr LIKE '%cadera%' OR\n        -- Códigos de rodilla  \n        p.code LIKE '81.5%' OR  -- Incluye 81.54, 81.55\n        p.code LIKE '0SRC%' OR\n        p.code LIKE '0SRD%'\n    )\n),\ningresos_posteriores AS (\n    SELECT \n        pc.patient_ref,\n        pc.procedimiento_fecha,\n        pc.procedimiento_descripcion,\n        e.episode_ref as ingreso_episode_ref,\n        e.start_date as ingreso_fecha,\n        e.end_date as ingreso_fin_fecha,\n        DATEDIFF(e.start_date, pc.procedimiento_fecha) as dias_desde_procedimiento\n    FROM procedimientos_cadera_rodilla pc\n    JOIN g_episodes e ON pc.patient_ref = e.patient_ref\n    WHERE e.episode_type_ref = 'HOSP'  -- Solo ingresos hospitalarios\n    AND e.start_date > pc.procedimiento_fecha  -- Ingreso después del procedimiento\n    AND DATEDIFF(e.start_date, pc.procedimiento_fecha) <= 90  -- Dentro de 3 meses (90 días)\n)\nSELECT DISTINCT\n    patient_ref,\n    procedimiento_fecha,\n    procedimiento_descripcion,\n    ingreso_fecha,\n    dias_desde_procedimiento\nFROM ingresos_posteriores\nORDER BY patient_ref, procedimiento_fecha, ingreso_fecha",
+        "WITH procedimientos_cadera_rodilla AS (\n    SELECT \n        patient_ref,\n        episode_ref as procedimiento_episode_ref,\n        code as procedimiento_code,\n        descr as procedimiento_descr,\n        start_date as procedimiento_fecha\n    FROM g_procedures\n    WHERE (\n        -- Códigos de cadera\n        code IN ('81.51', '81.52', '81.53') OR\n        code LIKE '0SR%' AND descr LIKE '%cadera%' OR\n        -- Códigos de rodilla\n        code IN ('81.54', '81.55') OR\n        (code LIKE '0SRC%' OR code LIKE '0SRD%') AND descr LIKE '%rodilla%'\n    )\n),\ningresos_posteriores AS (\n    SELECT \n        p.patient_ref,\n        p.procedimiento_code,\n        p.procedimiento_descr,\n        p.procedimiento_fecha,\n        e.episode_ref as ingreso_episode_ref,\n        e.start_date as ingreso_fecha,\n        DATEDIFF(e.start_date, p.procedimiento_fecha) as dias_desde_procedimiento\n    FROM procedimientos_cadera_rodilla p\n    JOIN g_episodes e ON p.patient_ref = e.patient_ref\n    WHERE e.episode_type_ref = 'HOSP'  -- Solo ingresos hospitalarios\n    AND e.start_date > p.procedimiento_fecha  -- Ingreso después del procedimiento\n    AND DATEDIFF(e.start_date, p.procedimiento_fecha) <= 90  -- Dentro de 3 meses (90 días)\n)\nSELECT DISTINCT\n    patient_ref,\n    procedimiento_code,\n    procedimiento_descr,\n    procedimiento_fecha,\n    MIN(ingreso_fecha) as primer_ingreso_posterior,\n    MIN(dias_desde_procedimiento) as dias_hasta_primer_ingreso\nFROM ingresos_posteriores\nGROUP BY patient_ref, procedimiento_code, procedimiento_descr, procedimiento_fecha\nORDER BY patient_ref, procedimiento_fecha"
+      ],
+      "agent_row_counts": [
+        3,
+        9,
+        7
+      ]
+    },
+    {
+      "id": 7,
+      "question": "En pacientes con diagnóstico de glaucoma, ¿qué procedimientos quirúrgicos relacionados con glaucoma han sido realizados y cuándo ocurrieron en relación con el diagnóstico?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.08333333333333333,
+      "jaccard_similarity_output": 0.025157232704402514,
+      "determinism_sql_similarity": 0.3333333333333333,
+      "determinism_output_similarity": 0.3333333333333333,
+      "elapsed_seconds_per_run": [
+        71.13,
+        47.48,
+        81.7
+      ],
+      "mean_elapsed_seconds": 66.77,
+      "agent_sqls": [
+        "",
+        "",
+        "WITH pacientes_glaucoma AS (\n    SELECT DISTINCT \n        d.patient_ref,\n        d.episode_ref,\n        d.code as diag_code,\n        d.diag_descr,\n        d.diag_date\n    FROM g_diagnostics d\n    WHERE d.code LIKE 'H40%'  -- Códigos de glaucoma (H40.x)\n),\nprocedimientos_glaucoma AS (\n    SELECT \n        p.patient_ref,\n        p.episode_ref,\n        p.code as proc_code,\n        p.descr as proc_descr,\n        p.start_date as proc_date\n    FROM g_procedures p\n    WHERE p.code IN ('12.64')  -- Trabeculectomía\n)\nSELECT \n    pg.patient_ref,\n    COUNT(DISTINCT pg.diag_date) as num_diagnosticos,\n    MIN(pg.diag_date) as primer_diagnostico,\n    MAX(pg.diag_date) as ultimo_diagnostico,\n    COUNT(DISTINCT pgl.proc_code) as num_procedimientos,\n    GROUP_CONCAT(DISTINCT pgl.proc_descr) as procedimientos,\n    CASE \n        WHEN COUNT(DISTINCT pgl.proc_code) > 0 THEN 'Con procedimiento'\n        ELSE 'Sin procedimiento'\n    END as estado_procedimiento\nFROM pacientes_glaucoma pg\nLEFT JOIN procedimientos_glaucoma pgl \n    ON pg.patient_ref = pgl.patient_ref \n    AND pg.episode_ref = pgl.episode_ref\nGROUP BY pg.patient_ref\nORDER BY num_procedimientos DESC, pg.patient_ref"
+      ],
+      "agent_row_counts": [
+        0,
+        0,
+        13
+      ]
+    },
+    {
+      "id": 8,
+      "question": "¿Qué valor medio tienen de HbA1c los diabéticos tipo 2 atendidos por endocrinología?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.4432872803431979,
+      "jaccard_similarity_output": 0.0,
+      "determinism_sql_similarity": 0.7616945100490877,
+      "determinism_output_similarity": 1.0,
+      "elapsed_seconds_per_run": [
+        57.78,
+        38.44,
+        49.22
+      ],
+      "mean_elapsed_seconds": 48.48,
+      "agent_sqls": [
+        "SELECT \n    AVG(\n        CASE \n            -- Convertir HbA1c IFCC (mmol/mol) a NGSP (%)\n            WHEN l.lab_sap_ref = 'LABHG3' THEN (l.result_num / 10.929) + 2.15\n            -- Los otros códigos ya están en % (NGSP/DCCT)\n            ELSE l.result_num\n        END\n    ) AS valor_medio_hba1c_porcentaje\nFROM g_labs l\nWHERE l.lab_sap_ref IN ('LABHG1', 'LABHG2', 'LABHG3', 'LAB1368')\n    AND l.result_num IS NOT NULL\n    AND l.ou_med_ref = 'END'\n    AND l.patient_ref IN (\n        SELECT DISTINCT patient_ref \n        FROM g_diagnostics \n        WHERE (code LIKE 'E11%' OR code = '250.00')\n    )",
+        "SELECT \n    AVG(\n        CASE \n            WHEN l.lab_sap_ref = 'LABHG3' THEN (l.result_num / 10.929) + 2.15  -- Convertir IFCC (mmol/mol) a NGSP (%)\n            ELSE l.result_num  -- Ya está en % (NGSP)\n        END\n    ) AS valor_medio_hba1c_porcentaje\nFROM g_labs l\nWHERE l.lab_sap_ref IN ('LABHG1', 'LABHG2', 'LABHG3', 'LAB1368')\n    AND l.result_num IS NOT NULL\n    AND l.ou_med_ref = 'END'\n    AND l.patient_ref IN (\n        SELECT DISTINCT d.patient_ref \n        FROM g_diagnostics d \n        WHERE (d.code LIKE 'E11%' OR d.code = '250.00')\n    )",
+        "SELECT \n    AVG(\n        CASE \n            -- Hemoglobina glicada IFCC (mmol/mol) → NGSP (%): (result_num / 10.929) + 2.15\n            WHEN l.lab_sap_ref = 'LABHG3' THEN (l.result_num / 10.929) + 2.15\n            -- Para los otros códigos, asumimos que ya están en % (NGSP)\n            ELSE l.result_num\n        END\n    ) AS valor_medio_hba1c_porcentaje\nFROM g_labs l\nWHERE l.lab_sap_ref IN ('LABHG1', 'LABHG2', 'LABHG3', 'LAB1368')\n    AND l.result_num IS NOT NULL\n    AND l.ou_med_ref = 'END'\n    AND l.patient_ref IN (\n        SELECT DISTINCT d.patient_ref \n        FROM g_diagnostics d \n        WHERE d.code LIKE 'E11%'\n    )"
+      ],
+      "agent_row_counts": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": 9,
+      "question": "¿Cuantos ingresos por ictus isquemico hubo en 2024?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.5489278752436647,
+      "jaccard_similarity_output": 1.0,
+      "determinism_sql_similarity": 0.8738738738738739,
+      "determinism_output_similarity": 1.0,
+      "elapsed_seconds_per_run": [
+        31.51,
+        52.39,
+        73.13
+      ],
+      "mean_elapsed_seconds": 52.34,
+      "agent_sqls": [
+        "SELECT COUNT(DISTINCT e.episode_ref) as ingresos_ictus_isquemico_2024\nFROM g_episodes e\nINNER JOIN g_diagnostics d ON e.patient_ref = d.patient_ref AND e.episode_ref = d.episode_ref\nWHERE e.episode_type_ref = 'HOSP'  -- Solo ingresos hospitalarios\nAND d.code LIKE 'I63%'  -- Infarto cerebral (ictus isquémico)\nAND YEAR(e.start_date) = 2024",
+        "SELECT COUNT(DISTINCT e.episode_ref) as ingresos_ictus_isquemico_2024\nFROM g_episodes e\nINNER JOIN g_diagnostics d ON e.patient_ref = d.patient_ref AND e.episode_ref = d.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\n  AND d.code LIKE 'I63%'\n  AND YEAR(e.start_date) = 2024",
+        "SELECT COUNT(DISTINCT e.episode_ref) as ingresos_ictus_isquemico_2024\nFROM g_episodes e\nINNER JOIN g_diagnostics d ON e.patient_ref = d.patient_ref AND e.episode_ref = d.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\n  AND YEAR(e.start_date) = 2024\n  AND d.code LIKE 'I63%'"
+      ],
+      "agent_row_counts": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": 10,
+      "question": "¿Cuantos pacientes estuvieron hospitalizados por neumonia mas de 2 dias en 2025?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.403587962962963,
+      "jaccard_similarity_output": 1.0,
+      "determinism_sql_similarity": 0.7644145723748296,
+      "determinism_output_similarity": 1.0,
+      "elapsed_seconds_per_run": [
+        24.21,
+        26.5,
+        38.55
+      ],
+      "mean_elapsed_seconds": 29.75,
+      "agent_sqls": [
+        "SELECT COUNT(DISTINCT e.patient_ref) as pacientes_hospitalizados_neumonia_mas_2_dias_2025\nFROM g_episodes e\nINNER JOIN g_diagnostics d ON e.patient_ref = d.patient_ref AND e.episode_ref = d.episode_ref\nWHERE e.episode_type_ref = 'HOSP'  -- Hospitalizaciones\n  AND YEAR(e.start_date) = 2025  -- En 2025\n  AND DATEDIFF(e.end_date, e.start_date) > 2  -- Más de 2 días de estancia\n  AND (d.code LIKE 'J13%' OR d.code LIKE 'J18%' OR d.code LIKE '486%')  -- Diagnóstico de neumonía",
+        "SELECT COUNT(DISTINCT e.patient_ref) as pacientes_hospitalizados\nFROM g_episodes e\nINNER JOIN g_diagnostics d ON e.patient_ref = d.patient_ref AND e.episode_ref = d.episode_ref\nWHERE e.episode_type_ref = 'HOSP'  -- Hospitalizaciones\n  AND YEAR(e.start_date) = 2025  -- En 2025\n  AND DATEDIFF(e.end_date, e.start_date) > 2  -- Más de 2 días de hospitalización\n  AND (d.code LIKE 'J13%' OR d.code LIKE 'J18%' OR d.code = '486')  -- Códigos de neumonía",
+        "SELECT COUNT(DISTINCT e.patient_ref) as pacientes_hospitalizados_neumonia_mas_2_dias_2025\nFROM g_episodes e\nINNER JOIN g_diagnostics d ON e.patient_ref = d.patient_ref AND e.episode_ref = d.episode_ref\nWHERE e.episode_type_ref = 'HOSP'  -- Hospitalizaciones\n  AND YEAR(e.start_date) = 2025  -- En 2025\n  AND DATEDIFF(e.end_date, e.start_date) > 2  -- Más de 2 días de estancia\n  AND (\n    d.code LIKE 'J18%'  -- Neumonía (todos los subtipos)\n    OR d.code = 'J13'   -- Neumonía por streptococcus pneumoniae\n    OR d.code = '486'   -- Neumonía no especificada (ICD-9)\n  )"
+      ],
+      "agent_row_counts": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": 11,
+      "question": "¿Cual es el valor maximo y valor minimo de creatinina encontrado en pacientes de entre 50 y 70 años con enfermedad renal crónica?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.547804720704311,
+      "jaccard_similarity_output": 0.10939112487100104,
+      "determinism_sql_similarity": 0.8235867446393762,
+      "determinism_output_similarity": 0.6666666666666666,
+      "elapsed_seconds_per_run": [
+        45.99,
+        44.96,
+        42.05
+      ],
+      "mean_elapsed_seconds": 44.33,
+      "agent_sqls": [
+        "SELECT \n    MIN(l.result_num) as valor_minimo_creatinina,\n    MAX(l.result_num) as valor_maximo_creatinina,\n    COUNT(DISTINCT l.patient_ref) as numero_pacientes,\n    COUNT(l.result_num) as numero_resultados\nFROM g_labs l\nINNER JOIN g_demographics d ON l.patient_ref = d.patient_ref\nWHERE l.lab_sap_ref IN ('LAB2467', 'LABOCREA')  -- Creatinina sangre y Creatinina\n    AND l.result_num IS NOT NULL\n    AND TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE()) BETWEEN 50 AND 70\n    AND l.patient_ref IN (\n        SELECT DISTINCT patient_ref \n        FROM g_diagnostics \n        WHERE (code LIKE 'N18%' OR code LIKE 'I12%' OR code LIKE 'I13%')\n    )",
+        "WITH pacientes_erc AS (\n    SELECT DISTINCT patient_ref\n    FROM g_diagnostics\n    WHERE (code LIKE 'N18%' OR code LIKE 'I12%' OR code LIKE 'I13%' OR code = 'D63.1')\n),\npacientes_edad AS (\n    SELECT d.patient_ref\n    FROM g_demographics d\n    WHERE TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE()) BETWEEN 50 AND 70\n)\nSELECT \n    MIN(l.result_num) AS valor_minimo_creatinina,\n    MAX(l.result_num) AS valor_maximo_creatinina\nFROM g_labs l\nWHERE l.lab_sap_ref IN ('LAB2467', 'LABOCREA', 'LABCREAAR')\n    AND l.result_num IS NOT NULL\n    AND l.patient_ref IN (SELECT patient_ref FROM pacientes_erc)\n    AND l.patient_ref IN (SELECT patient_ref FROM pacientes_edad)",
+        "SELECT \n    MIN(l.result_num) as valor_minimo_creatinina,\n    MAX(l.result_num) as valor_maximo_creatinina,\n    COUNT(DISTINCT l.patient_ref) as numero_pacientes,\n    COUNT(l.result_num) as numero_resultados\nFROM g_labs l\nINNER JOIN g_demographics d ON l.patient_ref = d.patient_ref\nWHERE l.lab_sap_ref IN ('LAB2467', 'LABOCREA', 'LABCREAAR')  -- Creatinina en sangre\n    AND l.result_num IS NOT NULL\n    AND TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE()) BETWEEN 50 AND 70\n    AND l.patient_ref IN (\n        SELECT DISTINCT patient_ref \n        FROM g_diagnostics \n        WHERE (code LIKE 'N18%' OR code LIKE 'I12%' OR code LIKE 'I13%')\n    )"
+      ],
+      "agent_row_counts": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": 12,
+      "question": "¿Cuántos pacientes mayores de 65 años fueron sometidos a colecistectomía laparoscópica en 2024?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.7548539222452266,
+      "jaccard_similarity_output": 1.0,
+      "determinism_sql_similarity": 0.7703373015873017,
+      "determinism_output_similarity": 1.0,
+      "elapsed_seconds_per_run": [
+        34.79,
+        20.8,
+        18.72
+      ],
+      "mean_elapsed_seconds": 24.77,
+      "agent_sqls": [
+        "SELECT COUNT(DISTINCT p.patient_ref) as total_pacientes\nFROM g_procedures p\nINNER JOIN g_demographics d ON p.patient_ref = d.patient_ref\nWHERE p.code = '51.23'\n  AND YEAR(p.start_date) = 2024\n  AND TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE()) > 65",
+        "SELECT COUNT(DISTINCT p.patient_ref) as total_pacientes\nFROM g_procedures p\nJOIN g_demographics d ON p.patient_ref = d.patient_ref\nJOIN g_episodes e ON p.patient_ref = e.patient_ref AND p.episode_ref = e.episode_ref\nWHERE p.code = '51.23'  -- colecistectomía laparoscópica\n  AND YEAR(p.start_date) = 2024\n  AND TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE()) > 65\n  AND e.episode_type_ref = 'HOSP'  -- solo hospitalizaciones",
+        "SELECT COUNT(DISTINCT p.patient_ref) as pacientes_mayores_65_colecistectomia_laparoscopica_2024\nFROM g_procedures p\nJOIN g_demographics d ON p.patient_ref = d.patient_ref\nWHERE p.code = '51.23'\n  AND YEAR(p.start_date) = 2024\n  AND TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE()) > 65"
+      ],
+      "agent_row_counts": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": 13,
+      "question": "¿Cuál  es el valor medio de Hb1Ac en pacientes diabéticos?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.584934260560119,
+      "jaccard_similarity_output": 0.1111111111111111,
+      "determinism_sql_similarity": 0.8378096440596442,
+      "determinism_output_similarity": 0.3333333333333333,
+      "elapsed_seconds_per_run": [
+        47.12,
+        31.86,
+        41.15
+      ],
+      "mean_elapsed_seconds": 40.04,
+      "agent_sqls": [
+        "SELECT \n    AVG(CASE \n        -- Convertir HbA1c IFCC (mmol/mol) a NGSP (%)\n        WHEN l.lab_sap_ref = 'LABHG3' THEN (l.result_num / 10.929) + 2.15\n        -- Los otros códigos ya están en % (NGPS DCCT, JDS JSCC, sangre total)\n        ELSE l.result_num\n    END) AS valor_medio_hba1c_porcentaje\nFROM g_labs l\nWHERE l.lab_sap_ref IN ('LABHG2', 'LAB1368', 'LABHG3', 'LABHG1')\n    AND l.result_num IS NOT NULL\n    AND l.patient_ref IN (\n        SELECT DISTINCT d.patient_ref \n        FROM g_diagnostics d \n        WHERE (d.code LIKE 'E10%' OR d.code LIKE 'E11%' OR d.code LIKE 'E13%' OR d.code LIKE 'O24%' OR d.code = '250.00')\n    )",
+        "SELECT \n    AVG(\n        CASE \n            WHEN l.lab_sap_ref = 'LABHG3' THEN (l.result_num / 10.929) + 2.15  -- Convertir IFCC (mmol/mol) a %\n            ELSE l.result_num  -- Los otros ya están en %\n        END\n    ) AS valor_medio_hba1c_porcentaje\nFROM g_labs l\nWHERE l.lab_sap_ref IN ('LABHG1', 'LABHG2', 'LABHG3', 'LAB1368')\n    AND l.result_num IS NOT NULL\n    AND l.patient_ref IN (\n        SELECT DISTINCT d.patient_ref \n        FROM g_diagnostics d \n        WHERE (d.code LIKE 'E10%' OR d.code LIKE 'E11%' OR d.code LIKE 'E13%' OR d.code = '250.00')\n    )",
+        "SELECT \n    AVG(\n        CASE \n            WHEN l.lab_sap_ref = 'LABHG3' THEN (l.result_num / 10.929) + 2.15  -- Convertir IFCC a NGSP\n            ELSE l.result_num  -- LABHG1, LABHG2, LAB1368 ya están en NGSP (%)\n        END\n    ) AS valor_medio_hba1c_porcentaje\nFROM g_labs l\nWHERE l.lab_sap_ref IN ('LABHG1', 'LABHG2', 'LABHG3', 'LAB1368')\n    AND l.result_num IS NOT NULL\n    AND l.patient_ref IN (\n        SELECT DISTINCT d.patient_ref \n        FROM g_diagnostics d \n        WHERE (d.code LIKE 'E10%' OR d.code LIKE 'E11%' OR d.code LIKE 'E13%' OR d.code LIKE 'O24.4%' OR d.code = '250.00')\n    )"
+      ],
+      "agent_row_counts": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": 14,
+      "question": "¿Cuál es el valor medio de potasio en sangre en pacientes ingresados por insuficiencia cardíaca?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.46764181376223907,
+      "jaccard_similarity_output": 0.0,
+      "determinism_sql_similarity": 0.720049595049595,
+      "determinism_output_similarity": 0.1111111111111111,
+      "elapsed_seconds_per_run": [
+        31.89,
+        35.91,
+        68.59
+      ],
+      "mean_elapsed_seconds": 45.46,
+      "agent_sqls": [
+        "SELECT \n    AVG(l.result_num) as valor_medio_potasio,\n    COUNT(DISTINCT l.patient_ref) as pacientes_unicos,\n    COUNT(l.result_num) as mediciones_totales\nFROM g_labs l\nINNER JOIN g_episodes e ON l.patient_ref = e.patient_ref AND l.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'HOSP'  -- Solo pacientes ingresados\nAND l.patient_ref IN (\n    SELECT DISTINCT d.patient_ref \n    FROM g_diagnostics d\n    INNER JOIN g_episodes e2 ON d.patient_ref = e2.patient_ref AND d.episode_ref = e2.episode_ref\n    WHERE e2.episode_type_ref = 'HOSP'  -- Diagnóstico durante ingreso\n    AND (d.code LIKE 'I50%' OR d.code = 'I11.0' OR d.code = 'I13.0')  -- Insuficiencia cardíaca\n)\nAND l.lab_sap_ref IN ('LABRPAK', 'LAB2508', 'LABRPVK', 'LABKSC', 'LABKV', 'LABKSV', 'LABKST')\nAND l.result_num IS NOT NULL",
+        "SELECT \n    AVG(l.result_num) as valor_medio_potasio,\n    COUNT(DISTINCT l.patient_ref) as num_pacientes,\n    COUNT(l.result_num) as num_valores_potasio\nFROM g_labs l\nINNER JOIN g_episodes e ON l.patient_ref = e.patient_ref AND l.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'HOSP'  -- Solo pacientes ingresados\nAND l.patient_ref IN (\n    SELECT DISTINCT d.patient_ref \n    FROM g_diagnostics d\n    WHERE d.code LIKE 'I50%'  -- Insuficiencia cardíaca\n       OR d.code LIKE 'I11.0%'  -- Enfermedad cardiaca hipertensiva con insuficiencia cardiaca\n       OR d.code LIKE 'I13.0%'  -- Enfermedad cardiaca y renal crónica hipertensiva con insuficiencia cardiaca\n)\nAND l.lab_sap_ref IN ('LABRPAK', 'LAB2508', 'LABRPVK', 'LABKSC', 'LABKV', 'LABKSV', 'LABKST')\nAND l.result_num IS NOT NULL",
+        "SELECT \n    AVG(l.result_num) as valor_medio_potasio\nFROM g_labs l\nINNER JOIN g_episodes e ON l.patient_ref = e.patient_ref AND l.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'HOSP'  -- pacientes ingresados\nAND l.lab_sap_ref IN ('LABRPAK', 'LAB2508', 'LABRPVK', 'LABKSC', 'LABKV', 'LABKSV', 'LABKST')  -- potasio en sangre\nAND l.result_num IS NOT NULL\nAND l.patient_ref IN (\n    SELECT DISTINCT d.patient_ref \n    FROM g_diagnostics d\n    INNER JOIN g_episodes e2 ON d.patient_ref = e2.patient_ref AND d.episode_ref = e2.episode_ref\n    WHERE e2.episode_type_ref = 'HOSP'\n    AND (d.code LIKE 'I50%' OR d.code = 'I11.0' OR d.code = 'I13.0')\n)"
+      ],
+      "agent_row_counts": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": 15,
+      "question": "¿Cuántos pacientes mayores de 75 años han sido sometidos a implantación de marcapasos o desfibrilador?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.8321513002364066,
+      "jaccard_similarity_output": 0.6666666666666666,
+      "determinism_sql_similarity": 0.8933333333333332,
+      "determinism_output_similarity": 0.3333333333333333,
+      "elapsed_seconds_per_run": [
+        55.9,
+        23.36,
+        28.16
+      ],
+      "mean_elapsed_seconds": 35.81,
+      "agent_sqls": [
+        "SELECT COUNT(DISTINCT p.patient_ref) as total_pacientes\nFROM g_procedures p\nJOIN g_demographics d ON p.patient_ref = d.patient_ref\nWHERE (\n    p.code IN ('0JH604Z', '0JH606Z', '02HK3JZ', '02H63JZ') OR  -- códigos de marcapasos\n    p.code IN ('0JH609Z', '02HK3KZ', '02H63KZ', '37.95', '00.54', '0JH608Z', '02HL3KZ', '00.51')  -- códigos de desfibrilador\n)\nAND TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE()) > 75",
+        "SELECT COUNT(DISTINCT p.patient_ref) as total_pacientes\nFROM g_procedures p\nJOIN g_demographics d ON p.patient_ref = d.patient_ref\nWHERE TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE()) > 75\nAND p.code IN (\n    '5A1223Z', '37.78', '4B02XSZ', '89.45', '0JH604Z', '37.89', '0JH606Z', '02HK3JZ', '02H63JZ',  -- marcapasos\n    '0JH609Z', '02HK3KZ', '02H63KZ', '37.95', '00.54', '0JH608Z', '02HL3KZ', '00.51'  -- desfibrilador\n)",
+        "SELECT COUNT(DISTINCT p.patient_ref) as total_pacientes\nFROM g_procedures p\nJOIN g_demographics d ON p.patient_ref = d.patient_ref\nWHERE p.code IN (\n    '5A1223Z', '37.78', '4B02XSZ', '89.45', '0JH604Z', '37.89', '0JH606Z', '02HK3JZ', '02H63JZ',  -- marcapasos\n    '0JH609Z', '02HK3KZ', '02H63KZ', '37.95', '00.54', '0JH608Z', '02HL3KZ', '00.51'  -- desfibrilador\n)\nAND TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE()) > 75"
+      ],
+      "agent_row_counts": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": 16,
+      "question": "¿Cuántos ingresos por enfermedad renal crónica duraron más de una semana?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.550999000999001,
+      "jaccard_similarity_output": 0.0,
+      "determinism_sql_similarity": 0.8099999999999999,
+      "determinism_output_similarity": 1.0,
+      "elapsed_seconds_per_run": [
+        40.05,
+        20.05,
+        17.75
+      ],
+      "mean_elapsed_seconds": 25.95,
+      "agent_sqls": [
+        "SELECT COUNT(DISTINCT e.episode_ref) as ingresos_mas_de_una_semana\nFROM g_episodes e\nINNER JOIN g_diagnostics d ON e.patient_ref = d.patient_ref AND e.episode_ref = d.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\n  AND (\n    d.code LIKE 'N18%' OR \n    d.code LIKE 'I12%' OR \n    d.code LIKE 'I13%' OR\n    d.code = 'D63.1'\n  )\n  AND DATEDIFF(e.end_date, e.start_date) > 7",
+        "SELECT COUNT(DISTINCT e.episode_ref) as ingresos_mas_de_una_semana\nFROM g_episodes e\nINNER JOIN g_diagnostics d ON e.patient_ref = d.patient_ref AND e.episode_ref = d.episode_ref\nWHERE e.episode_type_ref = 'HOSP'  -- Solo ingresos hospitalarios\n  AND (\n    d.code LIKE 'N18%' OR  -- Enfermedad renal crónica\n    d.code LIKE 'I12%' OR  -- Enfermedad renal crónica hipertensiva\n    d.code LIKE 'I13%' OR  -- Enfermedad cardiaca y renal crónica hipertensiva\n    d.code = 'D63.1'       -- Anemia en enfermedad renal crónica\n  )\n  AND DATEDIFF(e.end_date, e.start_date) > 7  -- Duración > 7 días",
+        "SELECT COUNT(DISTINCT e.episode_ref) as ingresos_mas_de_una_semana\nFROM g_episodes e\nINNER JOIN g_diagnostics d ON e.patient_ref = d.patient_ref AND e.episode_ref = d.episode_ref\nWHERE e.episode_type_ref = 'HOSP'  -- Solo ingresos hospitalarios\n  AND (\n    d.code LIKE 'N18%' OR  -- Enfermedad renal crónica\n    d.code LIKE 'I12%' OR  -- Enfermedad renal crónica hipertensiva\n    d.code LIKE 'I13%'     -- Enfermedad cardiaca y renal crónica hipertensiva\n  )\n  AND DATEDIFF(e.end_date, e.start_date) > 7  -- Duración > 7 días"
+      ],
+      "agent_row_counts": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": 17,
+      "question": "¿Cuántas mujeres tienen diagnóstico de fibrilación o flutter auricular?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.5817550505050505,
+      "jaccard_similarity_output": 1.0,
+      "determinism_sql_similarity": 0.9761904761904763,
+      "determinism_output_similarity": 1.0,
+      "elapsed_seconds_per_run": [
+        22.6,
+        24.9,
+        26.51
+      ],
+      "mean_elapsed_seconds": 24.67,
+      "agent_sqls": [
+        "SELECT COUNT(DISTINCT d.patient_ref) as mujeres_con_fibrilacion_flutter\nFROM g_diagnostics d\nINNER JOIN g_demographics dm ON d.patient_ref = dm.patient_ref\nWHERE dm.sex = 2\n  AND (d.code LIKE 'I48%' OR d.code = '427.31')",
+        "SELECT COUNT(DISTINCT d.patient_ref) as mujeres_con_fibrilacion_flutter\nFROM g_diagnostics d\nINNER JOIN g_demographics dm ON d.patient_ref = dm.patient_ref\nWHERE dm.sex = 2  -- 2 = mujer\n  AND (d.code LIKE 'I48%' OR d.code = '427.31')",
+        "SELECT COUNT(DISTINCT d.patient_ref) as mujeres_con_fibrilacion_flutter\nFROM g_diagnostics d\nINNER JOIN g_demographics dm ON d.patient_ref = dm.patient_ref\nWHERE dm.sex = 2  -- 2 = mujer\n  AND (d.code LIKE 'I48%' OR d.code = '427.31')"
+      ],
+      "agent_row_counts": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": 18,
+      "question": "¿Qué microorganismos se aislaron en hemocultivos positivos de pacientes hospitalizados y cuántos pacientes afectó cada uno?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.7671212947808693,
+      "jaccard_similarity_output": 1.0,
+      "determinism_sql_similarity": 0.8278368794326241,
+      "determinism_output_similarity": 1.0,
+      "elapsed_seconds_per_run": [
+        24.98,
+        35.49,
+        37.37
+      ],
+      "mean_elapsed_seconds": 32.61,
+      "agent_sqls": [
+        "SELECT \n    m.micro_descr AS microorganismo,\n    COUNT(DISTINCT m.patient_ref) AS pacientes_afectados\nFROM g_micro m\nJOIN g_episodes e ON m.patient_ref = e.patient_ref AND m.episode_ref = e.episode_ref\nWHERE m.mue_descr = 'Hemocultiu'\n    AND m.positive = 'X'\n    AND e.episode_type_ref = 'HOSP'\n    AND m.micro_descr IS NOT NULL\n    AND m.micro_descr != ''\nGROUP BY m.micro_descr\nORDER BY pacientes_afectados DESC, microorganismo",
+        "SELECT \n    m.micro_descr AS microorganismo,\n    COUNT(DISTINCT m.patient_ref) AS numero_pacientes_afectados\nFROM g_micro m\nINNER JOIN g_episodes e ON m.patient_ref = e.patient_ref AND m.episode_ref = e.episode_ref\nWHERE m.mue_descr = 'Hemocultiu'\n    AND m.positive = 'X'\n    AND e.episode_type_ref = 'HOSP'\n    AND m.micro_descr IS NOT NULL\n    AND m.micro_descr != ''\nGROUP BY m.micro_descr\nORDER BY numero_pacientes_afectados DESC, microorganismo",
+        "SELECT \n    m.micro_descr AS microorganismo,\n    COUNT(DISTINCT m.patient_ref) AS numero_pacientes_afectados\nFROM g_micro m\nINNER JOIN g_episodes e ON m.patient_ref = e.patient_ref AND m.episode_ref = e.episode_ref\nWHERE m.mue_descr = 'Hemocultiu'  -- Hemocultivos\n    AND m.positive = 'X'  -- Cultivos positivos\n    AND e.episode_type_ref = 'HOSP'  -- Pacientes hospitalizados\n    AND m.micro_descr IS NOT NULL  -- Excluir registros sin microorganismo\nGROUP BY m.micro_descr\nORDER BY numero_pacientes_afectados DESC, microorganismo"
+      ],
+      "agent_row_counts": [
+        18,
+        18,
+        18
+      ]
+    },
+    {
+      "id": 19,
+      "question": "¿Qué anticoagulantes se administraron a pacientes con fibrilación auricular y cuántos pacientes recibieron cada uno?",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.576559934318555,
+      "jaccard_similarity_output": 0.35042735042735046,
+      "determinism_sql_similarity": 0.7592489367851686,
+      "determinism_output_similarity": 0.8333333333333334,
+      "elapsed_seconds_per_run": [
+        60.38,
+        59.67,
+        111.82
+      ],
+      "mean_elapsed_seconds": 77.29,
+      "agent_sqls": [
+        "SELECT \n    a.atc_descr AS anticoagulante,\n    COUNT(DISTINCT a.patient_ref) AS numero_pacientes\nFROM g_administrations a\nWHERE a.atc_descr IN ('Apixaban', 'Rivaroxaban', 'Dabigatran etexilato', 'Heparina', 'Enoxaparina', 'Acenocumarol')\n    AND a.given = 'X'  -- Solo medicamentos realmente administrados\n    AND a.patient_ref IN (\n        SELECT DISTINCT d.patient_ref \n        FROM g_diagnostics d \n        WHERE (d.code LIKE 'I48%' OR d.code = '427.31')\n    )\nGROUP BY a.atc_descr\nORDER BY numero_pacientes DESC",
+        "WITH pacientes_fa AS (\n    SELECT DISTINCT patient_ref\n    FROM g_diagnostics \n    WHERE code LIKE 'I48%' OR code = '427.31'\n)\nSELECT \n    a.atc_descr AS anticoagulante,\n    COUNT(DISTINCT a.patient_ref) AS numero_pacientes\nFROM g_administrations a\nINNER JOIN pacientes_fa pf ON a.patient_ref = pf.patient_ref\nWHERE a.atc_descr IN ('Apixaban', 'Rivaroxaban', 'Dabigatran etexilato', 'Heparina', 'Enoxaparina')\n    AND a.given = 'X'\nGROUP BY a.atc_descr\nORDER BY numero_pacientes DESC",
+        "WITH pacientes_fa AS (\n    SELECT DISTINCT patient_ref\n    FROM g_diagnostics \n    WHERE code LIKE 'I48%' OR code = '427.31'\n),\nanticoagulantes_fa AS (\n    SELECT \n        a.atc_descr,\n        a.patient_ref\n    FROM g_administrations a\n    INNER JOIN pacientes_fa pf ON a.patient_ref = pf.patient_ref\n    WHERE a.atc_descr IN ('Apixaban', 'Rivaroxaban', 'Dabigatran etexilato', 'Heparina', 'Enoxaparina')\n    AND a.given = 'X'\n)\nSELECT \n    atc_descr AS anticoagulante,\n    COUNT(DISTINCT patient_ref) AS numero_pacientes\nFROM anticoagulantes_fa\nGROUP BY atc_descr\nORDER BY numero_pacientes DESC"
+      ],
+      "agent_row_counts": [
+        4,
+        3,
+        3
+      ]
+    },
+    {
+      "id": 20,
+      "question": "Muestra los episodios de pacientes hospitalizados a cargo de cardiología en el año 2023.",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.4859388458225668,
+      "jaccard_similarity_output": 0.20309734513274336,
+      "determinism_sql_similarity": 0.7827838827838827,
+      "determinism_output_similarity": 0.721311475409836,
+      "elapsed_seconds_per_run": [
+        53.34,
+        51.01,
+        58.78
+      ],
+      "mean_elapsed_seconds": 54.38,
+      "agent_sqls": [
+        "SELECT DISTINCT\n    e.episode_ref,\n    e.patient_ref,\n    e.start_date,\n    e.end_date,\n    DATEDIFF(e.end_date, e.start_date) AS dias_estancia\nFROM g_episodes e\nJOIN g_movements m ON e.patient_ref = m.patient_ref AND e.episode_ref = m.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\n    AND YEAR(e.start_date) = 2023\n    AND m.ou_med_ref = 'CAR'\nORDER BY e.start_date",
+        "SELECT \n    e.episode_ref,\n    e.patient_ref,\n    e.start_date,\n    e.end_date,\n    m.ou_med_ref,\n    m.ou_med_descr,\n    m.ou_loc_ref,\n    m.ou_loc_descr,\n    m.start_date as movement_start_date,\n    m.end_date as movement_end_date\nFROM g_episodes e\nJOIN g_movements m ON e.patient_ref = m.patient_ref AND e.episode_ref = m.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\n    AND YEAR(e.start_date) = 2023\n    AND m.ou_med_ref = 'CAR'\nORDER BY e.start_date, e.patient_ref",
+        "SELECT DISTINCT\n    e.episode_ref,\n    e.patient_ref,\n    e.start_date,\n    e.end_date,\n    DATEDIFF(e.end_date, e.start_date) AS dias_estancia\nFROM g_episodes e\nJOIN g_movements m ON e.patient_ref = m.patient_ref AND e.episode_ref = m.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\n    AND YEAR(e.start_date) = 2023\n    AND m.ou_med_ref IN ('CAR', 'BCAR', 'B-CAR')\nORDER BY e.start_date"
+      ],
+      "agent_row_counts": [
+        18,
+        53,
+        18
+      ]
+    },
+    {
+      "id": 21,
+      "question": "Muestra la cantidad de episodios con diagnóstico de infarto agudo de miocardio por cada mes, focalizándose en episodios de hospitalización que ingresan en el año 2023.",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.5766081871345029,
+      "jaccard_similarity_output": 0.638095238095238,
+      "determinism_sql_similarity": 0.7863562091503269,
+      "determinism_output_similarity": 0.48148148148148157,
+      "elapsed_seconds_per_run": [
+        22.64,
+        18.07,
+        33.98
+      ],
+      "mean_elapsed_seconds": 24.9,
+      "agent_sqls": [
+        "SELECT \n    YEAR(e.start_date) AS año,\n    MONTH(e.start_date) AS mes,\n    COUNT(DISTINCT e.episode_ref) AS cantidad_episodios\nFROM g_episodes e\nINNER JOIN g_diagnostics d ON e.patient_ref = d.patient_ref AND e.episode_ref = d.episode_ref\nWHERE e.episode_type_ref = 'HOSP'  -- Solo hospitalizaciones\n    AND YEAR(e.start_date) = 2023  -- Episodios que ingresan en 2023\n    AND d.code LIKE 'I21%'  -- Diagnóstico de infarto agudo de miocardio\nGROUP BY YEAR(e.start_date), MONTH(e.start_date)\nORDER BY año, mes",
+        "SELECT \n    YEAR(e.start_date) AS año,\n    MONTH(e.start_date) AS mes,\n    COUNT(DISTINCT e.episode_ref) AS cantidad_episodios\nFROM g_episodes e\nINNER JOIN g_diagnostics d ON e.patient_ref = d.patient_ref AND e.episode_ref = d.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\n    AND YEAR(e.start_date) = 2023\n    AND d.code LIKE 'I21%'\nGROUP BY YEAR(e.start_date), MONTH(e.start_date)\nORDER BY año, mes",
+        "SELECT \n    DATE_FORMAT(e.start_date, '%Y-%m') AS mes,\n    COUNT(DISTINCT e.episode_ref) AS cantidad_episodios\nFROM g_episodes e\nINNER JOIN g_diagnostics d ON e.patient_ref = d.patient_ref AND e.episode_ref = d.episode_ref\nWHERE e.episode_type_ref = 'HOSP'  -- Solo hospitalizaciones\n    AND YEAR(e.start_date) = 2023  -- Episodios que ingresan en 2023\n    AND d.code LIKE 'I21%'  -- Diagnóstico de infarto agudo de miocardio\nGROUP BY DATE_FORMAT(e.start_date, '%Y-%m')\nORDER BY mes"
+      ],
+      "agent_row_counts": [
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "id": 22,
+      "question": "Muestra una fila por cada combinación de paciente con Diabetes Mellitus (DM) y su tipo de DM. Centrate solamente en pacientes ambulatorios (consulta externa)",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.37730476524997075,
+      "jaccard_similarity_output": 0.48611111111111116,
+      "determinism_sql_similarity": 0.8192532211121604,
+      "determinism_output_similarity": 0.4591988801012216,
+      "elapsed_seconds_per_run": [
+        37.73,
+        41.74,
+        89.59
+      ],
+      "mean_elapsed_seconds": 56.35,
+      "agent_sqls": [
+        "SELECT DISTINCT \n    d.patient_ref,\n    CASE \n        WHEN d.code LIKE 'E10%' THEN 'Diabetes mellitus tipo 1'\n        WHEN d.code LIKE 'E11%' THEN 'Diabetes mellitus tipo 2'\n        WHEN d.code LIKE 'E13%' THEN 'Otra diabetes mellitus especificada'\n        WHEN d.code LIKE 'O24%' THEN 'Diabetes mellitus gestacional'\n        WHEN d.code LIKE '250%' THEN 'Diabetes mellitus (ICD-9)'\n        ELSE 'Otro tipo de diabetes'\n    END AS tipo_diabetes,\n    COUNT(DISTINCT d.episode_ref) AS num_episodios_con_dm\nFROM g_diagnostics d\nINNER JOIN g_episodes e ON d.patient_ref = e.patient_ref AND d.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'AM'  -- Solo pacientes ambulatorios\n  AND (\n    d.code LIKE 'E10%' OR  -- Diabetes tipo 1\n    d.code LIKE 'E11%' OR  -- Diabetes tipo 2\n    d.code LIKE 'E13%' OR  -- Otra diabetes especificada\n    d.code LIKE 'O24%' OR  -- Diabetes gestacional\n    d.code LIKE '250%'     -- Código ICD-9 para diabetes\n  )\nGROUP BY d.patient_ref, tipo_diabetes\nORDER BY d.patient_ref, tipo_diabetes",
+        "SELECT \n    d.patient_ref,\n    CASE \n        WHEN d.code LIKE 'E10%' THEN 'Diabetes tipo 1'\n        WHEN d.code LIKE 'E11%' THEN 'Diabetes tipo 2'\n        WHEN d.code LIKE 'E13%' THEN 'Otra diabetes especificada'\n        WHEN d.code LIKE 'O24%' THEN 'Diabetes gestacional'\n        WHEN d.code LIKE '250%' THEN 'Diabetes tipo 2 (ICD-9)'\n        ELSE 'Otro tipo de diabetes'\n    END AS tipo_diabetes,\n    d.code AS codigo_diabetes,\n    d.diag_descr AS descripcion_diabetes,\n    e.episode_type_ref,\n    e.start_date AS fecha_episodio\nFROM g_diagnostics d\nINNER JOIN g_episodes e ON d.patient_ref = e.patient_ref AND d.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'AM'  -- Solo pacientes ambulatorios\n  AND (\n    d.code LIKE 'E10%' OR  -- Diabetes tipo 1\n    d.code LIKE 'E11%' OR  -- Diabetes tipo 2  \n    d.code LIKE 'E13%' OR  -- Otras diabetes especificadas\n    d.code LIKE 'O24%' OR  -- Diabetes gestacional\n    d.code LIKE '250%'     -- Diabetes tipo 2 (ICD-9)\n  )\nGROUP BY d.patient_ref, tipo_diabetes, d.code, d.diag_descr, e.episode_type_ref, e.start_date\nORDER BY d.patient_ref, tipo_diabetes, e.start_date",
+        "SELECT DISTINCT\n    d.patient_ref,\n    CASE \n        WHEN d.code LIKE 'E10%' THEN 'Diabetes mellitus tipo 1'\n        WHEN d.code LIKE 'E11%' THEN 'Diabetes mellitus tipo 2'\n        WHEN d.code LIKE 'E13%' THEN 'Otra diabetes mellitus especificada'\n        WHEN d.code LIKE 'O24%' THEN 'Diabetes mellitus gestacional'\n        WHEN d.code LIKE '250%' THEN 'Diabetes mellitus (ICD-9)'\n        ELSE 'Otro tipo de diabetes'\n    END AS tipo_diabetes\nFROM g_diagnostics d\nINNER JOIN g_episodes e ON d.patient_ref = e.patient_ref AND d.episode_ref = e.episode_ref\nWHERE (\n    d.code LIKE 'E10%' OR \n    d.code LIKE 'E11%' OR \n    d.code LIKE 'E13%' OR \n    d.code LIKE 'O24%' OR \n    d.code LIKE '250%'\n)\nAND e.episode_type_ref = 'AM'\nORDER BY d.patient_ref"
+      ],
+      "agent_row_counts": [
+        29,
+        42,
+        29
+      ]
+    },
+    {
+      "id": 23,
+      "question": "Muestra una fila por cada combinación de microbio y antibiótico con el nombre del microbio, el nombre del antibiótico y la cantidad de veces que esa combinación de microbio y antibiótico ha sido probada en los antibiogramas.",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.41379310344827586,
+      "jaccard_similarity_output": 1.0,
+      "determinism_sql_similarity": 1.0,
+      "determinism_output_similarity": 1.0,
+      "elapsed_seconds_per_run": [
+        23.8,
+        51.08,
+        30.55
+      ],
+      "mean_elapsed_seconds": 35.14,
+      "agent_sqls": [
+        "SELECT \n    micro_descr AS nombre_microbio,\n    antibiotic_descr AS nombre_antibiotico,\n    COUNT(*) AS cantidad_pruebas\nFROM g_antibiograms\nWHERE micro_descr IS NOT NULL \n    AND antibiotic_descr IS NOT NULL\nGROUP BY micro_descr, antibiotic_descr\nORDER BY micro_descr, antibiotic_descr",
+        "SELECT \n    micro_descr AS nombre_microbio,\n    antibiotic_descr AS nombre_antibiotico,\n    COUNT(*) AS cantidad_pruebas\nFROM g_antibiograms\nWHERE micro_descr IS NOT NULL \n    AND antibiotic_descr IS NOT NULL\nGROUP BY micro_descr, antibiotic_descr\nORDER BY micro_descr, antibiotic_descr",
+        "SELECT \n    micro_descr AS nombre_microbio,\n    antibiotic_descr AS nombre_antibiotico,\n    COUNT(*) AS cantidad_pruebas\nFROM g_antibiograms\nWHERE micro_descr IS NOT NULL \n    AND antibiotic_descr IS NOT NULL\nGROUP BY micro_descr, antibiotic_descr\nORDER BY micro_descr, antibiotic_descr"
+      ],
+      "agent_row_counts": [
+        510,
+        510,
+        510
+      ]
+    },
+    {
+      "id": 24,
+      "question": "Muestra una fila por cada código ATC con el código ATC, su descripción y el número de veces que ha sido prescrito.",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.7194202898550724,
+      "jaccard_similarity_output": 1.0,
+      "determinism_sql_similarity": 0.8840579710144928,
+      "determinism_output_similarity": 1.0,
+      "elapsed_seconds_per_run": [
+        25.35,
+        42.01,
+        18.73
+      ],
+      "mean_elapsed_seconds": 28.7,
+      "agent_sqls": [
+        "SELECT atc_ref as codigo_atc, atc_descr as descripcion_atc, COUNT(*) as veces_prescrito\nFROM g_prescriptions\nWHERE atc_ref IS NOT NULL\nGROUP BY atc_ref, atc_descr\nORDER BY atc_ref",
+        "SELECT atc_ref as codigo_atc, atc_descr as descripcion_atc, COUNT(*) as veces_prescrito\nFROM g_prescriptions\nWHERE atc_ref IS NOT NULL\nGROUP BY atc_ref, atc_descr\nORDER BY atc_ref",
+        "SELECT \n    atc_ref AS codigo_atc,\n    atc_descr AS descripcion_atc,\n    COUNT(*) AS numero_prescripciones\nFROM g_prescriptions\nWHERE atc_ref IS NOT NULL AND atc_descr IS NOT NULL\nGROUP BY atc_ref, atc_descr\nORDER BY numero_prescripciones DESC"
+      ],
+      "agent_row_counts": [
+        820,
+        820,
+        820
+      ]
+    },
+    {
+      "id": 25,
+      "question": "Muestra una tabla de episodios de urgencias que sucedieron en abril de 2020 con la edad del paciente al inicio del episodio en años.",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.65,
+      "jaccard_similarity_output": 1.0,
+      "determinism_sql_similarity": 1.0,
+      "determinism_output_similarity": 1.0,
+      "elapsed_seconds_per_run": [
+        23.43,
+        40.54,
+        38.52
+      ],
+      "mean_elapsed_seconds": 34.16,
+      "agent_sqls": [
+        "SELECT \n    e.episode_ref,\n    e.patient_ref,\n    e.start_date,\n    e.end_date,\n    TIMESTAMPDIFF(YEAR, d.birth_date, e.start_date) AS edad_al_inicio\nFROM g_episodes e\nJOIN g_demographics d ON e.patient_ref = d.patient_ref\nWHERE e.episode_type_ref = 'EM'\n    AND YEAR(e.start_date) = 2020\n    AND MONTH(e.start_date) = 4\nORDER BY e.start_date",
+        "SELECT \n    e.episode_ref,\n    e.patient_ref,\n    e.start_date,\n    e.end_date,\n    TIMESTAMPDIFF(YEAR, d.birth_date, e.start_date) AS edad_al_inicio\nFROM g_episodes e\nJOIN g_demographics d ON e.patient_ref = d.patient_ref\nWHERE e.episode_type_ref = 'EM'\n    AND YEAR(e.start_date) = 2020\n    AND MONTH(e.start_date) = 4\nORDER BY e.start_date",
+        "SELECT \n    e.episode_ref,\n    e.patient_ref,\n    e.start_date,\n    e.end_date,\n    TIMESTAMPDIFF(YEAR, d.birth_date, e.start_date) AS edad_al_inicio\nFROM g_episodes e\nJOIN g_demographics d ON e.patient_ref = d.patient_ref\nWHERE e.episode_type_ref = 'EM'\n    AND YEAR(e.start_date) = 2020\n    AND MONTH(e.start_date) = 4\nORDER BY e.start_date"
+      ],
+      "agent_row_counts": [
+        9,
+        9,
+        9
+      ]
+    },
+    {
+      "id": 26,
+      "question": "Muestra los ingresos en planta hospitalaria del año 2023 asignados predominantemente a la unidad E073 (considerando también la unidad relacionada I073 para asignar la unidad predominante por estancia, basándose en la unidad donde el paciente pasó más tiempo). Para cada estancia incluye: identificación del paciente y episodio, identificador de estancia, unidad asignada, fechas de ingreso y alta (real y efectiva), duración (horas, días y minutos), indicador de si sigue ingresado, número de movimientos y unidades visitadas, minutos en E073 y minutos en I073, indicador de transferencia, año de ingreso, edad al ingreso, sexo, indicador de éxitus durante la estancia y fecha del éxitus, procedencia (formulario UCI) e indicador de procedencia de otro centro. Solo estancias con cama real asignada y al menos una prescripción activa durante la estancia.",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.16985482155118947,
+      "jaccard_similarity_output": 0.1972298407646372,
+      "determinism_sql_similarity": 0.21609587046420875,
+      "determinism_output_similarity": 0.27268163337025114,
+      "elapsed_seconds_per_run": [
+        198.26,
+        210.76,
+        251.48
+      ],
+      "mean_elapsed_seconds": 220.17,
+      "agent_sqls": [
+        "SELECT \n    YEAR(e.start_date) as año,\n    COUNT(DISTINCT e.episode_ref) as total_ingresos,\n    COUNT(DISTINCT e.patient_ref) as total_pacientes\nFROM g_episodes e\nWHERE e.episode_type_ref = 'HOSP'\nGROUP BY YEAR(e.start_date)\nORDER BY YEAR(e.start_date) DESC\nLIMIT 10;",
+        "WITH \n-- 1. Obtener episodios de hospitalización del 2023\nepisodios_2023 AS (\n    SELECT \n        e.episode_ref,\n        e.patient_ref,\n        e.start_date,\n        e.end_date,\n        e.episode_type_ref\n    FROM g_episodes e\n    WHERE e.episode_type_ref = 'HOSP'\n        AND YEAR(e.start_date) = 2023\n),\n\n-- 2. Obtener movimientos de estos episodios\nmovimientos_episodios AS (\n    SELECT \n        m.patient_ref,\n        m.episode_ref,\n        m.ou_loc_ref,\n        m.ou_loc_descr,\n        m.start_date AS mov_start_date,\n        m.end_date AS mov_end_date,\n        -- Calcular duración en minutos de cada movimiento\n        TIMESTAMPDIFF(MINUTE, m.start_date, COALESCE(m.end_date, NOW())) AS minutos_movimiento\n    FROM g_movements m\n    INNER JOIN episodios_2023 e ON m.patient_ref = e.patient_ref AND m.episode_ref = e.episode_ref\n    WHERE m.ou_loc_ref IS NOT NULL\n),\n\n-- 3. Calcular tiempo en E073 e I073 por episodio\ntiempo_unidades AS (\n    SELECT \n        patient_ref,\n        episode_ref,\n        -- Tiempo en E073\n        SUM(CASE WHEN ou_loc_ref = 'E073' THEN minutos_movimiento ELSE 0 END) AS minutos_E073,\n        -- Tiempo en I073\n        SUM(CASE WHEN ou_loc_ref = 'I073' THEN minutos_movimiento ELSE 0 END) AS minutos_I073,\n        -- Total de minutos en todas las unidades\n        SUM(minutos_movimiento) AS minutos_totales\n    FROM movimientos_episodios\n    GROUP BY patient_ref, episode_ref\n),\n\n-- 4. Determinar unidad predominante\nunidad_predominante AS (\n    SELECT \n        t.*,\n        CASE \n            WHEN minutos_E073 >= minutos_I073 THEN 'E073'\n            ELSE 'I073'\n        END AS unidad_asignada\n    FROM tiempo_unidades t\n    WHERE minutos_E073 > 0 OR minutos_I073 > 0\n),\n\n-- 5. Verificar que tenga al menos una prescripción activa durante la estancia\nprescripciones_validas AS (\n    SELECT DISTINCT\n        p.patient_ref,\n        p.episode_ref\n    FROM g_prescriptions p\n    INNER JOIN episodios_2023 e ON p.patient_ref = e.patient_ref AND p.episode_ref = e.episode_ref\n    WHERE p.start_drug_date IS NOT NULL\n        AND (p.end_drug_date IS NULL OR p.end_drug_date >= e.start_date)\n        AND p.start_drug_date <= COALESCE(e.end_date, NOW())\n),\n\n-- 6. Obtener información de movimientos por episodio\ninfo_movimientos AS (\n    SELECT \n        m.patient_ref,\n        m.episode_ref,\n        COUNT(DISTINCT m.ou_loc_ref) AS num_unidades_visitadas,\n        COUNT(*) AS num_movimientos,\n        GROUP_CONCAT(DISTINCT m.ou_loc_ref ORDER BY m.ou_loc_ref) AS unidades_visitadas_lista\n    FROM movimientos_episodios m\n    GROUP BY m.patient_ref, m.episode_ref\n),\n\n-- 7. Obtener información de demografía\ndemografia AS (\n    SELECT \n        d.patient_ref,\n        d.sex,\n        d.birth_date\n    FROM g_demographics d\n),\n\n-- 8. Obtener información de éxitus\nexitus_info AS (\n    SELECT \n        ex.patient_ref,\n        ex.exitus_date,\n        -- Verificar si el éxitus ocurrió durante la estancia\n        CASE \n            WHEN EXISTS (\n                SELECT 1 FROM episodios_2023 e \n                WHERE e.patient_ref = ex.patient_ref \n                AND ex.exitus_date BETWEEN e.start_date AND COALESCE(e.end_date, NOW())\n            ) THEN 1\n            ELSE 0\n        END AS exitus_durante_estancia\n    FROM g_exitus ex\n),\n\n-- 9. Verificar cama real asignada (presencia de movimientos con ou_loc_ref no nulo)\ncama_real AS (\n    SELECT DISTINCT\n        m.patient_ref,\n        m.episode_ref\n    FROM movimientos_episodios m\n    WHERE m.ou_loc_ref IS NOT NULL\n),\n\n-- 10. Consulta principal\nconsulta_principal AS (\n    SELECT \n        -- Identificación\n        e.patient_ref,\n        e.episode_ref,\n        e.episode_ref AS identificador_estancia,\n        \n        -- Unidad asignada\n        up.unidad_asignada,\n        \n        -- Fechas\n        e.start_date AS fecha_ingreso_real,\n        e.end_date AS fecha_alta_efectiva,\n        \n        -- Duración\n        TIMESTAMPDIFF(HOUR, e.start_date, COALESCE(e.end_date, NOW())) AS duracion_horas,\n        TIMESTAMPDIFF(DAY, e.start_date, COALESCE(e.end_date, NOW())) AS duracion_dias,\n        TIMESTAMPDIFF(MINUTE, e.start_date, COALESCE(e.end_date, NOW())) AS duracion_minutos,\n        \n        -- Indicador si sigue ingresado\n        CASE WHEN e.end_date IS NULL THEN 1 ELSE 0 END AS sigue_ingresado,\n        \n        -- Información de movimientos\n        im.num_movimientos,\n        im.num_unidades_visitadas,\n        im.unidades_visitadas_lista,\n        \n        -- Tiempo en unidades específicas\n        up.minutos_E073,\n        up.minutos_I073,\n        \n        -- Indicador de transferencia (si visitó más de una unidad)\n        CASE WHEN im.num_unidades_visitadas > 1 THEN 1 ELSE 0 END AS indicador_transferencia,\n        \n        -- Año de ingreso\n        YEAR(e.start_date) AS año_ingreso,\n        \n        -- Edad al ingreso\n        TIMESTAMPDIFF(YEAR, d.birth_date, e.start_date) AS edad_al_ingreso,\n        \n        -- Sexo\n        CASE \n            WHEN d.sex = 1 THEN 'Hombre'\n            WHEN d.sex = 2 THEN 'Mujer'\n            ELSE 'Desconocido'\n        END AS sexo,\n        \n        -- Éxitus\n        COALESCE(ei.exitus_durante_estancia, 0) AS exitus_durante_estancia,\n        ei.exitus_date AS fecha_exitus,\n        \n        -- Procedencia (formulario UCI) - necesitaríamos más información para esto\n        NULL AS procedencia_uci,\n        \n        -- Indicador de procedencia de otro centro\n        NULL AS procedencia_otro_centro\n        \n    FROM episodios_2023 e\n    INNER JOIN unidad_predominante up ON e.patient_ref = up.patient_ref AND e.episode_ref = up.episode_ref\n    INNER JOIN prescripciones_validas pv ON e.patient_ref = pv.patient_ref AND e.episode_ref = pv.episode_ref\n    INNER JOIN cama_real cr ON e.patient_ref = cr.patient_ref AND e.episode_ref = cr.episode_ref\n    INNER JOIN info_movimientos im ON e.patient_ref = im.patient_ref AND e.episode_ref = im.episode_ref\n    INNER JOIN demografia d ON e.patient_ref = d.patient_ref\n    LEFT JOIN exitus_info ei ON e.patient_ref = ei.patient_ref\n    \n    -- Filtrar solo unidades E073 o I073 como predominantes\n    WHERE up.unidad_asignada IN ('E073', 'I073')\n)\n\nSELECT * FROM consulta_principal\nORDER BY fecha_ingreso_real, patient_ref, episode_ref\nLIMIT 100",
+        "WITH \n-- 1. Episodios de hospitalización 2023 con movimientos en E073 y prescripciones activas\nepisodios_filtrados AS (\n    SELECT DISTINCT\n        e.episode_ref,\n        e.patient_ref,\n        e.start_date,\n        e.end_date,\n        YEAR(e.start_date) as año_ingreso,\n        CASE \n            WHEN e.end_date IS NULL OR e.end_date > CURDATE() THEN 'Sí'\n            ELSE 'No'\n        END as sigue_ingresado\n    FROM g_episodes e\n    INNER JOIN g_movements m ON e.episode_ref = m.episode_ref AND e.patient_ref = m.patient_ref\n    INNER JOIN g_prescriptions p ON e.episode_ref = p.episode_ref AND e.patient_ref = p.patient_ref\n    WHERE e.episode_type_ref = 'HOSP'\n        AND YEAR(e.start_date) = 2023\n        AND m.ou_loc_ref = 'E073'\n        AND p.start_drug_date <= COALESCE(e.end_date, CURDATE())\n        AND (p.end_drug_date IS NULL OR p.end_drug_date >= e.start_date)\n),\n\n-- 2. Estadísticas de movimientos\nestadisticas_mov AS (\n    SELECT \n        ef.episode_ref,\n        ef.patient_ref,\n        COUNT(DISTINCT m.ou_loc_ref) as num_unidades_visitadas,\n        COUNT(*) as num_movimientos,\n        SUM(CASE WHEN m.ou_loc_ref = 'E073' THEN TIMESTAMPDIFF(MINUTE, m.start_date, COALESCE(m.end_date, CURDATE())) ELSE 0 END) as minutos_e073,\n        SUM(CASE WHEN m.ou_loc_ref = 'I073' THEN TIMESTAMPDIFF(MINUTE, m.start_date, COALESCE(m.end_date, CURDATE())) ELSE 0 END) as minutos_i073,\n        -- Determinar unidad donde pasó más tiempo\n        (SELECT ou_loc_ref \n         FROM g_movements m2 \n         WHERE m2.episode_ref = ef.episode_ref \n            AND m2.patient_ref = ef.patient_ref\n            AND m2.ou_loc_ref IS NOT NULL\n         GROUP BY ou_loc_ref\n         ORDER BY SUM(TIMESTAMPDIFF(MINUTE, m2.start_date, COALESCE(m2.end_date, CURDATE()))) DESC\n         LIMIT 1) as unidad_predominante\n    FROM episodios_filtrados ef\n    INNER JOIN g_movements m ON ef.episode_ref = m.episode_ref AND ef.patient_ref = m.patient_ref\n    GROUP BY ef.episode_ref, ef.patient_ref\n),\n\n-- 3. Información demográfica y de exitus\ninfo_demografica AS (\n    SELECT \n        ef.episode_ref,\n        ef.patient_ref,\n        d.sex,\n        TIMESTAMPDIFF(YEAR, d.birth_date, ef.start_date) as edad_ingreso,\n        CASE \n            WHEN ex.exitus_date IS NOT NULL \n                AND ex.exitus_date >= ef.start_date \n                AND (ef.end_date IS NULL OR ex.exitus_date <= ef.end_date) \n                THEN 'Sí'\n            ELSE 'No'\n        END as exitus_durante_estancia,\n        ex.exitus_date\n    FROM episodios_filtrados ef\n    INNER JOIN g_demographics d ON ef.patient_ref = d.patient_ref\n    LEFT JOIN g_exitus ex ON ef.patient_ref = ex.patient_ref\n),\n\n-- 4. Verificar transferencias\ntransferencias AS (\n    SELECT \n        ef.episode_ref,\n        ef.patient_ref,\n        CASE \n            WHEN COUNT(DISTINCT m.ou_loc_ref) > 1 THEN 'Sí'\n            ELSE 'No'\n        END as tuvo_transferencia\n    FROM episodios_filtrados ef\n    INNER JOIN g_movements m ON ef.episode_ref = m.episode_ref AND ef.patient_ref = m.patient_ref\n    GROUP BY ef.episode_ref, ef.patient_ref\n),\n\n-- 5. Consulta final\nresultado AS (\n    SELECT \n        -- Identificación\n        ef.patient_ref as identificacion_paciente,\n        ef.episode_ref as identificacion_episodio,\n        CONCAT(ef.patient_ref, '-', ef.episode_ref) as identificador_estancia,\n        \n        -- Unidad asignada (E073 como unidad de interés)\n        'E073' as unidad_asignada,\n        em.unidad_predominante as unidad_real_predominante,\n        \n        -- Fechas\n        ef.start_date as fecha_ingreso_real,\n        ef.end_date as fecha_alta_real,\n        ef.start_date as fecha_ingreso_efectiva,\n        ef.end_date as fecha_alta_efectiva,\n        \n        -- Duración\n        TIMESTAMPDIFF(HOUR, ef.start_date, COALESCE(ef.end_date, CURDATE())) as duracion_horas,\n        TIMESTAMPDIFF(DAY, ef.start_date, COALESCE(ef.end_date, CURDATE())) as duracion_dias,\n        TIMESTAMPDIFF(MINUTE, ef.start_date, COALESCE(ef.end_date, CURDATE())) as duracion_minutos,\n        \n        -- Indicadores\n        ef.sigue_ingresado,\n        em.num_movimientos,\n        em.num_unidades_visitadas,\n        em.minutos_e073,\n        em.minutos_i073,\n        t.tuvo_transferencia,\n        ef.año_ingreso,\n        \n        -- Demografía\n        CASE \n            WHEN id.sex = 1 THEN 'Hombre'\n            WHEN id.sex = 2 THEN 'Mujer'\n            ELSE 'Desconocido'\n        END as sexo,\n        id.edad_ingreso,\n        id.exitus_durante_estancia,\n        id.exitus_date as fecha_exitus,\n        \n        -- Procedencia (no hay datos específicos en las tablas disponibles)\n        NULL as procedencia_uci,\n        NULL as procedencia_otro_centro\n        \n    FROM episodios_filtrados ef\n    INNER JOIN estadisticas_mov em ON ef.episode_ref = em.episode_ref AND ef.patient_ref = em.patient_ref\n    INNER JOIN info_demografica id ON ef.episode_ref = id.episode_ref AND ef.patient_ref = id.patient_ref\n    INNER JOIN transferencias t ON ef.episode_ref = t.episode_ref AND ef.patient_ref = t.patient_ref\n)\n\nSELECT * FROM resultado\nORDER BY fecha_ingreso_real;"
+      ],
+      "agent_row_counts": [
+        10,
+        16,
+        14
+      ]
+    },
+    {
+      "id": 27,
+      "question": "Muestra la tasa de positividad de CAM-ICU (escala de evaluación de delirio en pacientes de UCI) por unidad y año, considerando las UCIs 'E016', 'E103', 'E014', 'E015', 'E037', 'E057', 'E073' y 'E043' durante el periodo 2018–2025. Clasifica los resultados como positivos (DELIRIO_CAM-ICU_2 → delirio), negativos (DELIRIO_CAM-ICU_1) u otros (DELIRIO_CAM-ICU_3). Solo deben considerarse los CAM-ICU registrados durante estancias reales (con cama asignada) en estas unidades. La tabla debe contener una fila por combinación de unidad y año, con las columnas: 'ou_loc_ref' (código de la unidad), 'yr' (año), 'total_cam' (total de CAM-ICU registrados), 'n_positive' (número de resultados positivos), 'n_negative' (número de resultados negativos), 'n_other' (número de resultados clasificados como 'otros'), 'pct_positive' (porcentaje de positivos sobre el total) y 'pct_negative' (porcentaje de negativos sobre el total).",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.08780224848314237,
+      "jaccard_similarity_output": 0.03809523809523809,
+      "determinism_sql_similarity": 0.2362962962962963,
+      "determinism_output_similarity": 0.0,
+      "elapsed_seconds_per_run": [
+        50.74,
+        70.09,
+        62.07
+      ],
+      "mean_elapsed_seconds": 60.97,
+      "agent_sqls": [
+        "SELECT DISTINCT result_txt\nFROM g_rc \nWHERE rc_descr = 'Grado de delirio según escala CAM-ICU' AND result_txt IS NOT NULL\nLIMIT 20",
+        "SELECT DISTINCT rc_descr FROM g_rc WHERE rc_descr LIKE '%delirio%' OR rc_descr LIKE '%CAM%' LIMIT 20",
+        "SELECT DISTINCT ou_loc_ref, ou_loc_descr\nFROM g_movements \nWHERE ou_loc_ref IN ('E016', 'E103', 'E014', 'E015', 'E037', 'E057', 'E073', 'E043')\nLIMIT 20"
+      ],
+      "agent_row_counts": [
+        0,
+        4,
+        8
+      ]
+    },
+    {
+      "id": 28,
+      "question": "Muestra, para cada episodio con paso por las UCIs 'E016', 'E103', 'E014', 'E015', 'E037', 'E057', 'E073' y 'E043' durante el año 2023, el tiempo en horas desde el inicio del movimiento hasta el inicio de la primera prescripción de nutrición enteral o parenteral central. Solo deben considerarse movimientos válidos (con duración mayor a 1 hora y dentro del rango de fechas 2023-01-01 a 2023-12-31), descartando aquellos cuyo `end_date` coincide con el `start_date` del siguiente movimiento del mismo episodio. Para cada episodio, se identifica la primera prescripción de nutrición ('NUTRICION ENTERAL' o 'NUTRICIÓN PARENTERAL CENTRAL') que caiga dentro del rango temporal del movimiento. La tabla debe contener una fila por episodio con nutrición dentro de la ventana, con las columnas: 'episode_ref' (número de episodio), 'start_date' (fecha de inicio del movimiento), 'start_drug_date' (fecha de inicio de la prescripción de nutrición), 'drug_descr' (tipo de nutrición: enteral o parenteral central) y 'hours_difference' (horas transcurridas desde el inicio del movimiento hasta el inicio de la prescripción).",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.40006972868951246,
+      "jaccard_similarity_output": 0.9649122807017544,
+      "determinism_sql_similarity": 0.5903337927728172,
+      "determinism_output_similarity": 0.9298245614035089,
+      "elapsed_seconds_per_run": [
+        43.65,
+        56.09,
+        68.48
+      ],
+      "mean_elapsed_seconds": 56.07,
+      "agent_sqls": [
+        "WITH movimientos_validos AS (\n    -- Movimientos válidos en las UCIs especificadas durante 2023\n    SELECT \n        m.patient_ref,\n        m.episode_ref,\n        m.ou_loc_ref,\n        m.start_date,\n        m.end_date,\n        -- Calcular duración en horas\n        TIMESTAMPDIFF(HOUR, m.start_date, m.end_date) as duracion_horas,\n        -- Verificar si es el último movimiento (end_date no coincide con start_date del siguiente)\n        LEAD(m.start_date) OVER (PARTITION BY m.episode_ref ORDER BY m.start_date) as siguiente_start_date\n    FROM g_movements m\n    WHERE m.ou_loc_ref IN ('E016', 'E103', 'E014', 'E015', 'E037', 'E057', 'E073', 'E043')\n        AND m.start_date >= '2023-01-01'\n        AND m.start_date < '2024-01-01'\n        AND m.end_date IS NOT NULL\n        AND TIMESTAMPDIFF(HOUR, m.start_date, m.end_date) > 1\n),\nmovimientos_filtrados AS (\n    -- Filtrar movimientos donde end_date no coincide con start_date del siguiente\n    SELECT \n        patient_ref,\n        episode_ref,\n        ou_loc_ref,\n        start_date,\n        end_date,\n        duracion_horas\n    FROM movimientos_validos\n    WHERE end_date <> siguiente_start_date OR siguiente_start_date IS NULL\n),\nprimeras_nutriciones AS (\n    -- Encontrar la primera prescripción de nutrición para cada episodio\n    SELECT \n        p.patient_ref,\n        p.episode_ref,\n        p.start_drug_date,\n        p.drug_descr,\n        ROW_NUMBER() OVER (PARTITION BY p.episode_ref ORDER BY p.start_drug_date) as rn\n    FROM g_prescriptions p\n    WHERE p.drug_descr IN ('NUTRICIÓN PARENTERAL CENTRAL', 'NUTRICION ENTERAL')\n        AND p.start_drug_date IS NOT NULL\n),\nnutricion_por_movimiento AS (\n    -- Combinar movimientos con nutriciones que caen dentro del rango temporal\n    SELECT \n        m.episode_ref,\n        m.start_date as movimiento_start_date,\n        m.end_date as movimiento_end_date,\n        n.start_drug_date,\n        n.drug_descr,\n        TIMESTAMPDIFF(HOUR, m.start_date, n.start_drug_date) as hours_difference,\n        ROW_NUMBER() OVER (PARTITION BY m.episode_ref ORDER BY n.start_drug_date) as rn_nutricion\n    FROM movimientos_filtrados m\n    INNER JOIN primeras_nutriciones n ON m.patient_ref = n.patient_ref \n        AND m.episode_ref = n.episode_ref\n        AND n.start_drug_date >= m.start_date\n        AND n.start_drug_date <= m.end_date\n    WHERE n.rn = 1  -- Solo la primera nutrición del episodio\n)\n-- Resultado final: una fila por episodio con nutrición dentro de la ventana\nSELECT \n    episode_ref,\n    movimiento_start_date as start_date,\n    start_drug_date,\n    drug_descr,\n    hours_difference\nFROM nutricion_por_movimiento\nWHERE rn_nutricion = 1  -- Solo la primera nutrición dentro del movimiento\nORDER BY episode_ref;",
+        "WITH \n-- 1. Movimientos válidos en las UCIs especificadas durante 2023\nvalid_movements AS (\n    SELECT \n        m.patient_ref,\n        m.episode_ref,\n        m.ou_loc_ref,\n        m.start_date AS movement_start,\n        m.end_date AS movement_end,\n        -- Calcular duración en horas\n        TIMESTAMPDIFF(HOUR, m.start_date, m.end_date) AS duration_hours,\n        -- Verificar si es el último movimiento del episodio\n        LEAD(m.start_date) OVER (PARTITION BY m.episode_ref ORDER BY m.start_date) AS next_movement_start\n    FROM g_movements m\n    WHERE m.ou_loc_ref IN ('E016', 'E103', 'E014', 'E015', 'E037', 'E057', 'E073', 'E043')\n        AND m.start_date >= '2023-01-01'\n        AND m.start_date < '2024-01-01'\n        AND m.end_date IS NOT NULL\n        AND TIMESTAMPDIFF(HOUR, m.start_date, m.end_date) > 1\n),\n-- 2. Filtrar movimientos válidos (descartar aquellos cuyo end_date coincide con start_date del siguiente)\nfiltered_movements AS (\n    SELECT \n        vm.*\n    FROM valid_movements vm\n    WHERE vm.next_movement_start IS NULL \n        OR vm.movement_end < vm.next_movement_start\n),\n-- 3. Prescripciones de nutrición\nnutrition_prescriptions AS (\n    SELECT \n        p.patient_ref,\n        p.episode_ref,\n        p.start_drug_date,\n        p.drug_descr,\n        ROW_NUMBER() OVER (PARTITION BY p.episode_ref ORDER BY p.start_drug_date) AS rn\n    FROM g_prescriptions p\n    WHERE p.drug_descr IN ('NUTRICIÓN PARENTERAL CENTRAL', 'NUTRICION ENTERAL')\n        AND p.start_drug_date IS NOT NULL\n),\n-- 4. Combinar movimientos con primera prescripción de nutrición dentro del rango\nepisode_nutrition_timing AS (\n    SELECT \n        fm.episode_ref,\n        fm.movement_start,\n        np.start_drug_date,\n        np.drug_descr,\n        TIMESTAMPDIFF(HOUR, fm.movement_start, np.start_drug_date) AS hours_difference,\n        ROW_NUMBER() OVER (PARTITION BY fm.episode_ref ORDER BY np.start_drug_date) AS nutrition_rn\n    FROM filtered_movements fm\n    INNER JOIN nutrition_prescriptions np \n        ON fm.patient_ref = np.patient_ref \n        AND fm.episode_ref = np.episode_ref\n        AND np.start_drug_date >= fm.movement_start\n        AND np.start_drug_date <= fm.movement_end\n    WHERE np.rn = 1  -- Solo la primera prescripción de nutrición\n)\n-- 5. Resultado final: una fila por episodio con la primera nutrición dentro de la ventana\nSELECT \n    episode_ref,\n    movement_start AS start_date,\n    start_drug_date,\n    drug_descr,\n    hours_difference\nFROM episode_nutrition_timing\nWHERE nutrition_rn = 1\nORDER BY episode_ref;",
+        "WITH movimientos_validos AS (\n    -- Movimientos válidos en las UCIs especificadas durante 2023\n    SELECT \n        m.patient_ref,\n        m.episode_ref,\n        m.ou_loc_ref,\n        m.start_date,\n        m.end_date,\n        -- Verificar que la duración sea mayor a 1 hora\n        TIMESTAMPDIFF(HOUR, m.start_date, m.end_date) as duracion_horas\n    FROM g_movements m\n    WHERE m.ou_loc_ref IN ('E016', 'E103', 'E014', 'E015', 'E037', 'E057', 'E073', 'E043')\n        AND m.start_date >= '2023-01-01'\n        AND m.start_date < '2024-01-01'\n        AND m.end_date IS NOT NULL\n        AND TIMESTAMPDIFF(HOUR, m.start_date, m.end_date) > 1\n),\n-- Excluir movimientos cuyo end_date coincide con el start_date del siguiente movimiento del mismo episodio\nmovimientos_filtrados AS (\n    SELECT \n        mv.*,\n        LEAD(mv.start_date) OVER (PARTITION BY mv.episode_ref ORDER BY mv.start_date) as siguiente_start_date\n    FROM movimientos_validos mv\n),\n-- Prescripciones de nutrición\nnutricion_prescripciones AS (\n    SELECT \n        p.patient_ref,\n        p.episode_ref,\n        p.start_drug_date,\n        p.drug_descr,\n        -- Identificar el tipo de nutrición\n        CASE \n            WHEN p.drug_descr LIKE '%ENTERAL%' THEN 'Enteral'\n            WHEN p.drug_descr LIKE '%PARENTERAL CENTRAL%' THEN 'Parenteral Central'\n            ELSE p.drug_descr\n        END as tipo_nutricion\n    FROM g_prescriptions p\n    WHERE p.drug_descr IN ('NUTRICIÓN PARENTERAL CENTRAL', 'NUTRICION ENTERAL')\n        AND p.start_drug_date IS NOT NULL\n),\n-- Combinar movimientos con nutrición y encontrar la primera prescripción dentro del rango\nmovimiento_nutricion AS (\n    SELECT \n        mf.episode_ref,\n        mf.start_date as movimiento_start_date,\n        mf.end_date as movimiento_end_date,\n        np.start_drug_date,\n        np.drug_descr,\n        np.tipo_nutricion,\n        -- Calcular diferencia en horas\n        TIMESTAMPDIFF(HOUR, mf.start_date, np.start_drug_date) as horas_diferencia,\n        -- Numerar las prescripciones por episodio para tomar la primera\n        ROW_NUMBER() OVER (\n            PARTITION BY mf.episode_ref, mf.start_date \n            ORDER BY np.start_drug_date\n        ) as rn\n    FROM movimientos_filtrados mf\n    INNER JOIN nutricion_prescripciones np \n        ON mf.patient_ref = np.patient_ref \n        AND mf.episode_ref = np.episode_ref\n    WHERE np.start_drug_date >= mf.start_date \n        AND np.start_drug_date <= mf.end_date\n        -- Excluir movimientos donde end_date coincide con el start_date del siguiente movimiento\n        AND (mf.siguiente_start_date IS NULL OR mf.end_date != mf.siguiente_start_date)\n)\n-- Seleccionar solo la primera prescripción por episodio\nSELECT \n    episode_ref,\n    movimiento_start_date as start_date,\n    start_drug_date,\n    drug_descr,\n    horas_diferencia as hours_difference\nFROM movimiento_nutricion\nWHERE rn = 1\nORDER BY episode_ref, start_date"
+      ],
+      "agent_row_counts": [
+        8,
+        8,
+        9
+      ]
+    },
+    {
+      "id": 29,
+      "question": "Muestra, para cada administración de fibrinógeno humano (código ATC 'B02BB01') en episodios de urgencias ('EM') u hospitalización ('HOSP') durante el año 2024, el último resultado de laboratorio de fibrinógeno (lab_sap_ref 'LAB1102', en g/L) disponible antes de la administración, junto con el delay entre ambos eventos. Solo deben considerarse administraciones que estén pendientes de confirmación (`given IS NULL`). La tabla debe contener una fila por administración, con las columnas: 'patient_ref' (número de paciente), 'episode_ref' (número de episodio), 'treatment_ref' (referencia del tratamiento), 'administration_date' (fecha de administración del fibrinógeno), 'quantity' (cantidad administrada), 'quantity_unit' (unidad de la cantidad), 'drug_descr' (descripción del fármaco), 'given' (estado de la administración), 'lab_date' (fecha de extracción del laboratorio previo), 'result_date' (fecha del resultado de laboratorio), 'fib_level_g_l' (valor del fibrinógeno en g/L), 'lab_units' (unidades del laboratorio), 'minutes_result_to_admin' (minutos entre el resultado de laboratorio y la administración), 'hours_result_to_admin' (horas entre el resultado de laboratorio y la administración, redondeado a 1 decimal) y 'yr' (año de la administración).",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.5840840840840841,
+      "jaccard_similarity_output": 0.8615819209039547,
+      "determinism_sql_similarity": 0.7916181471856131,
+      "determinism_output_similarity": 0.7231638418079096,
+      "elapsed_seconds_per_run": [
+        63.56,
+        33.75,
+        72.28
+      ],
+      "mean_elapsed_seconds": 56.53,
+      "agent_sqls": [
+        "WITH admin_fibrinogen AS (\n    SELECT \n        a.patient_ref,\n        a.episode_ref,\n        a.treatment_ref,\n        a.administration_date,\n        a.quantity,\n        a.quantity_unit,\n        a.drug_descr,\n        a.given,\n        YEAR(a.administration_date) as yr\n    FROM g_administrations a\n    JOIN g_episodes e ON a.patient_ref = e.patient_ref AND a.episode_ref = e.episode_ref\n    WHERE (a.atc_descr = 'Fibrinogeno humano' OR a.atc_ref = 'B02BB01')\n        AND e.episode_type_ref IN ('EM', 'HOSP')\n        AND YEAR(a.administration_date) = 2024\n        AND a.given IS NULL\n),\nlab_fibrinogen AS (\n    SELECT \n        l.patient_ref,\n        l.episode_ref,\n        l.extrac_date as lab_date,\n        l.result_date,\n        l.result_num as fib_level_g_l,\n        l.units as lab_units,\n        ROW_NUMBER() OVER (\n            PARTITION BY l.patient_ref, l.episode_ref \n            ORDER BY l.result_date DESC\n        ) as rn\n    FROM g_labs l\n    WHERE l.lab_sap_ref = 'LAB1102'\n        AND l.result_num IS NOT NULL\n)\nSELECT \n    a.patient_ref,\n    a.episode_ref,\n    a.treatment_ref,\n    a.administration_date,\n    a.quantity,\n    a.quantity_unit,\n    a.drug_descr,\n    a.given,\n    l.lab_date,\n    l.result_date,\n    l.fib_level_g_l,\n    l.lab_units,\n    TIMESTAMPDIFF(MINUTE, l.result_date, a.administration_date) as minutes_result_to_admin,\n    ROUND(TIMESTAMPDIFF(MINUTE, l.result_date, a.administration_date) / 60.0, 1) as hours_result_to_admin,\n    a.yr\nFROM admin_fibrinogen a\nLEFT JOIN lab_fibrinogen l ON a.patient_ref = l.patient_ref \n    AND a.episode_ref = l.episode_ref\n    AND l.result_date < a.administration_date\n    AND l.rn = 1\nORDER BY a.administration_date",
+        "WITH admin_fibrinogen AS (\n    SELECT \n        a.patient_ref,\n        a.episode_ref,\n        a.treatment_ref,\n        a.administration_date,\n        a.quantity,\n        a.quantity_unit,\n        a.drug_descr,\n        a.given,\n        e.episode_type_ref,\n        YEAR(a.administration_date) as yr\n    FROM g_administrations a\n    JOIN g_episodes e ON a.patient_ref = e.patient_ref AND a.episode_ref = e.episode_ref\n    WHERE a.atc_descr = 'Fibrinogeno humano'\n        AND e.episode_type_ref IN ('EM', 'HOSP')\n        AND YEAR(a.administration_date) = 2024\n        AND a.given IS NULL\n),\nlab_fibrinogen AS (\n    SELECT \n        patient_ref,\n        episode_ref,\n        extrac_date,\n        result_date,\n        result_num,\n        units\n    FROM g_labs\n    WHERE lab_sap_ref = 'LAB1102'\n        AND result_num IS NOT NULL\n),\njoined_data AS (\n    SELECT \n        a.*,\n        l.extrac_date as lab_date,\n        l.result_date,\n        l.result_num as fib_level_g_l,\n        l.units as lab_units,\n        ROW_NUMBER() OVER (\n            PARTITION BY a.patient_ref, a.episode_ref, a.treatment_ref \n            ORDER BY l.result_date DESC\n        ) as rn\n    FROM admin_fibrinogen a\n    LEFT JOIN lab_fibrinogen l ON a.patient_ref = l.patient_ref \n        AND a.episode_ref = l.episode_ref\n        AND l.result_date < a.administration_date\n)\nSELECT \n    patient_ref,\n    episode_ref,\n    treatment_ref,\n    administration_date,\n    quantity,\n    quantity_unit,\n    drug_descr,\n    given,\n    lab_date,\n    result_date,\n    fib_level_g_l,\n    lab_units,\n    TIMESTAMPDIFF(MINUTE, result_date, administration_date) as minutes_result_to_admin,\n    ROUND(TIMESTAMPDIFF(MINUTE, result_date, administration_date) / 60.0, 1) as hours_result_to_admin,\n    yr\nFROM joined_data\nWHERE rn = 1\nORDER BY administration_date",
+        "WITH admin_fibrinogen AS (\n    SELECT \n        a.patient_ref,\n        a.episode_ref,\n        a.treatment_ref,\n        a.administration_date,\n        a.quantity,\n        a.quantity_unit,\n        a.drug_descr,\n        a.given,\n        YEAR(a.administration_date) as yr\n    FROM g_administrations a\n    INNER JOIN g_episodes e ON a.patient_ref = e.patient_ref AND a.episode_ref = e.episode_ref\n    WHERE a.atc_descr = 'Fibrinogeno humano'\n        AND a.given IS NULL\n        AND YEAR(a.administration_date) = 2024\n        AND e.episode_type_ref IN ('EM', 'HOSP')\n),\nlab_fibrinogen AS (\n    SELECT \n        patient_ref,\n        episode_ref,\n        extrac_date as lab_date,\n        result_date,\n        result_num as fib_level_g_l,\n        units as lab_units\n    FROM g_labs\n    WHERE lab_sap_ref = 'LAB1102'\n        AND result_num IS NOT NULL\n),\nadmin_with_lab AS (\n    SELECT \n        a.*,\n        l.lab_date,\n        l.result_date,\n        l.fib_level_g_l,\n        l.lab_units,\n        ROW_NUMBER() OVER (\n            PARTITION BY a.patient_ref, a.episode_ref, a.treatment_ref, a.administration_date \n            ORDER BY l.result_date DESC\n        ) as rn\n    FROM admin_fibrinogen a\n    LEFT JOIN lab_fibrinogen l ON a.patient_ref = l.patient_ref \n        AND a.episode_ref = l.episode_ref\n        AND l.result_date < a.administration_date\n)\nSELECT \n    patient_ref,\n    episode_ref,\n    treatment_ref,\n    administration_date,\n    quantity,\n    quantity_unit,\n    drug_descr,\n    given,\n    lab_date,\n    result_date,\n    fib_level_g_l,\n    lab_units,\n    TIMESTAMPDIFF(MINUTE, result_date, administration_date) as minutes_result_to_admin,\n    ROUND(TIMESTAMPDIFF(MINUTE, result_date, administration_date) / 60.0, 1) as hours_result_to_admin,\n    yr\nFROM admin_with_lab\nWHERE rn = 1\nORDER BY administration_date"
+      ],
+      "agent_row_counts": [
+        17,
+        17,
+        17
+      ]
+    },
+    {
+      "id": 30,
+      "question": "Muestra los episodios de hospitalización en los que la valoración UCI 'PROCE_MALA' indica que el paciente viene de otro centro u otro hospital. Solo deben considerarse las entradas con estado completado (`status = 'CO'`) en el formulario UCI. La tabla debe contener una fila por episodio con las columnas: 'patient_ref' (número de paciente), 'episode_ref' (número de episodio), 'episode_type_ref' (tipo de episodio), 'fecha_ingreso' (fecha de inicio del episodio), 'fecha_alta' (fecha de final del episodio), 'procedencia_codigo' (código del valor de la respuesta a la pregunta de procedencia), 'procedencia' (descripción de la procedencia), 'fecha_valoracion' (fecha de la valoración), 'ou_loc_ref' (referencia de la unidad de localización) y 'ou_med_ref' (referencia de la unidad médica), ordenada por fecha de ingreso descendente.",
+      "runs": 3,
+      "jaccard_similarity_sql": 0.24806468041762156,
+      "jaccard_similarity_output": 0.13563218390804596,
+      "determinism_sql_similarity": 0.3036751813524943,
+      "determinism_output_similarity": 0.0011299435028248588,
+      "elapsed_seconds_per_run": [
+        103.78,
+        68.94,
+        53.22
+      ],
+      "mean_elapsed_seconds": 75.31,
+      "agent_sqls": [
+        "SELECT \n    e.patient_ref,\n    e.episode_ref,\n    e.episode_type_ref,\n    e.start_date as fecha_ingreso,\n    e.end_date as fecha_alta,\n    f.question_ref as procedencia_codigo,\n    f.value_descr as procedencia,\n    f.form_date as fecha_valoracion,\n    f.ou_loc_ref,\n    f.ou_med_ref\nFROM g_episodes e\nINNER JOIN g_dynamic_forms f ON e.patient_ref = f.patient_ref AND e.episode_ref = f.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\n    AND f.form_descr LIKE '%valoracion criticos%'\n    AND f.status = 'CO'\n    AND f.question_ref = 'PROCE_MALA'\n    AND f.value_descr IN ('Altre hospital', 'Otro hospital', 'Altres', 'Otros')\nORDER BY e.start_date DESC",
+        "SELECT DISTINCT question_ref, question_descr, form_descr\nFROM g_dynamic_forms \nWHERE question_ref LIKE '%PROCE_MALA%' OR question_descr LIKE '%PROCE_MALA%'\nLIMIT 20",
+        "SELECT DISTINCT form_descr, question_descr, value_descr, value_text\nFROM g_dynamic_forms \nWHERE value_text LIKE '%PROCE_MALA%' OR value_text LIKE '%proce_mala%'\nLIMIT 50"
+      ],
+      "agent_row_counts": [
+        58,
+        5,
+        0
+      ]
+    }
+  ]
+}
