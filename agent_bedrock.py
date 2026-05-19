@@ -112,6 +112,24 @@ def _last_assistant_text(messages):
     return None
 
 
+def _build_system(system_prompt: str, model: str) -> list:
+    """Build the `system` parameter for Bedrock Converse.
+
+    For Anthropic Claude models, append a cachePoint marker so the system
+    prompt (rules + schema, ~6,600 tokens) gets cached on Anthropic's side.
+    Subsequent calls within the cache TTL (5 min) pay 10% of input cost for
+    those tokens instead of 100%. The model output is unaffected — this is a
+    pure cost optimisation.
+
+    DeepSeek and other Bedrock providers don't currently support cachePoint,
+    so we skip it for them to avoid validation errors.
+    """
+    system = [{"text": system_prompt}]
+    if "anthropic" in model.lower():
+        system.append({"cachePoint": {"type": "default"}})
+    return system
+
+
 def _maybe_fix_empty_result(tool_name, args, result_text, schema_cache):
     """If execute_query returned an empty list, try fix_sql to LIKE-rewrite text filters.
     Returns (maybe-new-result-text, fixed-sql-or-None). Mirrors agent.py behaviour.
@@ -165,7 +183,7 @@ async def run_agent_loop_async(user_input,
     Returns: (answer: str, tool_log: list[dict])
     """
     tool_log = []
-    system = [{"text": system_prompt}]
+    system = _build_system(system_prompt, model)
     messages = [{"role": "user", "content": [{"text": user_input}]}]
     tool_was_called = False
     malformed_count = 0

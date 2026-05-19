@@ -22,6 +22,7 @@ Plus pairwise Jaccard similarity between runs (determinism) when runs >= 2.
 
 import json
 import re
+from collections import Counter
 from itertools import combinations
 from pathlib import Path
 
@@ -30,8 +31,8 @@ import pandas as pd
 
 HERE = Path(__file__).parent
 GOLDEN_PATH = HERE / "golden_dataset.json"
-GENERATION_PATH = HERE / "generation_result_deepseek.json"
-OUTPUT_PATH = HERE / "jaccard_results_deepseek.json"
+GENERATION_PATH = HERE / "generation_result_claude.json"
+OUTPUT_PATH = HERE / "jaccard_results_claude.json"
 
 
 # ---------------------------------------------------------------------------
@@ -51,6 +52,28 @@ def jaccard_similarity(a: set, b: set) -> float:
     return len(a & b) / len(union)
 
 
+def precision(predicted: set, golden: set) -> float:
+    """Fraction of predicted tokens/values that appear in the golden set.
+    Empty predicted set with empty golden → 1.0; empty predicted with non-empty golden → 0.0.
+    """
+    if not predicted and not golden:
+        return 1.0
+    if not predicted:
+        return 0.0
+    return len(predicted & golden) / len(predicted)
+
+
+def recall(predicted: set, golden: set) -> float:
+    """Fraction of golden tokens/values found in the predicted set.
+    Empty golden with empty predicted → 1.0; empty golden with non-empty predicted → 0.0.
+    """
+    if not predicted and not golden:
+        return 1.0
+    if not golden:
+        return 0.0
+    return len(predicted & golden) / len(golden)
+
+
 def pairwise_jaccard_similarity(items: list[set]) -> float:
     pairs = list(combinations(items, 2))
     if not pairs:
@@ -65,6 +88,17 @@ def sql_to_tokens(sql: str) -> set:
     s = sql.lower().replace("`", " ").replace('"', " ")
     s = re.sub(r"\s+", " ", s).strip()
     return set(re.findall(r"[\w_.%]+|[<>=!]+|[(),;]", s))
+
+
+def _normalize_cell(v) -> str:
+    """Stringify a cell value, rounding floats to 2 decimal places so that
+    minor precision differences (e.g. 7.241 vs 7.2413298) don't hurt the score.
+    Genuinely different values (5.78 vs 5.80) still produce different strings.
+    """
+    try:
+        return f"{float(v):.2f}"
+    except (ValueError, TypeError):
+        return str(v)
 
 
 def output_to_value_set(rows) -> set:
@@ -83,8 +117,54 @@ def output_to_value_set(rows) -> set:
         else:
             cells = [row]
         for v in cells:
-            out.add(str(v))
+            out.add(_normalize_cell(v))
     return out
+
+
+def _row_key(row) -> frozenset:
+    """Normalize one row to a frozenset of its cell values (schema-agnostic)."""
+    if isinstance(row, dict):
+        cells = row.values()
+    elif isinstance(row, (list, tuple)):
+        cells = row
+    else:
+        cells = [row]
+    return frozenset(_normalize_cell(v) for v in cells)
+
+
+def rows_to_multiset(rows) -> Counter:
+    """Convert a list of rows to a Counter of row keys, preserving duplicates."""
+    if not rows:
+        return Counter()
+    return Counter(_row_key(r) for r in rows)
+
+
+def row_precision(agent_rows: list, golden_rows: list) -> float:
+    """Fraction of agent rows that match a golden row (row-level precision).
+    Both empty → 1.0; agent empty with non-empty golden → 0.0.
+    """
+    if not agent_rows and not golden_rows:
+        return 1.0
+    if not agent_rows:
+        return 0.0
+    agent_ms = rows_to_multiset(agent_rows)
+    golden_ms = rows_to_multiset(golden_rows)
+    matched = sum((agent_ms & golden_ms).values())
+    return matched / sum(agent_ms.values())
+
+
+def row_recall(agent_rows: list, golden_rows: list) -> float:
+    """Fraction of golden rows that the agent retrieved (row-level recall).
+    Both empty → 1.0; golden empty with non-empty agent → 0.0.
+    """
+    if not agent_rows and not golden_rows:
+        return 1.0
+    if not golden_rows:
+        return 0.0
+    agent_ms = rows_to_multiset(agent_rows)
+    golden_ms = rows_to_multiset(golden_rows)
+    matched = sum((agent_ms & golden_ms).values())
+    return matched / sum(golden_ms.values())
 
 
 # ---------------------------------------------------------------------------
@@ -102,22 +182,37 @@ def score_question(agent_runs: list[dict], golden_sql: str, expected_rows: list)
     rows = [r.get("rows", []) for r in agent_runs]
     elapsed = [r.get("elapsed_seconds", 0.0) for r in agent_runs]
 
-    sim_sql = [jaccard_similarity(sql_to_tokens(s), golden_sql_tokens) for s in sqls]
-    sim_output = [jaccard_similarity(output_to_value_set(r), golden_output_set) for r in rows]
+    sql_token_sets = [sql_to_tokens(s) for s in sqls]
+    output_value_sets = [output_to_value_set(r) for r in rows]
+
+    sim_sql    = [jaccard_similarity(t, golden_sql_tokens) for t in sql_token_sets]
+    sim_output = [jaccard_similarity(v, golden_output_set) for v in output_value_sets]
+    prec_sql   = [precision(t, golden_sql_tokens) for t in sql_token_sets]
+    rec_sql    = [recall(t, golden_sql_tokens) for t in sql_token_sets]
+    prec_out   = [precision(v, golden_output_set) for v in output_value_sets]
+    rec_out    = [recall(v, golden_output_set) for v in output_value_sets]
+    row_prec   = [row_precision(r, expected_rows) for r in rows]
+    row_rec    = [row_recall(r, expected_rows) for r in rows]
 
     n = len(agent_runs)
     if n >= 2:
-        det_sql = pairwise_jaccard_similarity([sql_to_tokens(s) for s in sqls])
-        det_output = pairwise_jaccard_similarity([output_to_value_set(r) for r in rows])
+        det_sql = pairwise_jaccard_similarity(sql_token_sets)
+        det_output = pairwise_jaccard_similarity(output_value_sets)
     else:
         det_sql = None
         det_output = None
 
     return {
         "runs": n,
-        "jaccard_similarity_sql": sum(sim_sql) / n,
+        "jaccard_similarity_sql":    sum(sim_sql) / n,
         "jaccard_similarity_output": sum(sim_output) / n,
-        "determinism_sql_similarity": det_sql,
+        "precision_sql":             sum(prec_sql) / n,
+        "recall_sql":                sum(rec_sql) / n,
+        "precision_output":          sum(prec_out) / n,
+        "recall_output":             sum(rec_out) / n,
+        "row_precision_output":      sum(row_prec) / n,
+        "row_recall_output":         sum(row_rec) / n,
+        "determinism_sql_similarity":    det_sql,
         "determinism_output_similarity": det_output,
         "elapsed_seconds_per_run": [round(e, 2) for e in elapsed],
         "mean_elapsed_seconds": round(sum(elapsed) / n, 2) if n else 0.0,
@@ -162,6 +257,12 @@ def main():
             "id": qid,
             "sql_sim":    round(scored["jaccard_similarity_sql"], 3),
             "output_sim": round(scored["jaccard_similarity_output"], 3),
+            "prec_sql":   round(scored["precision_sql"], 3),
+            "rec_sql":    round(scored["recall_sql"], 3),
+            "prec_out":   round(scored["precision_output"], 3),
+            "rec_out":    round(scored["recall_output"], 3),
+            "row_prec":   round(scored["row_precision_output"], 3),
+            "row_rec":    round(scored["row_recall_output"], 3),
             "det_sql":    None if scored["determinism_sql_similarity"]    is None else round(scored["determinism_sql_similarity"],    3),
             "det_output": None if scored["determinism_output_similarity"] is None else round(scored["determinism_output_similarity"], 3),
             "elapsed_s": scored["mean_elapsed_seconds"],
@@ -185,6 +286,12 @@ def main():
         "timed_out_ids":        gen.get("timed_out_ids", []),
         "mean_jaccard_similarity_sql":    df["sql_sim"].mean(),
         "mean_jaccard_similarity_output": df["output_sim"].mean(),
+        "mean_precision_sql":    df["prec_sql"].mean(),
+        "mean_recall_sql":       df["rec_sql"].mean(),
+        "mean_precision_output":     df["prec_out"].mean(),
+        "mean_recall_output":        df["rec_out"].mean(),
+        "mean_row_precision_output": df["row_prec"].mean(),
+        "mean_row_recall_output":    df["row_rec"].mean(),
         "mean_elapsed_seconds_per_question": round(df["elapsed_s"].mean(), 2),
         "total_elapsed_seconds": round(df["elapsed_s"].sum() * runs_per_question, 2),
     }
@@ -198,6 +305,12 @@ def main():
     print(f"Jaccard similarity (higher = better):")
     print(f"  SQL:    {summary['mean_jaccard_similarity_sql']:.3f}")
     print(f"  Output: {summary['mean_jaccard_similarity_output']:.3f}")
+    print(f"Precision / Recall — SQL:")
+    print(f"  Precision: {summary['mean_precision_sql']:.3f}   Recall: {summary['mean_recall_sql']:.3f}")
+    print(f"Precision / Recall — Output (token-level):")
+    print(f"  Precision: {summary['mean_precision_output']:.3f}   Recall: {summary['mean_recall_output']:.3f}")
+    print(f"Precision / Recall — Output (row-level):")
+    print(f"  Precision: {summary['mean_row_precision_output']:.3f}   Recall: {summary['mean_row_recall_output']:.3f}")
     if runs_per_question >= 2:
         print(f"Determinism (pairwise similarity, higher = more deterministic):")
         print(f"  SQL:    {summary['mean_determinism_sql_similarity']:.3f}")

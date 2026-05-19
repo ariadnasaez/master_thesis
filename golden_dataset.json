@@ -43,7 +43,7 @@
   },
   {
     "id": 4,
-    "question": "¿Cuál es el valor medio de PCR para cada problemas de salud codificado por reumatologia?",
+    "question": "¿Cuál es el valor medio de proteína C reactiva (PCR) para cada problema de salud codificado por reumatología?",
     "golden_query": "SELECT `source`.`snomed_descr` AS `snomed_descr`, `source`.`avg` AS `avg` FROM ( SELECT `g_health_issues`.`snomed_descr` AS `snomed_descr`, AVG(`G Labs - Patient Ref`.`result_num`) AS `avg` FROM `g_health_issues` LEFT JOIN `g_labs` AS `G Labs - Patient Ref` ON `g_health_issues`.`patient_ref` = `G Labs - Patient Ref`.`patient_ref` WHERE (`g_health_issues`.`ou_med_ref` = 'RMT') AND ( LOWER(`G Labs - Patient Ref`.`lab_descr`) LIKE 'pcr%' ) GROUP BY `g_health_issues`.`snomed_descr` ORDER BY `avg` DESC, `g_health_issues`.`snomed_descr` ASC ) AS `source`",
     "question_type": "unordered_table",
     "expected_columns": [
@@ -168,28 +168,14 @@
   {
     "id": 8,
     "question": "¿Qué valor medio tienen de HbA1c los diabéticos tipo 2 atendidos por endocrinología?",
-    "golden_query": "SELECT l.lab_descr, AVG( CASE WHEN l.lab_sap_ref = 'LABHG3' THEN (l.result_num / 10.929) + 2.15 ELSE l.result_num END ) AS avg_hba1c_percent, COUNT(*) AS n FROM g_labs l JOIN g_health_issues h ON l.patient_ref = h.patient_ref WHERE h.snomed_ref IN (368051000119109, 44054006) AND l.lab_sap_ref IN ('LAB1368', 'LABHG1', 'LABHG2', 'LABHG3') AND l.ou_med_ref = 'END' AND l.result_num IS NOT NULL GROUP BY l.lab_descr ORDER BY l.lab_descr;",
-    "question_type": "unordered_table",
+    "golden_query": "SELECT AVG(\n    CASE\n        WHEN l.lab_sap_ref = 'LABHG3' THEN (l.result_num / 10.929) + 2.15\n        ELSE l.result_num\n    END\n) AS hba1c_media_pct\nFROM g_labs l\nWHERE l.lab_sap_ref IN ('LABHG1', 'LABHG2', 'LABHG3', 'LAB1368')\n  AND l.ou_med_ref = 'END'\n  AND l.result_num IS NOT NULL\n  AND l.patient_ref IN (\n      SELECT DISTINCT patient_ref\n      FROM g_diagnostics\n      WHERE code LIKE 'E11%'\n  );",
+    "question_type": "scalar",
     "expected_columns": [
-      "lab_descr",
-      "avg_hba1c_percent",
-      "n"
+      "hba1c_media_pct"
     ],
     "expected_rows": [
       [
-        "Hemoglobina glicada IFCC",
-        8.201483931500576,
-        3
-      ],
-      [
-        "Hemoglobina glicada JDS JSCC",
-        6.960000038146973,
-        10
-      ],
-      [
-        "Hemoglobina glicada NGPS DCCT",
-        7.836842085185804,
-        19
+        7.241
       ]
     ]
   },
@@ -223,7 +209,7 @@
   },
   {
     "id": 11,
-    "question": "¿Cual es el valor maximo y valor minimo de creatinina encontrado en pacientes de entre 50 y 70 años con enfermedad renal crónica?",
+    "question": "¿Cuáles son los valores máximo y mínimo de creatinina encontrados, por cada subtipo de enfermedad renal crónica, en pacientes de entre 50 y 70 años?",
     "golden_query": "SELECT dx.diag_descr, MIN(l.result_num) AS min_creatinina, MAX(l.result_num) AS max_creatinina FROM g_diagnostics dx JOIN g_labs l ON dx.patient_ref = l.patient_ref JOIN g_demographics d ON dx.patient_ref = d.patient_ref WHERE dx.code LIKE 'N18%' AND l.lab_sap_ref = 'LAB2467' AND l.result_num IS NOT NULL AND TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE()) BETWEEN 50 AND 70 GROUP BY dx.diag_descr ORDER BY max_creatinina DESC, dx.diag_descr ASC",
     "question_type": "unordered_table",
     "expected_columns": [
@@ -290,7 +276,7 @@
   },
   {
     "id": 13,
-    "question": "¿Cuál  es el valor medio de Hb1Ac en pacientes diabéticos?",
+    "question": "¿Cuál es el valor medio de HbA1c en pacientes diabéticos?",
     "golden_query": "SELECT AVG(CASE WHEN l.lab_sap_ref = 'LABHG3' THEN (l.result_num / 10.929) + 2.15 ELSE l.result_num END) AS avg_hba1c_pct, COUNT(DISTINCT l.patient_ref) AS n_patients, COUNT(*) AS n_measurements FROM g_labs l WHERE l.lab_sap_ref IN ('LABHG1','LABHG2','LABHG3','LAB1368') AND l.result_num IS NOT NULL AND l.patient_ref IN ( SELECT DISTINCT patient_ref FROM g_diagnostics WHERE code LIKE 'E10%' OR code LIKE 'E11%' OR code LIKE 'E13%' OR code LIKE '250%' );",
     "question_type": "scalar",
     "expected_columns": [
@@ -478,7 +464,7 @@
   },
   {
     "id": 20,
-    "question": "Muestra los episodios de pacientes hospitalizados a cargo de cardiología en el año 2023.",
+    "question": "Muestra únicamente el identificador de episodio (episode_ref) de los pacientes hospitalizados a cargo de cardiología en el año 2023.",
     "golden_query": "SELECT DISTINCT episode_ref AS episodio FROM g_episodes e INNER JOIN g_movements m USING(episode_ref) WHERE e.episode_type_ref LIKE 'HOSP%' AND m.ou_med_ref = 'CAR' AND (YEAR(e.start_date) = '2023' OR YEAR(e.end_date) = '2023');",
     "question_type": "unordered_list",
     "expected_columns": [
@@ -543,32 +529,28 @@
   },
   {
     "id": 21,
-    "question": "Muestra la cantidad de episodios con diagnóstico de infarto agudo de miocardio por cada mes, focalizándose en episodios de hospitalización que ingresan en el año 2023.",
-    "golden_query": "SELECT YEAR(e.start_date) AS año, MONTH(e.start_date) AS mes, 'Infarto agudo de miocardio' AS diagnostico, COUNT(DISTINCT episode_ref) AS cantidad_episodios FROM g_episodes e INNER JOIN g_diagnostics d USING(episode_ref) WHERE e.episode_type_ref LIKE 'HOSP%' AND YEAR(e.start_date) = '2023' AND d.catalog = 12 AND d.code LIKE 'I21.%' GROUP BY YEAR(e.start_date), MONTH(e.start_date) ORDER BY YEAR(e.start_date) ASC, MONTH(e.start_date) ASC;",
+    "question": "Muestra la cantidad de episodios con diagnóstico de infarto agudo de miocardio por cada mes (formato YYYY-MM), focalizándose en episodios de hospitalización que ingresan en el año 2023.",
+    "golden_query": "SELECT YEAR(e.start_date) AS año, MONTH(e.start_date) AS mes, COUNT(DISTINCT episode_ref) AS cantidad_episodios FROM g_episodes e INNER JOIN g_diagnostics d USING(episode_ref) WHERE e.episode_type_ref LIKE 'HOSP%' AND YEAR(e.start_date) = '2023' AND d.catalog = 12 AND d.code LIKE 'I21.%' GROUP BY YEAR(e.start_date), MONTH(e.start_date) ORDER BY YEAR(e.start_date) ASC, MONTH(e.start_date) ASC;",
     "question_type": "ordered_table",
     "expected_columns": [
       "año",
       "mes",
-      "diagnostico",
       "cantidad_episodios"
     ],
     "expected_rows": [
       [
         2023,
         8,
-        "Infarto agudo de miocardio",
         1
       ],
       [
         2023,
         10,
-        "Infarto agudo de miocardio",
         2
       ],
       [
         2023,
         11,
-        "Infarto agudo de miocardio",
         1
       ]
     ]

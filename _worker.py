@@ -34,9 +34,10 @@ async def run(question: str, schema_text: str, output_path: str) -> None:
             await session.initialize()
             ollama_tools = build_ollama_tools(await session.list_tools())
 
-            captured = {"sql": "", "rows": []}
+            captured = {"sql": "", "rows": [], "num_calls": 0}
 
             async def call_tool(name, args):
+                captured["num_calls"] += 1
                 result = await session.call_tool(name, args)
                 text = result.content[0].text
                 if name == "execute_query":
@@ -58,6 +59,7 @@ async def run(question: str, schema_text: str, output_path: str) -> None:
         "sql": captured["sql"],
         "rows": captured["rows"],
         "elapsed": round(elapsed, 2),
+        "num_calls": captured["num_calls"],
     }))
 
 

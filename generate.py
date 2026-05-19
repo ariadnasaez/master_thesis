@@ -68,9 +68,9 @@ def _run_question_sync(question: str, schema_file: str, output_file: str):
     )
     try:
         data = json.loads(Path(output_file).read_text())
-        return data.get("sql", ""), data.get("rows", []), float(data.get("elapsed", 0.0))
+        return data.get("sql", ""), data.get("rows", []), float(data.get("elapsed", 0.0)), int(data.get("num_calls", 0))
     except (FileNotFoundError, json.JSONDecodeError):
-        return "", [], 0.0
+        return "", [], 0.0, 0
 
 
 def _recover_after_timeout(system_prompt: str, ollama_tools: list) -> None:
@@ -123,7 +123,7 @@ async def generate(runs_per_question: int, output_path: Path):
                 output_file = HERE / f"_eval_q{i}_r{r}.json"
                 try:
                     try:
-                        sql, rows, elapsed = await loop.run_in_executor(
+                        sql, rows, elapsed, num_calls = await loop.run_in_executor(
                             None,
                             _run_question_sync,
                             question, str(schema_file), str(output_file),
@@ -137,8 +137,8 @@ async def generate(runs_per_question: int, output_path: Path):
                         )
                         print("    ✅ Recovered. Continuing.")
                         break
-                    runs.append({"sql": sql, "rows": rows, "elapsed_seconds": round(elapsed, 2)})
-                    print(f"    run {r+1}/{runs_per_question}: {len(rows)} rows  ({elapsed:.1f}s)")
+                    runs.append({"sql": sql, "rows": rows, "elapsed_seconds": round(elapsed, 2), "num_calls": num_calls})
+                    print(f"    run {r+1}/{runs_per_question}: {len(rows)} rows  ({elapsed:.1f}s)  {num_calls} tool calls")
                 finally:
                     output_file.unlink(missing_ok=True)
 
