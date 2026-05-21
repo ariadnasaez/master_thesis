@@ -47,7 +47,7 @@ else:
 
 HERE = Path(__file__).parent
 GOLDEN_PATH = HERE / "golden_dataset.json"
-DEFAULT_OUTPUT_PATH = HERE / "generation_result_2.json"
+DEFAULT_OUTPUT_PATH = HERE / "generation_result_sonnet.json"
 WORKER_PATH = HERE / "_worker.py"
 
 QUESTION_TIMEOUT = 10 * 60  # seconds — questions that exceed this are skipped
@@ -180,14 +180,19 @@ if __name__ == "__main__":
     parser.add_argument("--runs", type=int, default=1,
                         help="Number of times to run each question (>=2 enables determinism metrics).")
     parser.add_argument("--output", type=str, default=None,
-                        help="Output filename. Defaults to generation_result_2.json (ollama) "
+                        help="Output filename. Defaults to generation_result_sonnet.json (ollama) "
                              "or generation_result_deepseek.json (bedrock).")
     args = parser.parse_args()
 
     if args.output:
         output_path = HERE / args.output
     elif AGENT_BACKEND == "bedrock":
-        output_path = HERE / "generation_result_deepseek.json"
+        # Sanitize model ID into a filename slug:
+        #   us.anthropic.claude-sonnet-4-6  → claude-sonnet-4-6
+        #   deepseek.v3.2                   → deepseek.v3.2
+        model_slug = DEFAULT_MODEL.removeprefix("us.anthropic.").replace(".", "_")
+        runs_suffix = f"_{args.runs}runs" if args.runs > 1 else ""
+        output_path = HERE / f"generation_result_{model_slug}{runs_suffix}.json"
     else:
         output_path = DEFAULT_OUTPUT_PATH
 

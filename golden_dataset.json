@@ -11,7 +11,8 @@
       [
         300
       ]
-    ]
+    ],
+    "category": "simple"
   },
   {
     "id": 2,
@@ -25,7 +26,8 @@
       [
         29
       ]
-    ]
+    ],
+    "category": "simple"
   },
   {
     "id": 3,
@@ -39,16 +41,17 @@
       [
         257
       ]
-    ]
+    ],
+    "category": "simple"
   },
   {
     "id": 4,
     "question": "¿Cuál es el valor medio de proteína C reactiva (PCR) para cada problema de salud codificado por reumatología?",
-    "golden_query": "SELECT `source`.`snomed_descr` AS `snomed_descr`, `source`.`avg` AS `avg` FROM ( SELECT `g_health_issues`.`snomed_descr` AS `snomed_descr`, AVG(`G Labs - Patient Ref`.`result_num`) AS `avg` FROM `g_health_issues` LEFT JOIN `g_labs` AS `G Labs - Patient Ref` ON `g_health_issues`.`patient_ref` = `G Labs - Patient Ref`.`patient_ref` WHERE (`g_health_issues`.`ou_med_ref` = 'RMT') AND ( LOWER(`G Labs - Patient Ref`.`lab_descr`) LIKE 'pcr%' ) GROUP BY `g_health_issues`.`snomed_descr` ORDER BY `avg` DESC, `g_health_issues`.`snomed_descr` ASC ) AS `source`",
+    "golden_query": "SELECT\n    hi.snomed_descr AS problema_de_salud,\n    AVG(l.result_num) AS pcr_media\nFROM (\n    SELECT DISTINCT\n        patient_ref,\n        snomed_ref,\n        snomed_descr\n    FROM g_health_issues\n    WHERE ou_med_ref = 'RMT'\n) hi\nJOIN g_labs l\n    ON l.patient_ref = hi.patient_ref\nWHERE l.lab_sap_ref IN ('LAB2575', 'LABPCRUS')\n  AND l.result_num IS NOT NULL\nGROUP BY\n    hi.snomed_ref,\n    hi.snomed_descr\nORDER BY\n    pcr_media DESC,\n    problema_de_salud ASC",
     "question_type": "unordered_table",
     "expected_columns": [
-      "snomed_descr",
-      "avg"
+      "problema_de_salud",
+      "pcr_media"
     ],
     "expected_rows": [
       [
@@ -59,7 +62,8 @@
         "osteoporosis causada por corticosteroide",
         0.5473333263148864
       ]
-    ]
+    ],
+    "category": "intermediate"
   },
   {
     "id": 5,
@@ -94,7 +98,8 @@
         9.968,
         "2017-09-22 19:41:31"
       ]
-    ]
+    ],
+    "category": "complex"
   },
   {
     "id": 6,
@@ -139,7 +144,8 @@
         "sustitucion de articulacion rodilla izquierda con sustituto sintetico cementada abordaje abierto\n"
       ]
     ],
-    "notes": "Hay que pensar cuál es el output esperable si se le pregunta \"cuále son los pacientes\". En teoría con un listado de patient_ref sería suficiente."
+    "notes": "Hay que pensar cuál es el output esperable si se le pregunta \"cuále son los pacientes\". En teoría con un listado de patient_ref sería suficiente.",
+    "category": "complex"
   },
   {
     "id": 7,
@@ -163,12 +169,13 @@
         2585668331
       ]
     ],
-    "notes": "La query devuelve listado de patient_ref cuando debería incluir también procedimiento y fecha"
+    "notes": "La query devuelve listado de patient_ref cuando debería incluir también procedimiento y fecha",
+    "category": "complex"
   },
   {
     "id": 8,
     "question": "¿Qué valor medio tienen de HbA1c los diabéticos tipo 2 atendidos por endocrinología?",
-    "golden_query": "SELECT AVG(\n    CASE\n        WHEN l.lab_sap_ref = 'LABHG3' THEN (l.result_num / 10.929) + 2.15\n        ELSE l.result_num\n    END\n) AS hba1c_media_pct\nFROM g_labs l\nWHERE l.lab_sap_ref IN ('LABHG1', 'LABHG2', 'LABHG3', 'LAB1368')\n  AND l.ou_med_ref = 'END'\n  AND l.result_num IS NOT NULL\n  AND l.patient_ref IN (\n      SELECT DISTINCT patient_ref\n      FROM g_diagnostics\n      WHERE code LIKE 'E11%'\n  );",
+    "golden_query": "SELECT ROUND(AVG(\n    CASE\n        WHEN l.lab_sap_ref = 'LABHG3' THEN (l.result_num / 10.929) + 2.15\n        ELSE l.result_num\n    END\n), 3) AS hba1c_media_pct\nFROM g_labs l\nWHERE l.lab_sap_ref IN ('LABHG1', 'LABHG2', 'LABHG3', 'LAB1368')\n  AND l.result_num IS NOT NULL\n  AND l.ou_med_ref = 'END'\n  AND l.patient_ref IN (\n      SELECT DISTINCT patient_ref\n      FROM g_diagnostics\n      WHERE code LIKE 'E11%'\n  )",
     "question_type": "scalar",
     "expected_columns": [
       "hba1c_media_pct"
@@ -177,7 +184,8 @@
       [
         7.241
       ]
-    ]
+    ],
+    "category": "intermediate"
   },
   {
     "id": 9,
@@ -191,7 +199,8 @@
       [
         5
       ]
-    ]
+    ],
+    "category": "simple"
   },
   {
     "id": 10,
@@ -205,7 +214,8 @@
       [
         2
       ]
-    ]
+    ],
+    "category": "intermediate"
   },
   {
     "id": 11,
@@ -258,7 +268,8 @@
         0.23,
         5.79
       ]
-    ]
+    ],
+    "category": "intermediate"
   },
   {
     "id": 12,
@@ -272,37 +283,38 @@
       [
         3
       ]
-    ]
+    ],
+    "category": "simple"
   },
   {
     "id": 13,
     "question": "¿Cuál es el valor medio de HbA1c en pacientes diabéticos?",
-    "golden_query": "SELECT AVG(CASE WHEN l.lab_sap_ref = 'LABHG3' THEN (l.result_num / 10.929) + 2.15 ELSE l.result_num END) AS avg_hba1c_pct, COUNT(DISTINCT l.patient_ref) AS n_patients, COUNT(*) AS n_measurements FROM g_labs l WHERE l.lab_sap_ref IN ('LABHG1','LABHG2','LABHG3','LAB1368') AND l.result_num IS NOT NULL AND l.patient_ref IN ( SELECT DISTINCT patient_ref FROM g_diagnostics WHERE code LIKE 'E10%' OR code LIKE 'E11%' OR code LIKE 'E13%' OR code LIKE '250%' );",
+    "golden_query": "SELECT ROUND(AVG(\n    CASE\n        WHEN l.lab_sap_ref = 'LABHG3' THEN (l.result_num / 10.929) + 2.15\n        ELSE l.result_num\n    END\n), 3) AS hba1c_media_pct\nFROM g_labs l\nWHERE l.lab_sap_ref IN ('LABHG1', 'LABHG2', 'LABHG3', 'LAB1368')\n  AND l.result_num IS NOT NULL\n  AND l.patient_ref IN (\n      SELECT DISTINCT patient_ref\n      FROM g_diagnostics\n      WHERE code LIKE 'E10%'\n         OR code LIKE 'E11%'\n         OR code LIKE 'E13%'\n         OR code LIKE '250%'\n  )",
     "question_type": "scalar",
     "expected_columns": [
-      "valor"
+      "hba1c_media_pct"
     ],
     "expected_rows": [
       [
-        6.836113201718562,
-        42,
-        477
+        6.836
       ]
-    ]
+    ],
+    "category": "intermediate"
   },
   {
     "id": 14,
     "question": "¿Cuál es el valor medio de potasio en sangre en pacientes ingresados por insuficiencia cardíaca?",
-    "golden_query": "SELECT AVG(lab.result_num) AS avg_potassium FROM g_episodes e JOIN g_diagnostics gd ON e.patient_ref = gd.patient_ref AND e.episode_ref = gd.episode_ref JOIN g_labs lab ON lab.patient_ref = e.patient_ref AND lab.episode_ref = e.episode_ref WHERE e.episode_type_ref = 'HOSP' AND gd.code LIKE 'I50%' AND lab.lab_sap_ref IN ('LABRPAK', 'LAB2508', 'LABRPVK', 'LABKSC', 'LABKV', 'LABKSV', 'LABKST') AND lab.result_num IS NOT NULL",
+    "golden_query": "SELECT\n    AVG(l.result_num) AS avg_potasio\nFROM (\n    SELECT DISTINCT\n        e.patient_ref,\n        e.episode_ref\n    FROM g_episodes e\n    JOIN g_diagnostics d\n        ON d.patient_ref = e.patient_ref\n       AND d.episode_ref = e.episode_ref\n    WHERE e.episode_type_ref = 'HOSP'\n      AND d.code LIKE 'I50%'\n) hf\nJOIN g_labs l\n    ON l.patient_ref = hf.patient_ref\n   AND l.episode_ref = hf.episode_ref\nWHERE l.lab_sap_ref IN ('LABRPAK', 'LAB2508', 'LABRPVK', 'LABKSC', 'LABKV', 'LABKSV', 'LABKST')\n  AND l.result_num IS NOT NULL",
     "question_type": "scalar",
     "expected_columns": [
-      "valor"
+      "avg_potasio"
     ],
     "expected_rows": [
       [
-        4.04369024405288
+        4.027376857410182
       ]
-    ]
+    ],
+    "category": "complex"
   },
   {
     "id": 15,
@@ -316,21 +328,23 @@
       [
         9
       ]
-    ]
+    ],
+    "category": "simple"
   },
   {
     "id": 16,
     "question": "¿Cuántos ingresos por enfermedad renal crónica duraron más de una semana?",
-    "golden_query": "SELECT COUNT(DISTINCT e.episode_ref) AS admission_count FROM g_episodes e JOIN g_diagnostics gd ON e.patient_ref = gd.patient_ref AND e.episode_ref = gd.episode_ref WHERE e.episode_type_ref = 'HOSP' AND gd.code LIKE 'N18%' AND DATEDIFF(e.end_date, e.start_date) > 7",
+    "golden_query": "SELECT\n    COUNT(DISTINCT e.episode_ref) AS ingresos_mas_de_una_semana\nFROM g_episodes e\nJOIN (\n    SELECT DISTINCT\n        patient_ref,\n        episode_ref\n    FROM g_diagnostics\n    WHERE code LIKE 'N18%'\n       OR code LIKE 'I12%'\n       OR code LIKE 'I13%'\n       OR code = 'D63.1'\n) erc\n    ON erc.patient_ref = e.patient_ref\n   AND erc.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\n  AND DATEDIFF(e.end_date, e.start_date) > 7",
     "question_type": "scalar",
     "expected_columns": [
-      "valor"
+      "ingresos_mas_de_una_semana"
     ],
     "expected_rows": [
       [
-        59
+        60
       ]
-    ]
+    ],
+    "category": "complex"
   },
   {
     "id": 17,
@@ -344,7 +358,8 @@
       [
         12
       ]
-    ]
+    ],
+    "category": "simple"
   },
   {
     "id": 18,
@@ -428,16 +443,17 @@
         "Staphylococcus hominis",
         1
       ]
-    ]
+    ],
+    "category": "simple"
   },
   {
     "id": 19,
     "question": "¿Qué anticoagulantes se administraron a pacientes con fibrilación auricular y cuántos pacientes recibieron cada uno?",
-    "golden_query": "SELECT a.atc_descr, COUNT(DISTINCT a.patient_ref) AS num_patients FROM g_administrations a JOIN g_diagnostics gd ON a.patient_ref = gd.patient_ref AND a.episode_ref = gd.episode_ref WHERE gd.code LIKE 'I48%' AND a.given = 'X' AND a.atc_descr IN ('Enoxaparina','Apixaban','Rivaroxaban','Heparina', 'Dabigatran etexilato','Acenocumarol','Tinzaparina','Bemiparina', 'Nadroparina','Fondaparinux','Dalterapina') GROUP BY a.atc_descr ORDER BY num_patients DESC",
+    "golden_query": "SELECT\n    COALESCE(a.atc_descr, a.drug_descr) AS anticoagulante,\n    COUNT(DISTINCT a.patient_ref) AS num_pacientes\nFROM g_administrations a\nJOIN (\n    SELECT DISTINCT\n        patient_ref,\n        episode_ref\n    FROM g_diagnostics\n    WHERE code LIKE 'I48%'\n       OR code = '427.31'\n) fa\n    ON fa.patient_ref = a.patient_ref\n   AND fa.episode_ref = a.episode_ref\nWHERE a.given = 'X'\n  AND (\n       a.atc_descr IN (\n            'Enoxaparina', 'Apixaban', 'Rivaroxaban', 'Heparina',\n            'Dabigatran etexilato', 'Acenocumarol', 'Tinzaparina',\n            'Bemiparina', 'Nadroparina', 'Fondaparinux',\n            'Dalterapina', 'Dalteparina'\n       )\n       OR\n       a.drug_descr LIKE '%ENOXAPARINA%'\n       OR a.drug_descr LIKE '%APIXABAN%'\n       OR a.drug_descr LIKE '%RIVAROXABAN%'\n       OR a.drug_descr LIKE '%HEPARINA%'\n       OR a.drug_descr LIKE '%DABIGATRAN%'\n       OR a.drug_descr LIKE '%ACENOCUMAROL%'\n       OR a.drug_descr LIKE '%TINZAPARINA%'\n       OR a.drug_descr LIKE '%BEMIPARINA%'\n       OR a.drug_descr LIKE '%NADROPARINA%'\n       OR a.drug_descr LIKE '%FONDAPARINUX%'\n       OR a.drug_descr LIKE '%DALTERAPINA%'\n       OR a.drug_descr LIKE '%DALTEPARINA%'\n  )\nGROUP BY COALESCE(a.atc_descr, a.drug_descr)\nORDER BY num_pacientes DESC, anticoagulante ASC",
     "question_type": "unordered_table",
     "expected_columns": [
-      "atc_descr",
-      "num_patients"
+      "anticoagulante",
+      "num_pacientes"
     ],
     "expected_rows": [
       [
@@ -460,100 +476,99 @@
         "Tinzaparina",
         1
       ]
-    ]
+    ],
+    "category": "complex"
   },
   {
     "id": 20,
     "question": "Muestra únicamente el identificador de episodio (episode_ref) de los pacientes hospitalizados a cargo de cardiología en el año 2023.",
-    "golden_query": "SELECT DISTINCT episode_ref AS episodio FROM g_episodes e INNER JOIN g_movements m USING(episode_ref) WHERE e.episode_type_ref LIKE 'HOSP%' AND m.ou_med_ref = 'CAR' AND (YEAR(e.start_date) = '2023' OR YEAR(e.end_date) = '2023');",
+    "golden_query": "SELECT\n    e.episode_ref AS episodio\nFROM g_episodes e\nJOIN g_movements m\n    ON m.patient_ref = e.patient_ref\n   AND m.episode_ref = e.episode_ref\nWHERE e.episode_type_ref LIKE 'HOSP%'\n  AND m.ou_med_ref IN ('CAR', 'BCAR', 'B-CAR')\n  AND e.start_date < '2024-01-01'\n  AND (e.end_date >= '2023-01-01' OR e.end_date IS NULL)\n  AND m.start_date < '2024-01-01'\n  AND (m.end_date >= '2023-01-01' OR m.end_date IS NULL)\nGROUP BY e.episode_ref\nORDER BY MIN(e.start_date), e.episode_ref",
     "question_type": "unordered_list",
     "expected_columns": [
-      "valor"
+      "episodio"
     ],
     "expected_rows": [
       [
-        1603192783
-      ],
-      [
-        2458867767
-      ],
-      [
         966372305
-      ],
-      [
-        2039069073
-      ],
-      [
-        1363611289
-      ],
-      [
-        817799139
-      ],
-      [
-        2618487166
-      ],
-      [
-        2908767805
-      ],
-      [
-        3494075824
-      ],
-      [
-        2187075421
-      ],
-      [
-        776472421
       ],
       [
         3391546152
       ],
       [
-        850119941
-      ],
-      [
-        2749766252
-      ],
-      [
         565575321
+      ],
+      [
+        1363611289
+      ],
+      [
+        3494075824
       ],
       [
         159586762
       ],
       [
-        1609319439
+        2618487166
+      ],
+      [
+        817799139
       ],
       [
         1025078082
+      ],
+      [
+        2749766252
+      ],
+      [
+        1609319439
+      ],
+      [
+        776472421
+      ],
+      [
+        2039069073
+      ],
+      [
+        1603192783
+      ],
+      [
+        2908767805
+      ],
+      [
+        2187075421
+      ],
+      [
+        850119941
+      ],
+      [
+        2458867767
       ]
-    ]
+    ],
+    "category": "intermediate"
   },
   {
     "id": 21,
     "question": "Muestra la cantidad de episodios con diagnóstico de infarto agudo de miocardio por cada mes (formato YYYY-MM), focalizándose en episodios de hospitalización que ingresan en el año 2023.",
-    "golden_query": "SELECT YEAR(e.start_date) AS año, MONTH(e.start_date) AS mes, COUNT(DISTINCT episode_ref) AS cantidad_episodios FROM g_episodes e INNER JOIN g_diagnostics d USING(episode_ref) WHERE e.episode_type_ref LIKE 'HOSP%' AND YEAR(e.start_date) = '2023' AND d.catalog = 12 AND d.code LIKE 'I21.%' GROUP BY YEAR(e.start_date), MONTH(e.start_date) ORDER BY YEAR(e.start_date) ASC, MONTH(e.start_date) ASC;",
+    "golden_query": "SELECT DATE_FORMAT(e.start_date, '%Y-%m') AS mes,\n    COUNT(DISTINCT e.episode_ref) AS cantidad_episodios\nFROM g_episodes e\nINNER JOIN g_diagnostics d USING(episode_ref)\nWHERE e.episode_type_ref LIKE 'HOSP%'\n  AND YEAR(e.start_date) = 2023\n  AND d.catalog = 12\n  AND d.code LIKE 'I21.%'\nGROUP BY mes\nORDER BY mes ASC",
     "question_type": "ordered_table",
     "expected_columns": [
-      "año",
       "mes",
       "cantidad_episodios"
     ],
     "expected_rows": [
       [
-        2023,
-        8,
+        "2023-08",
         1
       ],
       [
-        2023,
-        10,
+        "2023-10",
         2
       ],
       [
-        2023,
-        11,
+        "2023-11",
         1
       ]
-    ]
+    ],
+    "category": "intermediate"
   },
   {
     "id": 22,
@@ -653,7 +668,8 @@
         2259462569,
         "DM_2"
       ]
-    ]
+    ],
+    "category": "intermediate"
   },
   {
     "id": 23,
@@ -3216,7 +3232,8 @@
         "Vancomicina",
         1
       ]
-    ]
+    ],
+    "category": "simple"
   },
   {
     "id": 24,
@@ -7329,7 +7346,8 @@
         "Metoprolol",
         2
       ]
-    ]
+    ],
+    "category": "simple"
   },
   {
     "id": 25,
@@ -7407,395 +7425,142 @@
         "2020-04-26 23:24:27",
         84
       ]
-    ]
+    ],
+    "category": "intermediate"
   },
   {
     "id": 26,
-    "question": "Muestra los ingresos en planta hospitalaria del año 2023 asignados predominantemente a la unidad E073 (considerando también la unidad relacionada I073 para asignar la unidad predominante por estancia, basándose en la unidad donde el paciente pasó más tiempo). Para cada estancia incluye: identificación del paciente y episodio, identificador de estancia, unidad asignada, fechas de ingreso y alta (real y efectiva), duración (horas, días y minutos), indicador de si sigue ingresado, número de movimientos y unidades visitadas, minutos en E073 y minutos en I073, indicador de transferencia, año de ingreso, edad al ingreso, sexo, indicador de éxitus durante la estancia y fecha del éxitus, procedencia (formulario UCI) e indicador de procedencia de otro centro. Solo estancias con cama real asignada y al menos una prescripción activa durante la estancia.",
-    "golden_query": "WITH all_related_moves AS (SELECT patient_ref, episode_ref, ou_loc_ref, start_date, end_date, COALESCE(end_date, NOW()) AS effective_end_date FROM g_movements WHERE ou_loc_ref IN ('E073','I073') AND start_date <= '2023-12-31 23:59:59' AND COALESCE(end_date, NOW()) >= '2023-01-01 00:00:00' AND place_ref IS NOT NULL AND COALESCE(end_date, NOW()) > start_date), flagged_starts AS (SELECT patient_ref, episode_ref, ou_loc_ref, start_date, end_date, effective_end_date, CASE WHEN ABS(TIMESTAMPDIFF(MINUTE, LAG(effective_end_date) OVER (PARTITION BY episode_ref ORDER BY start_date), start_date)) <= 5 THEN 0 ELSE 1 END AS is_new_stay FROM all_related_moves), grouped_stays AS (SELECT patient_ref, episode_ref, ou_loc_ref, start_date, end_date, effective_end_date, is_new_stay, SUM(is_new_stay) OVER (PARTITION BY episode_ref ORDER BY start_date) AS stay_id FROM flagged_starts), time_per_unit AS (SELECT patient_ref, episode_ref, stay_id, ou_loc_ref, SUM(TIMESTAMPDIFF(MINUTE, start_date, effective_end_date)) AS minutes_in_unit FROM grouped_stays GROUP BY patient_ref, episode_ref, stay_id, ou_loc_ref), unit_first_visit AS (SELECT patient_ref, episode_ref, stay_id, ou_loc_ref, MIN(start_date) AS first_start FROM grouped_stays GROUP BY patient_ref, episode_ref, stay_id, ou_loc_ref), predominant_unit AS (SELECT patient_ref, episode_ref, stay_id, assigned_unit, max_minutes FROM (SELECT t.patient_ref, t.episode_ref, t.stay_id, t.ou_loc_ref AS assigned_unit, t.minutes_in_unit AS max_minutes, ROW_NUMBER() OVER (PARTITION BY t.patient_ref, t.episode_ref, t.stay_id ORDER BY t.minutes_in_unit DESC, u.first_start ASC) AS rn FROM time_per_unit t INNER JOIN unit_first_visit u ON t.patient_ref = u.patient_ref AND t.episode_ref = u.episode_ref AND t.stay_id = u.stay_id AND t.ou_loc_ref = u.ou_loc_ref) ranked WHERE rn = 1), procedencia_episodio AS (SELECT patient_ref, episode_ref, procedencia FROM (SELECT patient_ref, episode_ref, value_descr AS procedencia, ROW_NUMBER() OVER (PARTITION BY patient_ref, episode_ref ORDER BY form_date DESC) AS rn FROM g_dynamic_forms WHERE form_ref = 'UCI' AND question_ref = 'PROCE_MALA' AND status = 'CO') x WHERE rn = 1), cohort AS (SELECT g.patient_ref, g.episode_ref, g.stay_id, p.assigned_unit AS ou_loc_ref, MIN(g.start_date) AS admission_date, MAX(g.end_date) AS discharge_date, MAX(g.effective_end_date) AS effective_discharge_date, TIMESTAMPDIFF(HOUR, MIN(g.start_date), MAX(g.effective_end_date)) AS hours_stay, TIMESTAMPDIFF(DAY, MIN(g.start_date), MAX(g.effective_end_date)) AS days_stay, TIMESTAMPDIFF(MINUTE, MIN(g.start_date), MAX(g.effective_end_date)) AS minutes_stay, CASE WHEN MAX(g.end_date) IS NULL THEN 'Yes' ELSE 'No' END AS still_admitted, COUNT(*) AS num_movements, COUNT(DISTINCT g.ou_loc_ref) AS num_units_visited, SUM(CASE WHEN g.ou_loc_ref = 'E073' THEN TIMESTAMPDIFF(MINUTE, g.start_date, g.effective_end_date) ELSE 0 END) AS minutes_E073, SUM(CASE WHEN g.ou_loc_ref = 'I073' THEN TIMESTAMPDIFF(MINUTE, g.start_date, g.effective_end_date) ELSE 0 END) AS minutes_I073 FROM grouped_stays g INNER JOIN predominant_unit p ON g.patient_ref = p.patient_ref AND g.episode_ref = p.episode_ref AND g.stay_id = p.stay_id GROUP BY g.patient_ref, g.episode_ref, g.stay_id, p.assigned_unit HAVING YEAR(MIN(g.start_date)) BETWEEN 2023 AND 2023 AND p.assigned_unit = 'E073') SELECT DISTINCT c.patient_ref, c.episode_ref, c.stay_id, c.ou_loc_ref, c.admission_date, c.discharge_date, c.effective_discharge_date, c.hours_stay, c.days_stay, c.minutes_stay, c.still_admitted, c.num_movements, c.num_units_visited, c.minutes_E073, c.minutes_I073, CASE WHEN c.num_units_visited > 1 THEN 'Yes' ELSE 'No' END AS had_transfer, YEAR(c.admission_date) AS year_admission, TIMESTAMPDIFF(YEAR, d.birth_date, c.admission_date) AS age_at_admission, CASE WHEN d.sex = 1 THEN 'Male' WHEN d.sex = 2 THEN 'Female' WHEN d.sex = 3 THEN 'Other' ELSE 'Not reported' END AS sex, CASE WHEN ex.exitus_date IS NOT NULL AND ex.exitus_date BETWEEN c.admission_date AND c.effective_discharge_date THEN 'Yes' ELSE 'No' END AS exitus_during_stay, ex.exitus_date, proc.procedencia, CASE WHEN proc.procedencia IS NULL THEN 'Sin datos' WHEN proc.procedencia LIKE '%Otro centro%' OR proc.procedencia LIKE '%Otro hospital%' OR proc.procedencia LIKE '%otro centro%' OR proc.procedencia LIKE '%otro hospital%' THEN 'Sí' ELSE 'No' END AS procedencia_otro_centro FROM cohort c LEFT JOIN procedencia_episodio proc ON c.patient_ref = proc.patient_ref AND c.episode_ref = proc.episode_ref LEFT JOIN g_demographics d ON c.patient_ref = d.patient_ref LEFT JOIN g_exitus ex ON c.patient_ref = ex.patient_ref INNER JOIN g_prescriptions p ON c.patient_ref = p.patient_ref AND c.episode_ref = p.episode_ref AND p.start_drug_date BETWEEN c.admission_date AND c.effective_discharge_date ORDER BY c.admission_date;",
+    "question": "Muestra los episodios de hospitalización del año 2023 con al menos un movimiento en la unidad E073. Para cada episodio incluye: patient_ref, episode_ref, fecha de ingreso, fecha de alta, número de movimientos en E073 y duración total en minutos en E073. Ordena por fecha de ingreso.",
+    "golden_query": "SELECT\n    e.patient_ref,\n    e.episode_ref,\n    e.start_date AS fecha_ingreso,\n    e.end_date   AS fecha_alta,\n    COUNT(*) AS num_movimientos_e073,\n    SUM(TIMESTAMPDIFF(MINUTE, m.start_date,\n        COALESCE(m.end_date, NOW()))) AS minutos_en_e073\nFROM g_episodes e\nJOIN g_movements m\n    ON m.patient_ref = e.patient_ref\n   AND m.episode_ref = e.episode_ref\n   AND m.ou_loc_ref  = 'E073'\nWHERE e.episode_type_ref IN ('HOSP', 'HOSP_IQ')\n  AND YEAR(e.start_date) = 2023\nGROUP BY e.patient_ref, e.episode_ref, e.start_date, e.end_date\nORDER BY e.start_date, e.episode_ref",
     "question_type": "ordered_table",
     "expected_columns": [
       "patient_ref",
       "episode_ref",
-      "stay_id",
-      "ou_loc_ref",
-      "admission_date",
-      "discharge_date",
-      "effective_discharge_date",
-      "hours_stay",
-      "days_stay",
-      "minutes_stay",
-      "still_admitted",
-      "num_movements",
-      "num_units_visited",
-      "minutes_E073",
-      "minutes_I073",
-      "had_transfer",
-      "year_admission",
-      "age_at_admission",
-      "sex",
-      "exitus_during_stay",
-      "exitus_date",
-      "procedencia",
-      "procedencia_otro_centro"
+      "fecha_ingreso",
+      "fecha_alta",
+      "num_movimientos_e073",
+      "minutos_en_e073"
     ],
     "expected_rows": [
       [
         1772151529,
         3142256751,
-        "1",
-        "E073",
         "2023-03-07 21:44:03",
-        "2023-03-09 18:32:56",
-        "2023-03-09 18:32:56",
-        44,
+        "2023-03-13 17:00:00",
         1,
-        2688,
-        "No",
-        1,
-        1,
-        "2688",
-        "0",
-        "No",
-        2023,
-        67,
-        "Male",
-        "No",
-        null,
-        "Domicilio",
-        "No"
+        2688
       ],
       [
         4143535895,
         1718291010,
-        "1",
-        "E073",
-        "2023-04-23 03:12:09",
-        "2023-04-26 20:44:27",
-        "2023-04-26 20:44:27",
-        89,
-        3,
-        5372,
-        "No",
+        "2023-04-23 03:07:17",
+        "2023-05-05 16:15:00",
         2,
-        2,
-        "4690",
-        "682",
-        "Yes",
-        2023,
-        78,
-        "Female",
-        "No",
-        null,
-        "Otro hospital",
-        "Sí"
+        4694
       ],
       [
         3075678704,
         771964546,
-        "1",
-        "E073",
-        "2023-07-17 03:50:06",
-        "2023-07-21 19:40:00",
-        "2023-07-21 19:40:00",
-        111,
-        4,
-        6709,
-        "No",
+        "2023-06-15 09:00:00",
+        "2023-07-28 12:35:00",
         1,
-        1,
-        "6709",
-        "0",
-        "No",
-        2023,
-        53,
-        "Female",
-        "No",
-        "2023-07-28 00:00:00",
-        "Domicili",
-        "No"
+        6709
       ],
       [
         4174873221,
         1516388602,
-        "1",
-        "E073",
-        "2023-09-11 20:42:26",
-        "2023-09-13 17:32:46",
-        "2023-09-13 17:32:46",
-        44,
-        1,
-        2690,
-        "No",
-        1,
-        1,
-        "2690",
-        "0",
-        "No",
-        2023,
-        31,
-        "Female",
-        "No",
-        null,
-        "Domicilio",
-        "No"
+        "2023-09-06 16:30:00",
+        "2023-09-29 15:00:00",
+        2,
+        8458
       ],
       [
         3831844914,
         472634843,
-        "1",
-        "E073",
         "2023-09-20 17:00:00",
-        "2023-09-28 17:46:56",
-        "2023-09-28 17:46:56",
-        192,
-        8,
-        11566,
-        "No",
+        "2023-11-01 17:20:00",
         2,
-        1,
-        "11566",
-        "0",
-        "No",
-        2023,
-        66,
-        "Female",
-        "No",
-        null,
-        "Otro hospital",
-        "Sí"
-      ],
-      [
-        4174873221,
-        1516388602,
-        "2",
-        "E073",
-        "2023-09-21 19:44:13",
-        "2023-09-25 19:52:47",
-        "2023-09-25 19:52:47",
-        96,
-        4,
-        5768,
-        "No",
-        1,
-        1,
-        "5768",
-        "0",
-        "No",
-        2023,
-        31,
-        "Female",
-        "No",
-        null,
-        "Domicilio",
-        "No"
+        11566
       ],
       [
         4174873221,
         1173497794,
-        "1",
-        "E073",
-        "2023-10-13 14:30:04",
-        "2023-10-15 20:19:48",
-        "2023-10-15 20:19:48",
-        53,
-        2,
-        3229,
-        "No",
+        "2023-10-09 16:26:24",
+        "2023-10-27 13:39:00",
         1,
-        1,
-        "3229",
-        "0",
-        "No",
-        2023,
-        31,
-        "Female",
-        "No",
-        null,
-        null,
-        "Sin datos"
+        3229
       ],
       [
         1400448602,
         942311744,
-        "1",
-        "E073",
-        "2023-11-17 23:46:31",
-        "2023-11-21 17:53:34",
-        "2023-11-21 17:53:34",
-        90,
-        3,
-        5407,
-        "No",
+        "2023-10-30 19:32:59",
+        "2023-12-08 12:42:04",
         1,
-        1,
-        "5407",
-        "0",
-        "No",
-        2023,
-        35,
-        "Female",
-        "No",
-        null,
-        "Domicilio",
-        "No"
+        5407
       ],
       [
         3982367120,
         776472421,
-        "1",
-        "E073",
-        "2023-11-18 13:34:09",
-        "2023-12-02 22:28:07",
-        "2023-12-02 22:28:07",
-        344,
-        14,
-        20693,
-        "No",
+        "2023-11-09 01:00:35",
+        "2024-02-28 01:59:26",
         1,
-        1,
-        "20693",
-        "0",
-        "No",
-        2023,
-        82,
-        "Female",
-        "No",
-        "2024-02-27 00:00:00",
-        "Otros",
-        "No"
+        20693
+      ],
+      [
+        3191477237,
+        2065337519,
+        "2023-11-09 17:13:18",
+        "2024-05-14 16:30:00",
+        2,
+        4935
       ],
       [
         4174873221,
         1837303861,
-        "1",
-        "E073",
-        "2023-11-28 00:16:25",
-        "2023-11-29 20:40:00",
-        "2023-11-29 20:40:00",
-        44,
-        1,
-        2663,
-        "No",
-        1,
-        1,
-        "2663",
-        "0",
-        "No",
-        2023,
-        31,
-        "Female",
-        "No",
-        null,
-        "Otros",
-        "No"
+        "2023-11-28 00:12:41",
+        "2023-12-08 17:20:00",
+        2,
+        2666
       ],
       [
         3028134598,
         2876285065,
-        "1",
-        "E073",
-        "2023-12-06 18:13:50",
-        "2023-12-07 19:00:00",
-        "2023-12-07 19:00:00",
-        24,
+        "2023-12-05 17:00:00",
+        "2024-01-19 14:30:00",
         1,
-        1486,
-        "No",
-        1,
-        1,
-        "1486",
-        "0",
-        "No",
-        2023,
-        66,
-        "Female",
-        "No",
-        null,
-        "Domicilio",
-        "No"
+        1486
       ],
       [
         4174873221,
         420332682,
-        "1",
-        "E073",
-        "2023-12-27 04:10:49",
-        "2023-12-30 17:42:08",
-        "2023-12-30 17:42:08",
-        85,
-        3,
-        5131,
-        "No",
+        "2023-12-21 21:17:00",
+        "2024-01-26 14:00:00",
         1,
-        1,
-        "5131",
-        "0",
-        "No",
-        2023,
-        32,
-        "Female",
-        "No",
-        null,
-        "Otros",
-        "No"
+        5131
       ],
       [
         3482671287,
         3458646960,
-        "1",
-        "E073",
-        "2023-12-28 00:55:43",
-        "2023-12-28 19:44:41",
-        "2023-12-28 19:44:41",
-        18,
-        0,
-        1128,
-        "No",
-        1,
-        1,
-        "1128",
-        "0",
-        "No",
-        2023,
-        73,
-        "Female",
-        "No",
-        null,
-        "Otro hospital",
-        "Sí"
+        "2023-12-28 00:54:44",
+        "2024-03-14 11:55:00",
+        2,
+        1128
       ],
       [
         1975294689,
         771059428,
-        "1",
-        "E073",
-        "2023-12-31 23:34:28",
-        "2024-01-02 12:15:16",
-        "2024-01-02 12:15:16",
-        36,
+        "2023-12-29 21:04:15",
+        "2024-01-17 15:45:00",
         1,
-        2200,
-        "No",
-        1,
-        1,
-        "2200",
-        "0",
-        "No",
-        2023,
-        68,
-        "Female",
-        "No",
-        null,
-        "Domicilio",
-        "No"
+        2200
       ]
-    ]
+    ],
+    "category": "intermediate"
   },
   {
     "id": 27,
-    "question": "Muestra la tasa de positividad de CAM-ICU (escala de evaluación de delirio en pacientes de UCI) por unidad y año, considerando las UCIs 'E016', 'E103', 'E014', 'E015', 'E037', 'E057', 'E073' y 'E043' durante el periodo 2018–2025. Clasifica los resultados como positivos (DELIRIO_CAM-ICU_2 → delirio), negativos (DELIRIO_CAM-ICU_1) u otros (DELIRIO_CAM-ICU_3). Solo deben considerarse los CAM-ICU registrados durante estancias reales (con cama asignada) en estas unidades. La tabla debe contener una fila por combinación de unidad y año, con las columnas: 'ou_loc_ref' (código de la unidad), 'yr' (año), 'total_cam' (total de CAM-ICU registrados), 'n_positive' (número de resultados positivos), 'n_negative' (número de resultados negativos), 'n_other' (número de resultados clasificados como 'otros'), 'pct_positive' (porcentaje de positivos sobre el total) y 'pct_negative' (porcentaje de negativos sobre el total).",
-    "golden_query": "WITH all_related_moves AS ( SELECT patient_ref, episode_ref, ou_loc_ref, start_date, end_date, COALESCE(end_date, NOW()) AS effective_end_date FROM g_movements WHERE ou_loc_ref IN ('E016','E103','E014','E015','E037','E057','E073','E043') AND start_date <= '2025-12-31 23:59:59' AND COALESCE(end_date, NOW()) >= '2018-01-01 00:00:00' AND place_ref IS NOT NULL AND COALESCE(end_date, NOW()) > start_date ), flagged_starts AS ( SELECT patient_ref, episode_ref, ou_loc_ref, start_date, end_date, effective_end_date, CASE WHEN ABS(TIMESTAMPDIFF(MINUTE, LAG(effective_end_date) OVER ( PARTITION BY patient_ref, episode_ref, ou_loc_ref ORDER BY start_date ), start_date )) <= 5 THEN 0 ELSE 1 END AS is_new_stay FROM all_related_moves ), grouped_stays AS ( SELECT patient_ref, episode_ref, ou_loc_ref, start_date, end_date, effective_end_date, is_new_stay, SUM(is_new_stay) OVER ( PARTITION BY patient_ref, episode_ref, ou_loc_ref ORDER BY start_date ) AS stay_id FROM flagged_starts ), cohort AS ( SELECT patient_ref, episode_ref, ou_loc_ref, stay_id, MIN(start_date) AS admission_date, MAX(effective_end_date) AS effective_discharge_date FROM grouped_stays GROUP BY patient_ref, episode_ref, ou_loc_ref, stay_id HAVING YEAR(MIN(start_date)) BETWEEN 2018 AND 2025 ), cam_results AS ( SELECT c.ou_loc_ref, YEAR(r.result_date) AS yr, r.result_txt, CASE WHEN r.result_txt = 'DELIRIO_CAM-ICU_2' THEN 'positive' WHEN r.result_txt = 'DELIRIO_CAM-ICU_1' THEN 'negative' WHEN r.result_txt = 'DELIRIO_CAM-ICU_3' THEN 'other' ELSE 'unknown' END AS cam_result FROM g_rc r INNER JOIN cohort c ON r.patient_ref = c.patient_ref AND r.ou_loc_ref = c.ou_loc_ref AND r.result_date BETWEEN c.admission_date AND c.effective_discharge_date WHERE r.rc_sap_ref = 'DELIRIO_CAM-ICU' ) SELECT ou_loc_ref, yr, COUNT(*) AS total_cam, SUM(CASE WHEN cam_result = 'positive' THEN 1 ELSE 0 END) AS n_positive, SUM(CASE WHEN cam_result = 'negative' THEN 1 ELSE 0 END) AS n_negative, SUM(CASE WHEN cam_result = 'other' THEN 1 ELSE 0 END) AS n_other, ROUND(100.0 * SUM(CASE WHEN cam_result = 'positive' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_positive, ROUND(100.0 * SUM(CASE WHEN cam_result = 'negative' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_negative FROM cam_results GROUP BY ou_loc_ref, yr ORDER BY ou_loc_ref, yr;",
+    "question": "Muestra el número de evaluaciones CAM-ICU registradas en cada unidad UCI ('E016', 'E103', 'E014', 'E015', 'E037', 'E057', 'E073', 'E043') por año. Clasifica los resultados en positivos (DELIRIO_CAM-ICU_2), negativos (DELIRIO_CAM-ICU_1) y otros (DELIRIO_CAM-ICU_3). Una fila por combinación unidad-año con columnas: ou_loc_ref, yr, total_cam, n_positive, n_negative, n_other.",
+    "golden_query": "SELECT\n    ou_loc_ref,\n    YEAR(result_date) AS yr,\n    COUNT(*) AS total_cam,\n    SUM(CASE WHEN result_txt = 'DELIRIO_CAM-ICU_2' THEN 1 ELSE 0 END) AS n_positive,\n    SUM(CASE WHEN result_txt = 'DELIRIO_CAM-ICU_1' THEN 1 ELSE 0 END) AS n_negative,\n    SUM(CASE WHEN result_txt = 'DELIRIO_CAM-ICU_3' THEN 1 ELSE 0 END) AS n_other\nFROM g_rc\nWHERE rc_sap_ref = 'DELIRIO_CAM-ICU'\n  AND ou_loc_ref IN ('E016','E103','E014','E015','E037','E057','E073','E043')\nGROUP BY ou_loc_ref, yr\nORDER BY ou_loc_ref, yr",
     "question_type": "ordered_table",
     "expected_columns": [
       "ou_loc_ref",
@@ -7803,172 +7568,139 @@
       "total_cam",
       "n_positive",
       "n_negative",
-      "n_other",
-      "pct_positive",
-      "pct_negative"
+      "n_other"
     ],
     "expected_rows": [
       [
         "E014",
         2023,
         10,
-        "10",
-        "0",
-        "0",
-        "100.0",
-        "0.0"
+        10,
+        0,
+        0
       ],
       [
         "E014",
         2024,
         1,
-        "1",
-        "0",
-        "0",
-        "100.0",
-        "0.0"
+        1,
+        0,
+        0
       ],
       [
         "E014",
         2025,
         24,
-        "24",
-        "0",
-        "0",
-        "100.0",
-        "0.0"
+        24,
+        0,
+        0
       ],
       [
         "E015",
         2023,
         16,
-        "16",
-        "0",
-        "0",
-        "100.0",
-        "0.0"
+        16,
+        0,
+        0
       ],
       [
         "E015",
         2024,
         42,
-        "42",
-        "0",
-        "0",
-        "100.0",
-        "0.0"
+        42,
+        0,
+        0
       ],
       [
         "E016",
         2021,
         18,
-        "6",
-        "12",
-        "0",
-        "33.3",
-        "66.7"
+        6,
+        12,
+        0
       ],
       [
         "E016",
         2024,
         275,
-        "273",
-        "2",
-        "0",
-        "99.3",
-        "0.7"
+        273,
+        2,
+        0
       ],
       [
         "E037",
         2023,
         83,
-        "38",
-        "45",
-        "0",
-        "45.8",
-        "54.2"
+        38,
+        45,
+        0
       ],
       [
         "E037",
         2024,
         209,
-        "150",
-        "58",
-        "1",
-        "71.8",
-        "27.8"
+        150,
+        58,
+        1
       ],
       [
         "E043",
         2021,
         7,
-        "7",
-        "0",
-        "0",
-        "100.0",
-        "0.0"
+        7,
+        0,
+        0
       ],
       [
         "E043",
         2022,
         1,
-        "1",
-        "0",
-        "0",
-        "100.0",
-        "0.0"
+        1,
+        0,
+        0
       ],
       [
         "E043",
         2024,
         102,
-        "98",
-        "4",
-        "0",
-        "96.1",
-        "3.9"
+        98,
+        4,
+        0
       ],
       [
         "E057",
         2024,
+        14,
         13,
-        "12",
-        "0",
-        "1",
-        "92.3",
-        "0.0"
+        0,
+        1
       ],
       [
         "E073",
         2023,
         45,
-        "37",
-        "8",
-        "0",
-        "82.2",
-        "17.8"
+        37,
+        8,
+        0
       ],
       [
         "E073",
         2024,
-        79,
-        "25",
-        "54",
-        "0",
-        "31.6",
-        "68.4"
+        81,
+        26,
+        55,
+        0
       ],
       [
         "E103",
         2024,
-        224,
-        "187",
-        "37",
-        "0",
-        "83.5",
-        "16.5"
+        255,
+        218,
+        37,
+        0
       ]
-    ]
+    ],
+    "category": "intermediate"
   },
   {
     "id": 28,
@@ -8039,7 +7771,8 @@
         "NUTRICION ENTERAL",
         18
       ]
-    ]
+    ],
+    "category": "complex"
   },
   {
     "id": 29,
@@ -8353,7 +8086,8 @@
         "0.7",
         2024
       ]
-    ]
+    ],
+    "category": "complex"
   },
   {
     "id": 30,
@@ -8637,6 +8371,7 @@
         "I061",
         "NRC"
       ]
-    ]
+    ],
+    "category": "intermediate"
   }
 ]

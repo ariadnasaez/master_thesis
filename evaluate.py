@@ -31,8 +31,8 @@ import pandas as pd
 
 HERE = Path(__file__).parent
 GOLDEN_PATH = HERE / "golden_dataset.json"
-GENERATION_PATH = HERE / "generation_result_claude.json"
-OUTPUT_PATH = HERE / "jaccard_results_claude.json"
+GENERATION_PATH = HERE / "generation_result_deepseek_3.json"
+OUTPUT_PATH = HERE / "jaccard_results_deepseek_3.json"
 
 
 # ---------------------------------------------------------------------------
@@ -167,6 +167,42 @@ def row_recall(agent_rows: list, golden_rows: list) -> float:
     return matched / sum(golden_ms.values())
 
 
+def _single_numeric(rows) -> float | None:
+    """Return the single numeric value when rows is exactly one row with one numeric cell.
+    Returns None if the output is not a scalar or not numeric.
+    """
+    if not rows or len(rows) != 1:
+        return None
+    row = rows[0]
+    if isinstance(row, dict):
+        vals = list(row.values())
+    elif isinstance(row, (list, tuple)):
+        vals = list(row)
+    else:
+        vals = [row]
+    if len(vals) != 1:
+        return None
+    try:
+        return float(vals[0])
+    except (ValueError, TypeError):
+        return None
+
+
+def numeric_closeness(agent_rows: list, golden_rows: list) -> float | None:
+    """Relative closeness for scalar numeric outputs: 1 - |pred - gold| / |gold|.
+    Only applies when both agent and golden return exactly one row with one numeric value.
+    Returns None for non-scalar or non-numeric outputs (metric is not applicable).
+    Result is clamped to [0, 1]; gold == 0 returns 1.0 iff pred == 0 else 0.0.
+    """
+    pred = _single_numeric(agent_rows)
+    gold = _single_numeric(golden_rows)
+    if pred is None or gold is None:
+        return None
+    if gold == 0.0:
+        return 1.0 if pred == 0.0 else 0.0
+    return max(0.0, 1.0 - abs(pred - gold) / abs(gold))
+
+
 # ---------------------------------------------------------------------------
 # Per-question scoring
 # ---------------------------------------------------------------------------
@@ -181,6 +217,7 @@ def score_question(agent_runs: list[dict], golden_sql: str, expected_rows: list)
     sqls = [r.get("sql", "") for r in agent_runs]
     rows = [r.get("rows", []) for r in agent_runs]
     elapsed = [r.get("elapsed_seconds", 0.0) for r in agent_runs]
+    num_calls = [r.get("num_calls", 0) for r in agent_runs]
 
     sql_token_sets = [sql_to_tokens(s) for s in sqls]
     output_value_sets = [output_to_value_set(r) for r in rows]
@@ -193,6 +230,7 @@ def score_question(agent_runs: list[dict], golden_sql: str, expected_rows: list)
     rec_out    = [recall(v, golden_output_set) for v in output_value_sets]
     row_prec   = [row_precision(r, expected_rows) for r in rows]
     row_rec    = [row_recall(r, expected_rows) for r in rows]
+    num_close  = [numeric_closeness(r, expected_rows) for r in rows]
 
     n = len(agent_runs)
     if n >= 2:
@@ -212,10 +250,13 @@ def score_question(agent_runs: list[dict], golden_sql: str, expected_rows: list)
         "recall_output":             sum(rec_out) / n,
         "row_precision_output":      sum(row_prec) / n,
         "row_recall_output":         sum(row_rec) / n,
+        "numeric_closeness": (sum(v for v in num_close if v is not None) / sum(1 for v in num_close if v is not None)) if any(v is not None for v in num_close) else None,
         "determinism_sql_similarity":    det_sql,
         "determinism_output_similarity": det_output,
         "elapsed_seconds_per_run": [round(e, 2) for e in elapsed],
         "mean_elapsed_seconds": round(sum(elapsed) / n, 2) if n else 0.0,
+        "num_calls_per_run": num_calls,
+        "mean_num_calls": round(sum(num_calls) / n, 2) if n else 0.0,
         "agent_sqls": sqls,
         "agent_row_counts": [len(r) for r in rows],
     }
@@ -255,6 +296,7 @@ def main():
         per_question_records.append(record)
         rows_for_df.append({
             "id": qid,
+            "category": gold.get("category", "unknown"),
             "sql_sim":    round(scored["jaccard_similarity_sql"], 3),
             "output_sim": round(scored["jaccard_similarity_output"], 3),
             "prec_sql":   round(scored["precision_sql"], 3),
@@ -265,7 +307,9 @@ def main():
             "row_rec":    round(scored["row_recall_output"], 3),
             "det_sql":    None if scored["determinism_sql_similarity"]    is None else round(scored["determinism_sql_similarity"],    3),
             "det_output": None if scored["determinism_output_similarity"] is None else round(scored["determinism_output_similarity"], 3),
+            "num_close":  None if scored["numeric_closeness"] is None else round(scored["numeric_closeness"], 3),
             "elapsed_s": scored["mean_elapsed_seconds"],
+            "num_calls": scored["mean_num_calls"],
             "agent_n": max(scored["agent_row_counts"]) if scored["agent_row_counts"] else 0,
         })
 
@@ -292,8 +336,10 @@ def main():
         "mean_recall_output":        df["rec_out"].mean(),
         "mean_row_precision_output": df["row_prec"].mean(),
         "mean_row_recall_output":    df["row_rec"].mean(),
+        "mean_numeric_closeness": df["num_close"].dropna().mean(),
         "mean_elapsed_seconds_per_question": round(df["elapsed_s"].mean(), 2),
         "total_elapsed_seconds": round(df["elapsed_s"].sum() * runs_per_question, 2),
+        "mean_num_calls_per_question": round(df["num_calls"].mean(), 2),
     }
     if runs_per_question >= 2:
         summary["mean_determinism_sql_similarity"]    = df["det_sql"].dropna().mean()
@@ -311,13 +357,55 @@ def main():
     print(f"  Precision: {summary['mean_precision_output']:.3f}   Recall: {summary['mean_recall_output']:.3f}")
     print(f"Precision / Recall — Output (row-level):")
     print(f"  Precision: {summary['mean_row_precision_output']:.3f}   Recall: {summary['mean_row_recall_output']:.3f}")
+    nc = summary.get("mean_numeric_closeness")
+    if nc is not None and not (nc != nc):  # not NaN
+        print(f"Numeric closeness (scalar questions only, higher = closer to correct value):")
+        print(f"  Mean: {nc:.3f}")
     if runs_per_question >= 2:
         print(f"Determinism (pairwise similarity, higher = more deterministic):")
         print(f"  SQL:    {summary['mean_determinism_sql_similarity']:.3f}")
         print(f"  Output: {summary['mean_determinism_output_similarity']:.3f}")
-    print(f"Latency:     mean per question {summary['mean_elapsed_seconds_per_question']:.1f}s")
+    print(f"Latency:     mean per question {summary['mean_elapsed_seconds_per_question']:.1f}s  "
+          f"(mean tool calls: {summary['mean_num_calls_per_question']:.1f})")
     if summary["timed_out_ids"]:
         print(f"Timed out:   {summary['timed_out_ids']}")
+
+    # Per-category breakdown
+    CAT_LABELS = {
+        "simple":       "Simple               ",
+        "intermediate": "Intermediate         ",
+        "complex":      "Complex              ",
+    }
+    print()
+    print("=" * 90)
+    print("BREAKDOWN BY CATEGORY")
+    print("=" * 90)
+    print(f"{'Category':<26}  {'n':>3}  {'sql_sim':>7}  {'out_sim':>7}  "
+          f"{'prec_out':>8}  {'rec_out':>7}  {'row_prec':>8}  {'row_rec':>7}  {'elapsed':>7}")
+    print("-" * 90)
+    category_summaries = {}
+    for cat_key, cat_label in CAT_LABELS.items():
+        sub = df[df["category"] == cat_key]
+        if sub.empty:
+            continue
+        n = len(sub)
+        row = {
+            "n": n,
+            "mean_jaccard_similarity_sql":    sub["sql_sim"].mean(),
+            "mean_jaccard_similarity_output": sub["output_sim"].mean(),
+            "mean_precision_output":          sub["prec_out"].mean(),
+            "mean_recall_output":             sub["rec_out"].mean(),
+            "mean_row_precision_output":      sub["row_prec"].mean(),
+            "mean_row_recall_output":         sub["row_rec"].mean(),
+            "mean_elapsed_seconds":           sub["elapsed_s"].mean(),
+        }
+        category_summaries[cat_key] = row
+        print(f"{cat_label:<26}  {n:>3}  {row['mean_jaccard_similarity_sql']:>7.3f}  "
+              f"{row['mean_jaccard_similarity_output']:>7.3f}  "
+              f"{row['mean_precision_output']:>8.3f}  {row['mean_recall_output']:>7.3f}  "
+              f"{row['mean_row_precision_output']:>8.3f}  {row['mean_row_recall_output']:>7.3f}  "
+              f"{row['mean_elapsed_seconds']:>6.1f}s")
+    summary["by_category"] = category_summaries
 
     # Persist full results (summary + per_question raw scores)
     with open(OUTPUT_PATH, "w") as f:
