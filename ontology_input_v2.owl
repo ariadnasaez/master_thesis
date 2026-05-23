@@ -1,0 +1,2381 @@
+<?xml version="1.0"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:protege="http://protege.stanford.edu/plugins/owl/protege#"
+    xmlns:xsp="http://www.owl-ontologies.com/2005/08/07/xsp.owl#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns="http://infmed.fcrb.es/ontologias/ontology_input#"
+    xmlns:swrl="http://www.w3.org/2003/11/swrl#"
+    xmlns:dic="http://infmed.fcrb.es/ontologias/ontology_input_dic#"
+    xmlns:swrlb="http://www.w3.org/2003/11/swrlb#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xml:base="file:/C:/Users/frid/Downloads/ontology_input%20(1).owl">
+  <owl:Ontology rdf:about="http://infmed.fcrb.es/ontologias/ontology_input">
+    <owl:imports rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Ontología generada automáticamente basada en ontology_input.csv</rdfs:comment>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >ontology_input Ontology</rdfs:label>
+  </owl:Ontology>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GPathologySample">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_pathology_sample</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    </rdfs:subClassOf>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GPathologySample</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GDemographics</rdfs:label>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    </rdfs:subClassOf>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_demographics</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GHealthIssues">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_health_issues</rdfs:comment>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GHealthIssues</rdfs:label>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GMovements">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    </rdfs:subClassOf>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GMovements</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_movements</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GEpisodes</rdfs:label>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    </rdfs:subClassOf>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_episodes</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GExitus">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GExitus</rdfs:label>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    </rdfs:subClassOf>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_exitus</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryTimestamps">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    </rdfs:subClassOf>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_surgery_timestamps</rdfs:comment>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GSurgeryTimestamps</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#Tables">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Tables</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase principal que contiene todas las tablas del modelo</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GTags">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_tags</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GTags</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryTeam">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_surgery_team</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GSurgeryTeam</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations">
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_administrations</rdfs:comment>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GAdministrations</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnosticRelatedGroups">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GDiagnosticRelatedGroups</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_diagnostic_related_groups</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GAntibiograms">
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GAntibiograms</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_antibiograms</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GRc">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_rc</rdfs:comment>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GRc</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GMicro">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_micro</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GMicro</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GPathologyDiagnostic">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_pathology_diagnostic</rdfs:comment>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GPathologyDiagnostic</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GEncounters">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GEncounters</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_encounters</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GProvisions">
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_provisions</rdfs:comment>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GProvisions</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GCareLevels">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_care_levels</rdfs:comment>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GCareLevels</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnostics">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_diagnostics</rdfs:comment>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GDiagnostics</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GProcedures">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_procedures</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GProcedures</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GLabs">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_labs</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GLabs</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GSurgery">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GSurgery</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_surgery</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GPrescriptions</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_prescriptions</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GSpecialRecords">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GSpecialRecords</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_special_records</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryWaitingList">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GSurgeryWaitingList</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_surgery_waiting_list</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GDynamicForms">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GDynamicForms</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_dynamic_forms</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GPerfusions">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_perfusions</rdfs:comment>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GPerfusions</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+  </owl:Class>
+  <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GAdmDisch">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >GAdmDisch</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Clase para la tabla g_adm_disch</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#Tables"/>
+  </owl:Class>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGCareLevelsEpisodeRef">
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GCareLevels"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMovementsOuMedRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuMedRef"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_med_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Medical unit code</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMovements"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSpecialRecordsTabRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo tab_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#SpecialRecordTabRef"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSpecialRecords"/>
+    <rdfs:label xml:lang="en">Form tab identifier</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDynamicFormsClassRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDynamicForms"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo class_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#DynamicFormClassRef"/>
+    <rdfs:label xml:lang="en">Assessment class code</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsFreqRef">
+    <rdfs:label xml:lang="en">Administration frequency code</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#FreqRef"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo freq_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdmDischMotRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdmDisch"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#MotRef"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo mot_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Reason for admission or discharge code</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGLabsCareLevelRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Level of care identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#CareLevelRef"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GLabs"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo care_level_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDynamicFormsSectionRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDynamicForms"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#DynamicFormSectionRef"/>
+    <rdfs:label xml:lang="en">Parameter identifier</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo section_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGEpisodesEpisodeTypeRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#EpisodeTypeRef"/>
+    <rdfs:label xml:lang="en">Episode typology (AM EM HOSP etc)</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_type_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProvisionsProvRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#ProvRef"/>
+    <rdfs:label xml:lang="en">Provision code</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProvisions"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo prov_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsPhformRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Pharmaceutical form ID</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#PhformRef"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo phform_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPathologySamplePatientRef">
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPathologySample"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGRcOuMedRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_med_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuMedRef"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GRc"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Medical organizational unit code</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDynamicFormsOuLocRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDynamicForms"/>
+    <rdfs:label xml:lang="en">Physical hospitalization unit</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuLocRef"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_loc_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsEpisodeRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsAtcRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo atc_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#AtcRef"/>
+    <rdfs:label xml:lang="en">ATC code</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDynamicFormsStatus">
+    <rdfs:label xml:lang="en">Record status (CO EC)</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo status</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Status"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDynamicForms"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDiagnosticsPatientRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnostics"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGRcCareLevelRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GRc"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#CareLevelRef"/>
+    <rdfs:label xml:lang="en">Level of care identifier</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo care_level_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsPatientRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAntibiogramsMicroRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo micro_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Microorganism code</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#MicroRef"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAntibiograms"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProvisionsLevel1Ref">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Hierarchy Level 1 code</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProvisions"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo level_1_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Level1Ref"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProceduresOuLocRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProcedures"/>
+    <rdfs:label xml:lang="en">Physical unit reference</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_loc_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuLocRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDiagnosticRelatedGroupsEpisodeRef">
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnosticRelatedGroups"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProceduresPlace">
+    <rdfs:label xml:lang="en">Procedure location type</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProcedures"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo place</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#PlaceRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSpecialRecordsSectionRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSpecialRecords"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo section_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#SpecialRecordSectionRef"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Parameter identifier</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDemographicsSex">
+    <rdfs:label xml:lang="en">Patient biological sex</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Sex"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo sex</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGCareLevelsCareLevelRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo care_level_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GCareLevels"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#CareLevelRef"/>
+    <rdfs:label xml:lang="en">Consecutive care level group ID</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdmDischEpisodeRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdmDisch"/>
+    <rdfs:label xml:lang="en">Pseudonymized episode identifier</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGEncountersActTypeRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo act_type_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#ActTypeRef"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEncounters"/>
+    <rdfs:label xml:lang="en">Activity type reference</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMicroMueRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#MueRef"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo mue_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Sample type code</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMicro"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSpecialRecordsClassRef">
+    <rdfs:label xml:lang="en">Assessment class code (RE)</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo class_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#SpecialRecordClassRef"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSpecialRecords"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProvisionsCategory">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Category"/>
+    <rdfs:label xml:lang="en">Provision category (Generic/Imaging)</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo category</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProvisions"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDynamicFormsOuMedRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_med_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuMedRef"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Medical organizational unit</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDynamicForms"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsEnum">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Enum"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo enum</rdfs:comment>
+    <rdfs:label xml:lang="en">Role of the drug/Drug type</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdministrationsRouteRef">
+    <rdfs:label xml:lang="en">Route code</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo route_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#RouteRef"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProceduresCode">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Procedure"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProcedures"/>
+    <rdfs:label xml:lang="en">Procedure code</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo code</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGHealthIssuesPatientRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GHealthIssues"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryTeamTaskRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryTeam"/>
+    <rdfs:label xml:lang="en">Surgical task code</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo task_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#TaskRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsAdmRouteRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo adm_route_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#AdmRouteRef"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdfs:label xml:lang="en">Administration route reference</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProceduresPatientRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProcedures"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProvisionsEpisodeRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProvisions"/>
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPathologyDiagnosticDiagCode">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo diag_code</rdfs:comment>
+    <rdfs:label xml:lang="en">Pathology diagnosis code</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#DiagCode"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPathologyDiagnostic"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryMovRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgery"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo mov_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#MovRef"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Movement link reference</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDiagnosticsEpisodeRef">
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnostics"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGExitusPatientRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GExitus"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAntibiogramsPatientRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAntibiograms"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAntibiogramsSensitivity">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAntibiograms"/>
+    <rdfs:label xml:lang="en">Sensitivity (S) or Resistance (R) status</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo sensitivity</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Sensitivity"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGHealthIssuesEndMotive">
+    <rdfs:label xml:lang="en">Reason for problem end</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#EndMotive"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GHealthIssues"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo end_motive</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGRcPatientRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GRc"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdministrationsEpisodeRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryPatientRef">
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgery"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsDrugRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo drug_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdfs:label xml:lang="en">Drug identifier code</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#DrugRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGRcOuLocRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_loc_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GRc"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuLocRef"/>
+    <rdfs:label xml:lang="en">Physical hospitalization unit code</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryWaitingListWaitingList">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryWaitingList"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Waiting list name/type</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo waiting_list</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#WaitingList"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMovementsCareLevelRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMovements"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo care_level_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#CareLevelRef"/>
+    <rdfs:label xml:lang="en">Level of care identifier</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDiagnosticRelatedGroupsPatientRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnosticRelatedGroups"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPathologySampleSampleRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#SampleRef"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPathologySample"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Specific sample identifier</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo sample_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryTeamEpisodeRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryTeam"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDemographicsHealthArea">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#HealthArea"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo health_area</rdfs:comment>
+    <rdfs:label xml:lang="en">Assigned health area</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgerySurgeryCode">
+    <rdfs:label xml:lang="en">Local surgery Q-code</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#SurgeryCode"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo surgery_code</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgery"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMovementsPlaceRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo place_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Bed and room reference code</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMovements"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#PlaceRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProvisionsOuMedRefOrder">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProvisions"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuMedRef"/>
+    <rdfs:label xml:lang="en">Requesting medical unit</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_med_ref_order</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMovementsFacility">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo facility</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMovements"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Facility"/>
+    <rdfs:label xml:lang="en">Hospital facility description</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAntibiogramsSampleRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#SampleRef"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo sample_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Sample type code</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAntibiograms"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDynamicFormsPatientRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDynamicForms"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGEncountersOuLocRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEncounters"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_loc_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Physical hospitalization unit</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuLocRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdmDischPatientRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdmDisch"/>
+    <rdfs:label xml:lang="en">Pseudonymized patient identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMovementsOuLocRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMovements"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_loc_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuLocRef"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Physical unit code</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAntibiogramsAntibiogramRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo antibiogram_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Unique antibiogram identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#AntibiogramRef"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAntibiograms"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGLabsOuMedRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GLabs"/>
+    <rdfs:label xml:lang="en">Medical organizational unit</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_med_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuMedRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGEncountersEpisodeRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEncounters"/>
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProceduresOuMedRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_med_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Medical unit reference</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProcedures"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuMedRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryTeamPatientRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryTeam"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSpecialRecordsStatus">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Status"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo status</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSpecialRecords"/>
+    <rdfs:label xml:lang="en">Record status (CO/EC)</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryTimestampsSurgeryRef">
+    <rdfs:label xml:lang="en">Surgery unique identifier</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryTimestamps"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo surgery_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgery"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPerfusionsCareLevelRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPerfusions"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo care_level_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Level of care identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#CareLevelRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGCareLevelsPatientRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GCareLevels"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGHealthIssuesSnomedRef">
+    <rdfs:label xml:lang="en">SNOMED-CT clinical code</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GHealthIssues"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#SnomedRef"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo snomed_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSpecialRecordsOuLocRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Physical hospitalization unit</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuLocRef"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_loc_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSpecialRecords"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPathologyDiagnosticSampleRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPathologyDiagnostic"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo sample_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Specific sample identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#SampleRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProvisionsPatientRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProvisions"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSpecialRecordsFormRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo form_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSpecialRecords"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#SpecialRecordFormRef"/>
+    <rdfs:label xml:lang="en">Form name identifier</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMicroOuMedRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuMedRef"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMicro"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_med_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Medical organizational unit</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGLabsLabSapRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GLabs"/>
+    <rdfs:label xml:lang="en">SAP lab parameter code</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#DicLab"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo lab_sap_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDynamicFormsTabRef">
+    <rdfs:label xml:lang="en">Form tab identifier</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo tab_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#DynamicFormTabRef"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDynamicForms"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGTagsTagGroup">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo tag_group</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GTags"/>
+    <rdfs:label xml:lang="en">General tag category</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#TagGroup"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryOperatingRoom">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo operating_room</rdfs:comment>
+    <rdfs:label xml:lang="en">Operating room identifier</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgery"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OperatingRoom"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryOuLocRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuLocRef"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_loc_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Physical unit reference</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgery"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGTagsEpisodeRef">
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GTags"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDemographicsNatioRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#NatioRef"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdfs:label xml:lang="en">Nationality ISO code</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo natio_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsOuMedRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuMedRef"/>
+    <rdfs:label xml:lang="en">Medical organizational unit</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_med_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryTeamEmployee">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo employee</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Clinician identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Employee"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryTeam"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAntibiogramsCareLevelRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo care_level_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAntibiograms"/>
+    <rdfs:label xml:lang="en">Level of care identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#CareLevelRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryWaitingListRequestingPhysician">
+    <rdfs:label xml:lang="en">Requesting physician ID</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryWaitingList"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Employee"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo requesting_physician</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSpecialRecordsEpisodeRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSpecialRecords"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPathologySampleEpisodeRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPathologySample"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPathologyDiagnosticEpisodeRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPathologyDiagnostic"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDiagnosticRelatedGroupsSeverityRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnosticRelatedGroups"/>
+    <rdfs:label xml:lang="en">Severity of Illness (SOI) code</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#SeverityRef"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo severity_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGHealthIssuesEpisodeRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GHealthIssues"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProceduresClass">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo class</rdfs:comment>
+    <rdfs:label xml:lang="en">Procedure classification (P/S)</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#ProcClass"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProcedures"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGEncountersAgenRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#AgenRef"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo agen_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Encounter identifier code</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEncounters"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPerfusionsPatientRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPerfusions"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGTagsPatientRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GTags"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryOuMedRef">
+    <rdfs:label xml:lang="en">Medical organizational unit</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuMedRef"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_med_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgery"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryWaitingListProcRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo proc_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryWaitingList"/>
+    <rdfs:label xml:lang="en">Surgical procedure code</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#ProcRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDynamicFormsFormRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo form_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Form name identifier</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDynamicForms"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#DynamicFormFormRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMicroEpisodeRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMicro"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGLabsEpisodeRef">
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GLabs"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMicroAntibiogramRef">
+    <rdfs:label xml:lang="en">Unique antibiogram link ID</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo antibiogram_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMicro"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#AntibiogramRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryWaitingListEpisodeRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryWaitingList"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDiagnosticsCatalog">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnostics"/>
+    <rdfs:label xml:lang="en">Terminology catalog (CIE9 CIE10 SNOMED etc)</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo catalog</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGLabsResultTxt">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo result_txt</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#LabResultTxt"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GLabs"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Textual result of the lab test</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPerfusionsTreatmentRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPerfusions"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo treatment_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Treatment prescription ID</rdfs:label>
+    <rdfs:range>
+      <owl:Class>
+        <owl:unionOf rdf:parseType="Collection">
+          <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations"/>
+          <owl:Class rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+        </owl:unionOf>
+      </owl:Class>
+    </rdfs:range>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPathologyDiagnosticValidatedBy">
+    <rdfs:label xml:lang="en">Validating employee identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Employee"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPathologyDiagnostic"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo validated_by</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMovementsCareLevelTypeRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo care_level_type_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Care level type (ICU HAH etc)</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMovements"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#CareLevelTypeRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGCareLevelsCareLevelTypeRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#CareLevelTypeRef"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GCareLevels"/>
+    <rdfs:label xml:lang="en">Type of care level (ICU WARD etc)</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo care_level_type_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSpecialRecordsOuMedRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_med_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSpecialRecords"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuMedRef"/>
+    <rdfs:label xml:lang="en">Medical organizational unit</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGEncountersPatientRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEncounters"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGRcEpisodeRef">
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GRc"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSpecialRecordsPatientRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSpecialRecords"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsCareLevelRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo care_level_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Level of care identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#CareLevelRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGRcRcSapRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#DicRc"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">SAP clinical record reference code</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GRc"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo rc_sap_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGEpisodesPatientRef">
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsPrescrEnvRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo prescr_env_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#PrescrEnvRef"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdfs:label xml:lang="en">Healthcare setting of prescription</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdministrationsPatientRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMicroMethodDescr">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#MethodDescr"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMicro"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo method_descr</rdfs:comment>
+    <rdfs:label xml:lang="en">Method/procedure description</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProvisionsLevel3Ref">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProvisions"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo level_3_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Level3Ref"/>
+    <rdfs:label xml:lang="en">Hierarchy Level 3 code</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdmDischMotType">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#MotType"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdmDisch"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo mot_type</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Motive type (ST for Start, END for End)</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdministrationsCareLevelRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations"/>
+    <rdfs:label xml:lang="en">Level of care code</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#CareLevelRef"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo care_level_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGEncountersOuMedRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEncounters"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuMedRef"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Medical organizational unit</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_med_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAntibiogramsEpisodeRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAntibiograms"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPathologySampleCaseRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Case reference code</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPathologyDiagnostic"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo case_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPathologySample"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryEpisodeRef">
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgery"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsUnit">
+    <rdfs:label xml:lang="en">Dose unit of measurement</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Unit"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo unit</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsOuLocRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuLocRef"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_loc_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Physical hospitalization unit</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdministrationsDrugRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#DrugRef"/>
+    <rdfs:label xml:lang="en">Drug identifier code</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo drug_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDynamicFormsEpisodeRef">
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDynamicForms"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdministrationsNotGivenReasonRef">
+    <rdfs:label xml:lang="en">Reason not given code</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#NotGivenReasonRef"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo not_given_reason_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdministrationsAtcRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo atc_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#AtcRef"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations"/>
+    <rdfs:label xml:lang="en">ATC code</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMicroCareLevelRef">
+    <rdfs:label xml:lang="en">Level of care identifier</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo care_level_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMicro"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#CareLevelRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDiagnosticRelatedGroupsDrgRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#DrgRef"/>
+    <rdfs:label xml:lang="en">Diagnosis-Related Group reference</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo drg_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnosticRelatedGroups"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryWaitingListPriority">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Priority"/>
+    <rdfs:label xml:lang="en">Priority level code</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryWaitingList"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo priority</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMicroPatientRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMicro"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGTagsTagSubgroup">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GTags"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo tag_subgroup</rdfs:comment>
+    <rdfs:label xml:lang="en">Specific tag subcategory</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#TagSubgroup"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMovementsEpisodeRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMovements"/>
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMovementsPatientRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMovements"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProceduresEpisodeRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProcedures"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProvisionsLevel2Ref">
+    <rdfs:label xml:lang="en">Hierarchy Level 2 code</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProvisions"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo level_2_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Level2Ref"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPathologySampleValidatedBy">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPathologySample"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Employee"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo validated_by</rdfs:comment>
+    <rdfs:label xml:lang="en">Validating employee identifier</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPerfusionsEpisodeRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPerfusions"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGLabsPatientRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GLabs"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryTimestampsEventLabel">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#EventLabel"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo event_label</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryTimestamps"/>
+    <rdfs:label xml:lang="en">Surgical event code</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGRcMeasTypeRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GRc"/>
+    <rdfs:label xml:lang="en">Measurement source type (Manual/Machine)</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo meas_type_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#MeasTypeRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGHealthIssuesOuMedRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GHealthIssues"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_med_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuMedRef"/>
+    <rdfs:label xml:lang="en">Medical organizational unit</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryTeamSurgeryRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryTeam"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo surgery_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Surgery unique identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgery"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDiagnosticRelatedGroupsMortalityRiskRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo mortality_risk_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnosticRelatedGroups"/>
+    <rdfs:label xml:lang="en">Risk of Mortality (ROM) code</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#MortalityRiskRef"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDiagnosticRelatedGroupsMdcRef">
+    <rdfs:label xml:lang="en">Major Diagnostic Category reference</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnosticRelatedGroups"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo mdc_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#MdcRef"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProvisionsOuMedRefExec">
+    <rdfs:label xml:lang="en">Executing medical unit</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#OuMedRef"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProvisions"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo ou_med_ref_exec</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryWaitingListPatientRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryWaitingList"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGEncountersEncounterType">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#EncounterType"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEncounters"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo encounter_type</rdfs:comment>
+    <rdfs:label xml:lang="en">Type of encounter (e.g. Outpatient Inpatient)</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGTagsTagRef">
+    <rdfs:label xml:lang="en">Tag reference identifier</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo tag_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#TagRef"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GTags"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryTimestampsPatientRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryTimestamps"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGRcResultTxt">
+    <rdfs:label xml:lang="en">Textual result of the record</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GRc"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo result_txt</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#DicRcText"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryTimestampsEpisodeRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:label xml:lang="en">Episode identifier</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryTimestamps"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDemographicsPatientRef">
+    <rdfs:label xml:lang="en">Unique patient identifier</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPathologyDiagnosticDiagType">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#DiagType"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo diag_type</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Type of pathology diagnosis</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPathologyDiagnostic"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMicroMicroRef">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMicro"/>
+    <rdfs:label xml:lang="en">Microorganism code</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo micro_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#MicroRef"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDiagnosticsDiagRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnostics"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Internal diagnosis reference number</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#DicDiagnostic"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo diag_ref</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAntibiogramsAntibioticRef">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#AntibioticRef"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo antibiotic_ref</rdfs:comment>
+    <rdfs:label xml:lang="en">Antibiotic code</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAntibiograms"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryWaitingListSurgeonCode">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Employee"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo surgeon_code</rdfs:comment>
+    <rdfs:label xml:lang="en">Surgeon identifier</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryWaitingList"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPathologyDiagnosticPatientRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPathologyDiagnostic"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Patient identifier</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo patient_ref</rdfs:comment>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdministrationsQuantityUnit">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo quantity_unit</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations"/>
+    <rdfs:label xml:lang="en">Unit of measurement (ML mg etc)</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#QuantityUnit"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDiagnosticsPoa">
+    <rdfs:label xml:lang="en">Present on Admission indicator</rdfs:label>
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#Poa"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo poa</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnostics"/>
+  </owl:ObjectProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdministrationsAdministrationDate">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Date and time of administration</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo administration_date</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGLabsLoadDate">
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GLabs"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPerfusionsInfusionRate">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPerfusions"/>
+    <rdfs:label xml:lang="en">Rate of infusion in ml/h</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo infusion_rate</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDynamicFormsValueDate">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo value_date</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDynamicForms"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label xml:lang="en">Datetime result</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProvisionsStartDatePlan">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo start_date_plan</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProvisions"/>
+    <rdfs:label xml:lang="en">Scheduled start date</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMicroResDate">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMicro"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo res_date</rdfs:comment>
+    <rdfs:label xml:lang="en">Result date and time</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPerfusionsStartDate">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPerfusions"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo start_date</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Perfusion start time</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProceduresLoadDate">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProcedures"/>
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdministrationsQuantity">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Quantity value</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo quantity</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGTagsEndDate">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GTags"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo end_date</rdfs:comment>
+    <rdfs:label xml:lang="en">Tag deactivation date</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGLabsResultDate">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo result_date</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GLabs"/>
+    <rdfs:label xml:lang="en">Result availability date and time</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGTagsLoadDate">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GTags"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPathologySampleCaseDate">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Date of the pathology case</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo case_date</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPathologySample"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGHealthIssuesLoadDate">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GHealthIssues"/>
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdministrationsLoadDate">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdfs:label xml:lang="en">Data load timestamp</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdministrationsGiven">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo given</rdfs:comment>
+    <rdfs:label xml:lang="en">Amount actually given</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGTagsInactiveAtr">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GTags"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo inactive_atr</rdfs:comment>
+    <rdfs:label xml:lang="en">Inactivity status (0=Active, 1=Inactive)</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSpecialRecordsValueText">
+    <rdfs:label xml:lang="en">Textual result</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo value_text</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSpecialRecords"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMicroExtracDate">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Sample extraction date and time</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMicro"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo extrac_date</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAntibiogramsLoadDate">
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAntibiograms"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDynamicFormsValueNum">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDynamicForms"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo value_num</rdfs:comment>
+    <rdfs:label xml:lang="en">Numeric result</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryStartDate">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgery"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label xml:lang="en">Surgery start date and time</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo start_date</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGCareLevelsEndDate">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label xml:lang="en">End date and time of care level</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GCareLevels"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo end_date</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGLabsResultNum">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GLabs"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo result_num</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Numerical result of the lab test</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAntibiogramsResult">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo result</rdfs:comment>
+    <rdfs:label xml:lang="en">Minimum Inhibitory Concentration (MIC) result</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAntibiograms"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMicroLoadDate">
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMicro"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDiagnosticsDiagDate">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnostics"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label xml:lang="en">Diagnosis registration date</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo diag_date</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryWaitingListPlannedDate">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryWaitingList"/>
+    <rdfs:label xml:lang="en">Scheduled surgery date</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo planned_date</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProvisionsEndDate">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo end_date</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProvisions"/>
+    <rdfs:label xml:lang="en">Execution end date</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGRcLoadDate">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GRc"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGExitusLoadDate">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GExitus"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsEndDrugDate">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo end_drug_date</rdfs:comment>
+    <rdfs:label xml:lang="en">Prescription end date</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGEpisodesEndDate">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo end_date</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Episode end date and time</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDiagnosticRelatedGroupsLoadDate">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnosticRelatedGroups"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGEncountersDate">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEncounters"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo date</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label xml:lang="en">Date and time of the encounter</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDiagnosticRelatedGroupsWeight">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnosticRelatedGroups"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">DRG cost weight (resource consumption)</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo weight</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProvisionsEndDatePlan">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo end_date_plan</rdfs:comment>
+    <rdfs:label xml:lang="en">Scheduled end date</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProvisions"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGExitusExitusDate">
+    <rdfs:label xml:lang="en">Date of death</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GExitus"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo exitus_date</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSpecialRecordsFormDate">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSpecialRecords"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo form_date</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label xml:lang="en">Form submission date</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMicroResultText">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo result_text</rdfs:comment>
+    <rdfs:label xml:lang="en">Microbiology result text</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMicro"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGEpisodesLoadDate">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsLoadDate">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGCareLevelsStartDate">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo start_date</rdfs:comment>
+    <rdfs:label xml:lang="en">Start date and time of care level</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GCareLevels"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDynamicFormsFormDate">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo form_date</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Form submission date</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDynamicForms"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGTagsStartDate">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GTags"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo start_date</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Tag activation date</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDemographicsLoadDate">
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPerfusionsEndDate">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo end_date</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPerfusions"/>
+    <rdfs:label xml:lang="en">Perfusion end time</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGEpisodesStartDate">
+    <rdfs:label xml:lang="en">Episode start date and time</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo start_date</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryWaitingListRegistrationDate">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo registration_date</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryWaitingList"/>
+    <rdfs:label xml:lang="en">Waiting list entry date</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdministrationsPrn">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo prn</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations"/>
+    <rdfs:label xml:lang="en">Pro re nata (as needed) flag</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSpecialRecordsValueNum">
+    <rdfs:label xml:lang="en">Numeric result</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSpecialRecords"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo value_num</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPathologyDiagnosticCaseDate">
+    <rdfs:label xml:lang="en">Date of the pathology case</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo case_date</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPathologyDiagnostic"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAntibiogramsResultDate">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label xml:lang="en">Antibiogram result date and time</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAntibiograms"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo result_date</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGHealthIssuesEndDate">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Problem resolution date</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo end_date</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GHealthIssues"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSpecialRecordsLoadDate">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSpecialRecords"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDiagnosticsLoadDate">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDiagnostics"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPerfusionsLoadDate">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPerfusions"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGLabsExtracDate">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo extrac_date</rdfs:comment>
+    <rdfs:label xml:lang="en">Sample extraction date and time</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GLabs"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGRcResultDate">
+    <rdfs:label xml:lang="en">Date and time of the measurement</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GRc"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo result_date</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProvisionsStartDate">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProvisions"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo start_date</rdfs:comment>
+    <rdfs:label xml:lang="en">Execution start date</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdministrationsEnum">
+    <rdfs:label xml:lang="en">Sequence number</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo enum</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProceduresText">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo text</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="en">Detailed procedure notes</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProcedures"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGEncountersLoadDate">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEncounters"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGRcResultNum">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo result_num</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GRc"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    <rdfs:label xml:lang="en">Numerical result of the record</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDemographicsPostcode">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo postcode</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdfs:label xml:lang="en">Postal code of residence</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGHealthIssuesStartDate">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo start_date</rdfs:comment>
+    <rdfs:label xml:lang="en">Problem onset date</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GHealthIssues"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDemographicsBirthDate">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Patient date of birth</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDemographics"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo birth_date</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPerfusionsRateChangeCounter">
+    <rdfs:label xml:lang="en">Sequence of rate changes</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo rate_change_counter</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPerfusions"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryTimestampsEventTimestamp">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label xml:lang="en">Event timestamp</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgeryTimestamps"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo event_timestamp</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMicroNumMicro">
+    <rdfs:label xml:lang="en">Microbe sequence number</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMicro"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo num_micro</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProceduresStartDate">
+    <rdfs:label xml:lang="en">Procedure start date</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo start_date</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProcedures"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDynamicFormsLoadDate">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDynamicForms"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgeryEndDate">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgery"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo end_date</rdfs:comment>
+    <rdfs:label xml:lang="en">Surgery end date and time</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPathologyDiagnosticDiagDate">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo diag_date</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPathologyDiagnostic"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label xml:lang="en">Diagnosis completion date</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMovementsStartDate">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo start_date</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMovements"/>
+    <rdfs:label xml:lang="en">Movement start date and time</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsStartDrugDate">
+    <rdfs:label xml:lang="en">Prescription start date</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo start_drug_date</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMovementsLoadDate">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMovements"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsDose">
+    <rdfs:label xml:lang="en">Prescribed dose value</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo dose</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMovementsEndDate">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo end_date</rdfs:comment>
+    <rdfs:label xml:lang="en">Movement end date and time</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMovements"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSpecialRecordsValueDate">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo value_date</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSpecialRecords"/>
+    <rdfs:label xml:lang="en">Datetime result</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAntibiogramsExtracDate">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAntibiograms"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo extrac_date</rdfs:comment>
+    <rdfs:label xml:lang="en">Sample extraction date and time</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGCareLevelsLoadDate">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GCareLevels"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label xml:lang="en">Update date</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdmDischLoadDate">
+    <rdfs:label xml:lang="en">Update date and time</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo load_date</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdmDisch"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </owl:DatatypeProperty>
+  <owl:FunctionalProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGProvisionsAccessionNumber">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo accession_number</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >XNAT unique identifier</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GProvisions"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+  </owl:FunctionalProperty>
+  <owl:FunctionalProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsTreatmentRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo treatment_ref</rdfs:comment>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Treatment prescription ID</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+  </owl:FunctionalProperty>
+  <owl:FunctionalProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGSurgerySurgeryRef">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GSurgery"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Surgery unique identifier</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo surgery_ref</rdfs:comment>
+  </owl:FunctionalProperty>
+  <owl:FunctionalProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGEpisodesEpisodeRef">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Unique episode identifier</rdfs:label>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GEpisodes"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo episode_ref</rdfs:comment>
+  </owl:FunctionalProperty>
+  <owl:FunctionalProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPrescriptionsPrn">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPrescriptions"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo prn</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Pro re nata (as needed) flag</rdfs:label>
+  </owl:FunctionalProperty>
+  <owl:FunctionalProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGAdministrationsTreatmentRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo treatment_ref</rdfs:comment>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GAdministrations"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Treatment reference ID</rdfs:label>
+  </owl:FunctionalProperty>
+  <owl:FunctionalProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGMicroPositive">
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GMicro"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo positive</rdfs:comment>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Microorganism detection flag (X)</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </owl:FunctionalProperty>
+  <owl:FunctionalProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGDynamicFormsValueText">
+    <rdfs:range rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input_dic#DynamicFormValueText"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GDynamicForms"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Datatype Property para el atributo value_text</rdfs:comment>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Textual result</rdfs:label>
+  </owl:FunctionalProperty>
+  <owl:FunctionalProperty rdf:about="http://infmed.fcrb.es/ontologias/ontology_input#hasGPathologyDiagnosticCaseRef">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Object Property para el atributo case_ref</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://infmed.fcrb.es/ontologias/ontology_input#GPathologyDiagnostic"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Case reference code</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </owl:FunctionalProperty>
+</rdf:RDF>
+
+<!-- Created with Protege (with OWL Plugin 3.5, Build 663)  http://protege.stanford.edu -->

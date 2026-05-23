@@ -6,6 +6,8 @@ from fastmcp import FastMCP
 import mysql.connector
 import json
 import re
+import xml.etree.ElementTree as ET
+from pathlib import Path
 
 mcp = FastMCP("MySQL_Server")
 
@@ -102,7 +104,108 @@ def _run_select(sql: str) -> str:
 
 
 # ----------------------------
-# TOOL 1: lookup_codes — find IDs/codes by description keyword
+# Ontology loading — parses two OWL files once at startup.
+#   ontology_input_v2.owl  → table-level classes (one per DB table)
+#   ontology_input_dic.owl → dictionary classes for coded reference columns
+# ----------------------------
+_RDF_NS = "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}"
+_OWL_NS = "{http://www.w3.org/2002/07/owl#}"
+_RDFS_NS = "{http://www.w3.org/2000/01/rdf-schema#}"
+_HERE = Path(__file__).parent
+
+
+def _local_name(uri: str) -> str:
+    """Strip the namespace prefix off a URI: '.../#GLabs' → 'GLabs'."""
+    return uri.split("#")[-1] if "#" in uri else uri.rsplit("/", 1)[-1]
+
+
+def _parse_ontology(file_path: Path) -> list[dict]:
+    """Parse an OWL/RDF-XML file into a list of class records.
+    Each record has: name, label, comment, parents (list of parent class local names).
+    Returns [] if the file is missing or malformed.
+    """
+    if not file_path.exists():
+        return []
+    try:
+        root = ET.parse(file_path).getroot()
+    except ET.ParseError:
+        return []
+    classes = []
+    for cls in root.findall(f"{_OWL_NS}Class"):
+        about = cls.get(f"{_RDF_NS}about")
+        if not about:
+            continue
+        name = _local_name(about)
+        label_elem = cls.find(f"{_RDFS_NS}label")
+        label = label_elem.text.strip() if label_elem is not None and label_elem.text else name
+        comment_elem = cls.find(f"{_RDFS_NS}comment")
+        comment = comment_elem.text.strip() if comment_elem is not None and comment_elem.text else ""
+        parents = []
+        for sub in cls.findall(f"{_RDFS_NS}subClassOf"):
+            parent_ref = sub.get(f"{_RDF_NS}resource")
+            if parent_ref:
+                parents.append(_local_name(parent_ref))
+                continue
+            nested = sub.find(f"{_OWL_NS}Class")
+            if nested is not None:
+                nested_about = nested.get(f"{_RDF_NS}about")
+                if nested_about:
+                    parents.append(_local_name(nested_about))
+        classes.append({"name": name, "label": label, "comment": comment, "parents": parents})
+    return classes
+
+
+_ONTOLOGY_TABLES = _parse_ontology(_HERE / "ontology_input_v2.owl")
+_ONTOLOGY_DIC = _parse_ontology(_HERE / "ontology_input_dic.owl")
+
+
+# ----------------------------
+# TOOL 1: lookup_ontology — query the OWL ontology for schema-level concepts
+# ----------------------------
+@mcp.tool()
+def lookup_ontology(keyword: str = "") -> str:
+    """Search the OWL ontology for schema-level concepts that describe tables and their
+    coded reference columns. Call this FIRST when you need to clarify what a Spanish-language
+    column or coded reference field actually represents before looking up codes or values.
+
+    The ontology has two layers, both loaded at startup:
+      - tables:     one class per DB table (GDemographics, GLabs, GEpisodes, ...).
+      - dictionary: classes for coded reference columns inside tables
+                    (FreqRef → freq_ref in g_prescriptions, EncounterType → encounter_type
+                    in g_encounters, MotType → mot_type in g_adm_disch, ...).
+
+    Each result has: source ('tables' | 'dictionary'), name, label, comment (Spanish
+    description), and parents (parent classes — for dictionary entries the parent is
+    the owning table class).
+
+    Typical workflow:
+        1. lookup_ontology(keyword)              — understand what the concept means
+        2. lookup_codes / list_distinct_values   — get the actual codes/values to filter on
+        3. execute_query                          — final answer
+
+    Args:
+        keyword: Substring to match in the class name, label, or comment (case-insensitive).
+                 Empty string returns every concept in both ontologies.
+
+    Examples:
+        lookup_ontology('freq')         → FreqRef (parent: GPrescriptions, freq_ref column)
+        lookup_ontology('encounter')    → EncounterType (parent: GEncounters)
+        lookup_ontology('demographics') → GDemographics table class
+    """
+    kw = keyword.lower().strip()
+    results = []
+    for source, classes in (("tables", _ONTOLOGY_TABLES), ("dictionary", _ONTOLOGY_DIC)):
+        for c in classes:
+            if (not kw
+                    or kw in c["name"].lower()
+                    or kw in c["label"].lower()
+                    or kw in c["comment"].lower()):
+                results.append({"source": source, **c})
+    return json.dumps(results, ensure_ascii=False)
+
+
+# ----------------------------
+# TOOL 2: lookup_codes — find IDs/codes by description keyword
 # ----------------------------
 @mcp.tool()
 def lookup_codes(table: str, descr_column: str, keyword: str, limit: int = 50) -> str:
@@ -148,7 +251,7 @@ def lookup_codes(table: str, descr_column: str, keyword: str, limit: int = 50) -
 
 
 # ----------------------------
-# TOOL 2: list_distinct_values — enumerate values of a varchar column
+# TOOL 3: list_distinct_values — enumerate values of a varchar column
 # ----------------------------
 @mcp.tool()
 def list_distinct_values(table: str, column: str, limit: int = 30) -> str:
@@ -177,15 +280,15 @@ def list_distinct_values(table: str, column: str, limit: int = 30) -> str:
 
 
 # ----------------------------
-# TOOL 3: execute_query — the main answering query
+# TOOL 4: execute_query — the main answering query
 # ----------------------------
 @mcp.tool()
 def execute_query(query: str) -> str:
     """Execute the MAIN SELECT or WITH query that answers the user's question.
 
-    Call this AFTER any necessary lookup_codes or list_distinct_values calls — never guess
-    literal codes or text values, always look them up first. Only SELECT and WITH statements
-    are accepted (INSERT/UPDATE/DELETE/DROP are rejected).
+    Call this AFTER any necessary lookup_ontology, lookup_codes, or list_distinct_values
+    calls — never guess literal codes or text values, always look them up first. Only
+    SELECT and WITH statements are accepted (INSERT/UPDATE/DELETE/DROP are rejected).
 
     Returns a JSON list of row dicts. Empty list = no matches.
 
@@ -194,6 +297,7 @@ def execute_query(query: str) -> str:
         execute_query("SELECT AVG(result_num) FROM g_labs WHERE lab_sap_ref IN ('LABHG1','LABHG2')")
 
     Incorrect uses (handled by other tools):
+        Understanding a schema-level concept → use lookup_ontology
         Discovering ICD or lab codes → use lookup_codes
         Finding nationality / episode-type strings → use list_distinct_values
         Modifying data → not allowed

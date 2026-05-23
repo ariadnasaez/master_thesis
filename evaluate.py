@@ -31,8 +31,8 @@ import pandas as pd
 
 HERE = Path(__file__).parent
 GOLDEN_PATH = HERE / "golden_dataset.json"
-GENERATION_PATH = HERE / "generation_result_deepseek_3.json"
-OUTPUT_PATH = HERE / "jaccard_results_deepseek_3.json"
+GENERATION_PATH = HERE / "generation_result_qwen_onto_3.json"
+OUTPUT_PATH = HERE / "jaccard_results_qwen_onto_3.json"
 
 
 # ---------------------------------------------------------------------------

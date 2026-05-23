@@ -1,0 +1,4055 @@
+{
+  "model": "qwen3.5:9b",
+  "generated_at": "2026-05-22T05:06:07",
+  "runs_per_question": 3,
+  "questions_total": 30,
+  "questions_completed": 24,
+  "timed_out_ids": [
+    6,
+    15,
+    24,
+    28,
+    29,
+    30
+  ],
+  "per_question": [
+    {
+      "id": 1,
+      "question": "¿Cuántos pacientes hay en la base de datos?",
+      "runs": [
+        {
+          "sql": "SELECT COUNT(DISTINCT patient_ref) AS total_patients FROM g_demographics",
+          "rows": [
+            {
+              "total_patients": 300
+            }
+          ],
+          "elapsed_seconds": 46.34,
+          "num_calls": 1
+        },
+        {
+          "sql": "SELECT COUNT(DISTINCT patient_ref) AS total_patients FROM g_demographics",
+          "rows": [
+            {
+              "total_patients": 300
+            }
+          ],
+          "elapsed_seconds": 69.25,
+          "num_calls": 1
+        },
+        {
+          "sql": "SELECT COUNT(DISTINCT patient_ref) AS total_patients FROM g_demographics",
+          "rows": [
+            {
+              "total_patients": 300
+            }
+          ],
+          "elapsed_seconds": 69.17,
+          "num_calls": 1
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "¿Cuántas mujeres con diabetes tipo 2 hay en la base de datos?",
+      "runs": [
+        {
+          "sql": "SELECT COUNT(DISTINCT d.patient_ref) AS women_with_type2_diabetes\nFROM g_diagnostics d\nJOIN g_demographics dem ON dem.patient_ref = d.patient_ref\nWHERE (d.code LIKE 'E11%' OR d.code = '250.00')\nAND dem.sex = 2",
+          "rows": [
+            {
+              "women_with_type2_diabetes": 29
+            }
+          ],
+          "elapsed_seconds": 159.53,
+          "num_calls": 5
+        },
+        {
+          "sql": "SELECT COUNT(DISTINCT d.patient_ref) AS women_with_type2_diabetes\nFROM g_diagnostics d\nJOIN g_demographics dem ON dem.patient_ref = d.patient_ref\nWHERE (d.code LIKE 'E11%' OR d.code = '250.00')\nAND dem.sex = 2",
+          "rows": [
+            {
+              "women_with_type2_diabetes": 29
+            }
+          ],
+          "elapsed_seconds": 158.98,
+          "num_calls": 5
+        },
+        {
+          "sql": "SELECT COUNT(DISTINCT d.patient_ref) AS women_with_type2_diabetes\nFROM g_diagnostics d\nJOIN g_demographics dem ON dem.patient_ref = d.patient_ref\nWHERE (d.code LIKE 'E11%' OR d.code = '250.00')\nAND dem.sex = 2",
+          "rows": [
+            {
+              "women_with_type2_diabetes": 29
+            }
+          ],
+          "elapsed_seconds": 158.9,
+          "num_calls": 5
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "¿Cuántos pacientes españoles hay en la base de datos?",
+      "runs": [
+        {
+          "sql": "SELECT COUNT(*) AS spanish_patients_count FROM g_demographics WHERE natio_descr = 'Espana'",
+          "rows": [
+            {
+              "spanish_patients_count": 257
+            }
+          ],
+          "elapsed_seconds": 80.78,
+          "num_calls": 2
+        },
+        {
+          "sql": "SELECT COUNT(*) AS spanish_patients_count FROM g_demographics WHERE natio_descr = 'Espana'",
+          "rows": [
+            {
+              "spanish_patients_count": 257
+            }
+          ],
+          "elapsed_seconds": 80.73,
+          "num_calls": 2
+        },
+        {
+          "sql": "SELECT COUNT(*) AS spanish_patients_count FROM g_demographics WHERE natio_descr = 'Espana'",
+          "rows": [
+            {
+              "spanish_patients_count": 257
+            }
+          ],
+          "elapsed_seconds": 80.92,
+          "num_calls": 2
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "¿Cuál es el valor medio de proteína C reactiva (PCR) para cada problema de salud codificado por reumatología?",
+      "runs": [
+        {
+          "sql": "",
+          "rows": [],
+          "elapsed_seconds": 369.44,
+          "num_calls": 28
+        },
+        {
+          "sql": "",
+          "rows": [],
+          "elapsed_seconds": 346.65,
+          "num_calls": 28
+        },
+        {
+          "sql": "",
+          "rows": [],
+          "elapsed_seconds": 347.15,
+          "num_calls": 28
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "En pacientes sometidos a un cateterismo cardíaco, ¿cuál es el primer valor de troponina medido después del procedimiento en cada episodio?",
+      "runs": [
+        {
+          "sql": "WITH proc AS (\n    SELECT episode_ref, patient_ref, code, descr, start_date\n    FROM g_procedures\n    WHERE code IN ('37.21', '37.22')\n),\nlab AS (\n    SELECT episode_ref, patient_ref, extrac_date, lab_descr, result_num\n    FROM g_labs\n    WHERE lab_sap_ref IN ('LABTROPSU', 'LAB2967', 'LABTPNAS')\n    AND result_num IS NOT NULL\n),\njoined AS (\n    SELECT proc.episode_ref, proc.patient_ref, proc.start_date, lab.extrac_date, lab.lab_descr, lab.result_num,\n           ROW_NUMBER() OVER (PARTITION BY proc.episode_ref ORDER BY lab.extrac_date ASC) AS rn\n    FROM proc\n    JOIN lab ON lab.episode_ref = proc.episode_ref AND lab.patient_ref = proc.patient_ref\n    AND lab.extrac_date >= proc.start_date\n)\nSELECT episode_ref, patient_ref, lab_descr, result_num, extrac_date\nFROM joined\nWHERE rn = 1\nORDER BY episode_ref;",
+          "rows": [
+            {
+              "episode_ref": 112173803,
+              "patient_ref": 1910691074,
+              "lab_descr": "Troponina I",
+              "result_num": 8.225,
+              "extrac_date": "2013-08-29 09:02:00"
+            },
+            {
+              "episode_ref": 784179202,
+              "patient_ref": 2259462569,
+              "lab_descr": "Troponina alta sensibilidad",
+              "result_num": 30.5,
+              "extrac_date": "2021-01-12 16:34:38"
+            },
+            {
+              "episode_ref": 796092219,
+              "patient_ref": 3468007565,
+              "lab_descr": "Troponina I",
+              "result_num": 21.893,
+              "extrac_date": "2017-05-04 11:31:34"
+            },
+            {
+              "episode_ref": 1263698575,
+              "patient_ref": 3131779660,
+              "lab_descr": "Troponina I",
+              "result_num": 9.968,
+              "extrac_date": "2017-09-22 19:41:31"
+            },
+            {
+              "episode_ref": 3758262687,
+              "patient_ref": 2591045162,
+              "lab_descr": "Troponina I",
+              "result_num": 7.938,
+              "extrac_date": "2013-08-08 16:05:00"
+            }
+          ],
+          "elapsed_seconds": 136.64,
+          "num_calls": 3
+        },
+        {
+          "sql": "WITH proc AS (\n    SELECT episode_ref, patient_ref, code, descr, start_date\n    FROM g_procedures\n    WHERE code IN ('37.21', '37.22')\n),\nlab AS (\n    SELECT episode_ref, patient_ref, extrac_date, lab_descr, result_num\n    FROM g_labs\n    WHERE lab_sap_ref IN ('LABTROPSU', 'LAB2967', 'LABTPNAS')\n    AND result_num IS NOT NULL\n),\njoined AS (\n    SELECT proc.episode_ref, proc.patient_ref, proc.start_date, lab.extrac_date, lab.lab_descr, lab.result_num,\n           ROW_NUMBER() OVER (PARTITION BY proc.episode_ref ORDER BY lab.extrac_date ASC) AS rn\n    FROM proc\n    JOIN lab ON lab.episode_ref = proc.episode_ref AND lab.patient_ref = proc.patient_ref\n    AND lab.extrac_date >= proc.start_date\n)\nSELECT episode_ref, patient_ref, lab_descr, result_num, extrac_date\nFROM joined\nWHERE rn = 1\nORDER BY episode_ref;",
+          "rows": [
+            {
+              "episode_ref": 112173803,
+              "patient_ref": 1910691074,
+              "lab_descr": "Troponina I",
+              "result_num": 8.225,
+              "extrac_date": "2013-08-29 09:02:00"
+            },
+            {
+              "episode_ref": 784179202,
+              "patient_ref": 2259462569,
+              "lab_descr": "Troponina alta sensibilidad",
+              "result_num": 30.5,
+              "extrac_date": "2021-01-12 16:34:38"
+            },
+            {
+              "episode_ref": 796092219,
+              "patient_ref": 3468007565,
+              "lab_descr": "Troponina I",
+              "result_num": 21.893,
+              "extrac_date": "2017-05-04 11:31:34"
+            },
+            {
+              "episode_ref": 1263698575,
+              "patient_ref": 3131779660,
+              "lab_descr": "Troponina I",
+              "result_num": 9.968,
+              "extrac_date": "2017-09-22 19:41:31"
+            },
+            {
+              "episode_ref": 3758262687,
+              "patient_ref": 2591045162,
+              "lab_descr": "Troponina I",
+              "result_num": 7.938,
+              "extrac_date": "2013-08-08 16:05:00"
+            }
+          ],
+          "elapsed_seconds": 158.99,
+          "num_calls": 3
+        },
+        {
+          "sql": "WITH proc AS (\n    SELECT episode_ref, patient_ref, code, descr, start_date\n    FROM g_procedures\n    WHERE code IN ('37.21', '37.22')\n),\nlab AS (\n    SELECT episode_ref, patient_ref, extrac_date, lab_descr, result_num\n    FROM g_labs\n    WHERE lab_sap_ref IN ('LABTROPSU', 'LAB2967', 'LABTPNAS')\n    AND result_num IS NOT NULL\n),\njoined AS (\n    SELECT proc.episode_ref, proc.patient_ref, proc.start_date, lab.extrac_date, lab.lab_descr, lab.result_num,\n           ROW_NUMBER() OVER (PARTITION BY proc.episode_ref ORDER BY lab.extrac_date ASC) AS rn\n    FROM proc\n    JOIN lab ON lab.episode_ref = proc.episode_ref AND lab.patient_ref = proc.patient_ref\n    AND lab.extrac_date >= proc.start_date\n)\nSELECT episode_ref, patient_ref, lab_descr, result_num, extrac_date\nFROM joined\nWHERE rn = 1\nORDER BY episode_ref;",
+          "rows": [
+            {
+              "episode_ref": 112173803,
+              "patient_ref": 1910691074,
+              "lab_descr": "Troponina I",
+              "result_num": 8.225,
+              "extrac_date": "2013-08-29 09:02:00"
+            },
+            {
+              "episode_ref": 784179202,
+              "patient_ref": 2259462569,
+              "lab_descr": "Troponina alta sensibilidad",
+              "result_num": 30.5,
+              "extrac_date": "2021-01-12 16:34:38"
+            },
+            {
+              "episode_ref": 796092219,
+              "patient_ref": 3468007565,
+              "lab_descr": "Troponina I",
+              "result_num": 21.893,
+              "extrac_date": "2017-05-04 11:31:34"
+            },
+            {
+              "episode_ref": 1263698575,
+              "patient_ref": 3131779660,
+              "lab_descr": "Troponina I",
+              "result_num": 9.968,
+              "extrac_date": "2017-09-22 19:41:31"
+            },
+            {
+              "episode_ref": 3758262687,
+              "patient_ref": 2591045162,
+              "lab_descr": "Troponina I",
+              "result_num": 7.938,
+              "extrac_date": "2013-08-08 16:05:00"
+            }
+          ],
+          "elapsed_seconds": 158.55,
+          "num_calls": 3
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "question": "En pacientes con diagnóstico de glaucoma, ¿qué procedimientos quirúrgicos relacionados con glaucoma han sido realizados y cuándo ocurrieron en relación con el diagnóstico?",
+      "runs": [
+        {
+          "sql": "",
+          "rows": [],
+          "elapsed_seconds": 238.38,
+          "num_calls": 29
+        },
+        {
+          "sql": "",
+          "rows": [],
+          "elapsed_seconds": 260.82,
+          "num_calls": 29
+        },
+        {
+          "sql": "",
+          "rows": [],
+          "elapsed_seconds": 260.57,
+          "num_calls": 29
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "question": "¿Qué valor medio tienen de HbA1c los diabéticos tipo 2 atendidos por endocrinología?",
+      "runs": [
+        {
+          "sql": "SELECT AVG(CASE \n    WHEN l.lab_sap_ref = 'LABHG3' THEN (l.result_num / 10.929) + 2.15\n    ELSE l.result_num \nEND) AS avg_hba1c\nFROM g_labs l\nWHERE l.patient_ref IN (\n    SELECT DISTINCT d.patient_ref \n    FROM g_diagnostics d\n    WHERE d.code LIKE 'E11%'\n)\nAND l.ou_med_ref = 'END'\nAND l.lab_sap_ref IN ('LABHG1','LABHG2','LABHG3','LAB1368')\nAND l.result_num IS NOT NULL",
+          "rows": [
+            {
+              "avg_hba1c": 7.240534471654176
+            }
+          ],
+          "elapsed_seconds": 188.03,
+          "num_calls": 7
+        },
+        {
+          "sql": "SELECT AVG(CASE \n    WHEN l.lab_sap_ref = 'LABHG3' THEN (l.result_num / 10.929) + 2.15\n    ELSE l.result_num \nEND) AS avg_hba1c\nFROM g_labs l\nWHERE l.patient_ref IN (\n    SELECT DISTINCT d.patient_ref \n    FROM g_diagnostics d\n    WHERE d.code LIKE 'E11%'\n)\nAND l.ou_med_ref = 'END'\nAND l.lab_sap_ref IN ('LABHG1','LABHG2','LABHG3','LAB1368')\nAND l.result_num IS NOT NULL",
+          "rows": [
+            {
+              "avg_hba1c": 7.240534471654176
+            }
+          ],
+          "elapsed_seconds": 188.61,
+          "num_calls": 7
+        },
+        {
+          "sql": "SELECT AVG(CASE \n    WHEN l.lab_sap_ref = 'LABHG3' THEN (l.result_num / 10.929) + 2.15\n    ELSE l.result_num \nEND) AS avg_hba1c\nFROM g_labs l\nWHERE l.patient_ref IN (\n    SELECT DISTINCT d.patient_ref \n    FROM g_diagnostics d\n    WHERE d.code LIKE 'E11%'\n)\nAND l.ou_med_ref = 'END'\nAND l.lab_sap_ref IN ('LABHG1','LABHG2','LABHG3','LAB1368')\nAND l.result_num IS NOT NULL",
+          "rows": [
+            {
+              "avg_hba1c": 7.240534471654176
+            }
+          ],
+          "elapsed_seconds": 189.66,
+          "num_calls": 7
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "question": "¿Cuantos ingresos por ictus isquemico hubo en 2024?",
+      "runs": [
+        {
+          "sql": "SELECT DISTINCT code, diag_descr FROM g_diagnostics WHERE code LIKE 'I63%' ORDER BY code",
+          "rows": [
+            {
+              "code": "I63.*",
+              "diag_descr": null
+            },
+            {
+              "code": "I63.40",
+              "diag_descr": "Infarto cerebral debido a embolia de arteria cerebral no especificada"
+            },
+            {
+              "code": "I63.50",
+              "diag_descr": "Infarto cerebral debido a oclusión o estenosis no especificada de arteria cerebral no especificada"
+            },
+            {
+              "code": "I63.511",
+              "diag_descr": "Infarto cerebral debido a oclusión o estenosis no especificada de arteria cerebral media derecha"
+            },
+            {
+              "code": "I63.81",
+              "diag_descr": "Otro infarto cerebral debido a oclusión o estenosis de arteria pequeña"
+            },
+            {
+              "code": "I63.9",
+              "diag_descr": "Infarto cerebral, no especificado"
+            }
+          ],
+          "elapsed_seconds": 220.6,
+          "num_calls": 10
+        },
+        {
+          "sql": "SELECT DISTINCT code, diag_descr FROM g_diagnostics WHERE code LIKE 'I63%' ORDER BY code",
+          "rows": [
+            {
+              "code": "I63.*",
+              "diag_descr": null
+            },
+            {
+              "code": "I63.40",
+              "diag_descr": "Infarto cerebral debido a embolia de arteria cerebral no especificada"
+            },
+            {
+              "code": "I63.50",
+              "diag_descr": "Infarto cerebral debido a oclusión o estenosis no especificada de arteria cerebral no especificada"
+            },
+            {
+              "code": "I63.511",
+              "diag_descr": "Infarto cerebral debido a oclusión o estenosis no especificada de arteria cerebral media derecha"
+            },
+            {
+              "code": "I63.81",
+              "diag_descr": "Otro infarto cerebral debido a oclusión o estenosis de arteria pequeña"
+            },
+            {
+              "code": "I63.9",
+              "diag_descr": "Infarto cerebral, no especificado"
+            }
+          ],
+          "elapsed_seconds": 221.01,
+          "num_calls": 10
+        },
+        {
+          "sql": "SELECT DISTINCT code, diag_descr FROM g_diagnostics WHERE code LIKE 'I63%' ORDER BY code",
+          "rows": [
+            {
+              "code": "I63.*",
+              "diag_descr": null
+            },
+            {
+              "code": "I63.40",
+              "diag_descr": "Infarto cerebral debido a embolia de arteria cerebral no especificada"
+            },
+            {
+              "code": "I63.50",
+              "diag_descr": "Infarto cerebral debido a oclusión o estenosis no especificada de arteria cerebral no especificada"
+            },
+            {
+              "code": "I63.511",
+              "diag_descr": "Infarto cerebral debido a oclusión o estenosis no especificada de arteria cerebral media derecha"
+            },
+            {
+              "code": "I63.81",
+              "diag_descr": "Otro infarto cerebral debido a oclusión o estenosis de arteria pequeña"
+            },
+            {
+              "code": "I63.9",
+              "diag_descr": "Infarto cerebral, no especificado"
+            }
+          ],
+          "elapsed_seconds": 221.03,
+          "num_calls": 10
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "question": "¿Cuantos pacientes estuvieron hospitalizados por neumonia mas de 2 dias en 2025?",
+      "runs": [
+        {
+          "sql": "",
+          "rows": [],
+          "elapsed_seconds": 247.93,
+          "num_calls": 10
+        },
+        {
+          "sql": "",
+          "rows": [],
+          "elapsed_seconds": 246.68,
+          "num_calls": 10
+        },
+        {
+          "sql": "",
+          "rows": [],
+          "elapsed_seconds": 247.54,
+          "num_calls": 10
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "question": "¿Cuáles son los valores máximo y mínimo de creatinina encontrados, por cada subtipo de enfermedad renal crónica, en pacientes de entre 50 y 70 años?",
+      "runs": [
+        {
+          "sql": "SELECT \n    d.diag_descr,\n    MAX(l.result_num) as max_creatinine,\n    MIN(l.result_num) as min_creatinine\nFROM g_diagnostics d\nJOIN g_episodes e ON d.patient_ref = e.patient_ref AND d.episode_ref = e.episode_ref\nJOIN g_demographics dem ON d.patient_ref = dem.patient_ref\nJOIN g_labs l ON d.patient_ref = l.patient_ref AND d.episode_ref = l.episode_ref\nWHERE d.code LIKE 'N18%' OR d.code LIKE 'I12%' OR d.code LIKE 'I13%' OR d.code LIKE 'N19%'\nAND TIMESTAMPDIFF(YEAR, dem.birth_date, CURDATE()) BETWEEN 50 AND 70\nAND l.lab_sap_ref = 'LAB2467'\nAND d.diag_descr IS NOT NULL\nGROUP BY d.diag_descr\nORDER BY d.diag_descr",
+          "rows": [
+            {
+              "diag_descr": null,
+              "max_creatinine": 1800.0,
+              "min_creatinine": -5.0
+            },
+            {
+              "diag_descr": "Enfermedad cardiaca y renal crónica hipertensiva con insuficiencia cardiaca y enfermedad renal crónica estadios 1 a 4 ó enfermedad renal crónica no especificada",
+              "max_creatinine": 41951.0,
+              "min_creatinine": -8.9
+            },
+            {
+              "diag_descr": "Enfermedad cardiaca y renal crónica hipertensiva sin insuficiencia cardiaca con enfermedad renal crónica en estadio 5 ó con enfermedad renal en estadio terminal",
+              "max_creatinine": 7330.0,
+              "min_creatinine": -13.9
+            },
+            {
+              "diag_descr": "Enfermedad cardiaca y renal crónica hipertensiva sin insuficiencia cardiaca, con enfermedad renal crónica en estadio 1 a 4 ó enfermedad renal crónica no especificada",
+              "max_creatinine": 59852.0,
+              "min_creatinine": -9.7
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica hipertensiva con enfermedad renal crónica en estadio 1 a 4 ó con enfermedad renal crónica no especificada",
+              "max_creatinine": 59107.4,
+              "min_creatinine": -15.9
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica hipertensiva con enfermedad renal crónica en estadio 5 o con enfermedad renal en estadio terminal",
+              "max_creatinine": 6367.0,
+              "min_creatinine": -10.6
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica, estadio 3 no especificado",
+              "max_creatinine": 14810.2,
+              "min_creatinine": -4.4
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica, estadio 3b",
+              "max_creatinine": 75781.6,
+              "min_creatinine": -18.2
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica, estadio 4 (grave)",
+              "max_creatinine": 59107.4,
+              "min_creatinine": -13.2
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica, estadio fase 5",
+              "max_creatinine": 4403.0,
+              "min_creatinine": -16.1
+            },
+            {
+              "diag_descr": "Enfermedad renal en estadio terminal",
+              "max_creatinine": 29508.0,
+              "min_creatinine": -16.1
+            },
+            {
+              "diag_descr": "Insuficiencia renal cronica, no especificada",
+              "max_creatinine": 59107.4,
+              "min_creatinine": -15.9
+            },
+            {
+              "diag_descr": "Insuficiencia renal no especificada",
+              "max_creatinine": 9.69,
+              "min_creatinine": 0.76
+            },
+            {
+              "diag_descr": "Malaltia renal crònica no especificada",
+              "max_creatinine": 2726.0,
+              "min_creatinine": -5.1
+            }
+          ],
+          "elapsed_seconds": 347.96,
+          "num_calls": 8
+        },
+        {
+          "sql": "SELECT \n    d.diag_descr,\n    MAX(l.result_num) as max_creatinine,\n    MIN(l.result_num) as min_creatinine\nFROM g_diagnostics d\nJOIN g_episodes e ON d.patient_ref = e.patient_ref AND d.episode_ref = e.episode_ref\nJOIN g_demographics dem ON d.patient_ref = dem.patient_ref\nJOIN g_labs l ON d.patient_ref = l.patient_ref AND d.episode_ref = l.episode_ref\nWHERE d.code LIKE 'N18%' OR d.code LIKE 'I12%' OR d.code LIKE 'I13%' OR d.code LIKE 'N19%'\nAND TIMESTAMPDIFF(YEAR, dem.birth_date, CURDATE()) BETWEEN 50 AND 70\nAND l.lab_sap_ref = 'LAB2467'\nAND d.diag_descr IS NOT NULL\nGROUP BY d.diag_descr\nORDER BY d.diag_descr",
+          "rows": [
+            {
+              "diag_descr": null,
+              "max_creatinine": 1800.0,
+              "min_creatinine": -5.0
+            },
+            {
+              "diag_descr": "Enfermedad cardiaca y renal crónica hipertensiva con insuficiencia cardiaca y enfermedad renal crónica estadios 1 a 4 ó enfermedad renal crónica no especificada",
+              "max_creatinine": 41951.0,
+              "min_creatinine": -8.9
+            },
+            {
+              "diag_descr": "Enfermedad cardiaca y renal crónica hipertensiva sin insuficiencia cardiaca con enfermedad renal crónica en estadio 5 ó con enfermedad renal en estadio terminal",
+              "max_creatinine": 7330.0,
+              "min_creatinine": -13.9
+            },
+            {
+              "diag_descr": "Enfermedad cardiaca y renal crónica hipertensiva sin insuficiencia cardiaca, con enfermedad renal crónica en estadio 1 a 4 ó enfermedad renal crónica no especificada",
+              "max_creatinine": 59852.0,
+              "min_creatinine": -9.7
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica hipertensiva con enfermedad renal crónica en estadio 1 a 4 ó con enfermedad renal crónica no especificada",
+              "max_creatinine": 59107.4,
+              "min_creatinine": -15.9
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica hipertensiva con enfermedad renal crónica en estadio 5 o con enfermedad renal en estadio terminal",
+              "max_creatinine": 6367.0,
+              "min_creatinine": -10.6
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica, estadio 3 no especificado",
+              "max_creatinine": 14810.2,
+              "min_creatinine": -4.4
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica, estadio 3b",
+              "max_creatinine": 75781.6,
+              "min_creatinine": -18.2
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica, estadio 4 (grave)",
+              "max_creatinine": 59107.4,
+              "min_creatinine": -13.2
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica, estadio fase 5",
+              "max_creatinine": 4403.0,
+              "min_creatinine": -16.1
+            },
+            {
+              "diag_descr": "Enfermedad renal en estadio terminal",
+              "max_creatinine": 29508.0,
+              "min_creatinine": -16.1
+            },
+            {
+              "diag_descr": "Insuficiencia renal cronica, no especificada",
+              "max_creatinine": 59107.4,
+              "min_creatinine": -15.9
+            },
+            {
+              "diag_descr": "Insuficiencia renal no especificada",
+              "max_creatinine": 9.69,
+              "min_creatinine": 0.76
+            },
+            {
+              "diag_descr": "Malaltia renal crònica no especificada",
+              "max_creatinine": 2726.0,
+              "min_creatinine": -5.1
+            }
+          ],
+          "elapsed_seconds": 347.84,
+          "num_calls": 8
+        },
+        {
+          "sql": "SELECT \n    d.diag_descr,\n    MAX(l.result_num) as max_creatinine,\n    MIN(l.result_num) as min_creatinine\nFROM g_diagnostics d\nJOIN g_episodes e ON d.patient_ref = e.patient_ref AND d.episode_ref = e.episode_ref\nJOIN g_demographics dem ON d.patient_ref = dem.patient_ref\nJOIN g_labs l ON d.patient_ref = l.patient_ref AND d.episode_ref = l.episode_ref\nWHERE d.code LIKE 'N18%' OR d.code LIKE 'I12%' OR d.code LIKE 'I13%' OR d.code LIKE 'N19%'\nAND TIMESTAMPDIFF(YEAR, dem.birth_date, CURDATE()) BETWEEN 50 AND 70\nAND l.lab_sap_ref = 'LAB2467'\nAND d.diag_descr IS NOT NULL\nGROUP BY d.diag_descr\nORDER BY d.diag_descr",
+          "rows": [
+            {
+              "diag_descr": null,
+              "max_creatinine": 1800.0,
+              "min_creatinine": -5.0
+            },
+            {
+              "diag_descr": "Enfermedad cardiaca y renal crónica hipertensiva con insuficiencia cardiaca y enfermedad renal crónica estadios 1 a 4 ó enfermedad renal crónica no especificada",
+              "max_creatinine": 41951.0,
+              "min_creatinine": -8.9
+            },
+            {
+              "diag_descr": "Enfermedad cardiaca y renal crónica hipertensiva sin insuficiencia cardiaca con enfermedad renal crónica en estadio 5 ó con enfermedad renal en estadio terminal",
+              "max_creatinine": 7330.0,
+              "min_creatinine": -13.9
+            },
+            {
+              "diag_descr": "Enfermedad cardiaca y renal crónica hipertensiva sin insuficiencia cardiaca, con enfermedad renal crónica en estadio 1 a 4 ó enfermedad renal crónica no especificada",
+              "max_creatinine": 59852.0,
+              "min_creatinine": -9.7
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica hipertensiva con enfermedad renal crónica en estadio 1 a 4 ó con enfermedad renal crónica no especificada",
+              "max_creatinine": 59107.4,
+              "min_creatinine": -15.9
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica hipertensiva con enfermedad renal crónica en estadio 5 o con enfermedad renal en estadio terminal",
+              "max_creatinine": 6367.0,
+              "min_creatinine": -10.6
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica, estadio 3 no especificado",
+              "max_creatinine": 14810.2,
+              "min_creatinine": -4.4
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica, estadio 3b",
+              "max_creatinine": 75781.6,
+              "min_creatinine": -18.2
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica, estadio 4 (grave)",
+              "max_creatinine": 59107.4,
+              "min_creatinine": -13.2
+            },
+            {
+              "diag_descr": "Enfermedad renal crónica, estadio fase 5",
+              "max_creatinine": 4403.0,
+              "min_creatinine": -16.1
+            },
+            {
+              "diag_descr": "Enfermedad renal en estadio terminal",
+              "max_creatinine": 29508.0,
+              "min_creatinine": -16.1
+            },
+            {
+              "diag_descr": "Insuficiencia renal cronica, no especificada",
+              "max_creatinine": 59107.4,
+              "min_creatinine": -15.9
+            },
+            {
+              "diag_descr": "Insuficiencia renal no especificada",
+              "max_creatinine": 9.69,
+              "min_creatinine": 0.76
+            },
+            {
+              "diag_descr": "Malaltia renal crònica no especificada",
+              "max_creatinine": 2726.0,
+              "min_creatinine": -5.1
+            }
+          ],
+          "elapsed_seconds": 348.09,
+          "num_calls": 8
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "question": "¿Cuántos pacientes mayores de 65 años fueron sometidos a colecistectomía laparoscópica en 2024?",
+      "runs": [
+        {
+          "sql": "SELECT COUNT(DISTINCT d.patient_ref) AS patient_count\nFROM g_procedures p\nJOIN g_demographics d ON d.patient_ref = p.patient_ref\nWHERE p.code = '51.23'\n  AND YEAR(p.start_date) = 2024\n  AND TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE()) > 65",
+          "rows": [
+            {
+              "patient_count": 3
+            }
+          ],
+          "elapsed_seconds": 96.54,
+          "num_calls": 2
+        },
+        {
+          "sql": "SELECT COUNT(DISTINCT d.patient_ref) AS patient_count\nFROM g_procedures p\nJOIN g_demographics d ON d.patient_ref = p.patient_ref\nWHERE p.code = '51.23'\n  AND YEAR(p.start_date) = 2024\n  AND TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE()) > 65",
+          "rows": [
+            {
+              "patient_count": 3
+            }
+          ],
+          "elapsed_seconds": 97.47,
+          "num_calls": 2
+        },
+        {
+          "sql": "SELECT COUNT(DISTINCT d.patient_ref) AS patient_count\nFROM g_procedures p\nJOIN g_demographics d ON d.patient_ref = p.patient_ref\nWHERE p.code = '51.23'\n  AND YEAR(p.start_date) = 2024\n  AND TIMESTAMPDIFF(YEAR, d.birth_date, CURDATE()) > 65",
+          "rows": [
+            {
+              "patient_count": 3
+            }
+          ],
+          "elapsed_seconds": 98.01,
+          "num_calls": 2
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "question": "¿Cuál es el valor medio de HbA1c en pacientes diabéticos?",
+      "runs": [
+        {
+          "sql": "SELECT AVG(l.result_num) AS avg_hba1c\nFROM g_labs l\nWHERE l.lab_sap_ref IN ('LABHG1','LABHG2','LABHG3','LAB1368')\nAND l.patient_ref IN (\n    SELECT DISTINCT patient_ref \n    FROM g_diagnostics \n    WHERE code LIKE 'E10%' OR code LIKE 'E11%' OR code LIKE 'E12%' OR code LIKE 'E13%' OR code LIKE 'O24%' OR code LIKE '250%'\n)",
+          "rows": [
+            {
+              "avg_hba1c": 9.761208337545394
+            }
+          ],
+          "elapsed_seconds": 139.14,
+          "num_calls": 4
+        },
+        {
+          "sql": "SELECT AVG(l.result_num) AS avg_hba1c\nFROM g_labs l\nWHERE l.lab_sap_ref IN ('LABHG1','LABHG2','LABHG3','LAB1368')\nAND l.patient_ref IN (\n    SELECT DISTINCT patient_ref \n    FROM g_diagnostics \n    WHERE code LIKE 'E10%' OR code LIKE 'E11%' OR code LIKE 'E12%' OR code LIKE 'E13%' OR code LIKE 'O24%' OR code LIKE '250%'\n)",
+          "rows": [
+            {
+              "avg_hba1c": 9.761208337545394
+            }
+          ],
+          "elapsed_seconds": 138.22,
+          "num_calls": 4
+        },
+        {
+          "sql": "SELECT AVG(l.result_num) AS avg_hba1c\nFROM g_labs l\nWHERE l.lab_sap_ref IN ('LABHG1','LABHG2','LABHG3','LAB1368')\nAND l.patient_ref IN (\n    SELECT DISTINCT patient_ref \n    FROM g_diagnostics \n    WHERE code LIKE 'E10%' OR code LIKE 'E11%' OR code LIKE 'E12%' OR code LIKE 'E13%' OR code LIKE 'O24%' OR code LIKE '250%'\n)",
+          "rows": [
+            {
+              "avg_hba1c": 9.761208337545394
+            }
+          ],
+          "elapsed_seconds": 137.79,
+          "num_calls": 4
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "question": "¿Cuál es el valor medio de potasio en sangre en pacientes ingresados por insuficiencia cardíaca?",
+      "runs": [
+        {
+          "sql": "SELECT AVG(l.result_num) AS avg_potassium\nFROM g_labs l\nJOIN g_episodes e ON l.patient_ref = e.patient_ref AND l.episode_ref = e.episode_ref\nJOIN g_diagnostics d ON l.patient_ref = d.patient_ref AND l.episode_ref = d.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\nAND d.code LIKE 'I50%'\nAND l.lab_sap_ref IN ('LABRPAK', 'LAB2508', 'LABRPVK', 'LABKSC', 'LABKV', 'LABKLQ', 'LABKSV', 'LABKST')",
+          "rows": [
+            {
+              "avg_potassium": 4.04369024405288
+            }
+          ],
+          "elapsed_seconds": 145.51,
+          "num_calls": 3
+        },
+        {
+          "sql": "SELECT AVG(l.result_num) AS avg_potassium\nFROM g_labs l\nJOIN g_episodes e ON l.patient_ref = e.patient_ref AND l.episode_ref = e.episode_ref\nJOIN g_diagnostics d ON l.patient_ref = d.patient_ref AND l.episode_ref = d.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\nAND d.code LIKE 'I50%'\nAND l.lab_sap_ref IN ('LABRPAK', 'LAB2508', 'LABRPVK', 'LABKSC', 'LABKV', 'LABKLQ', 'LABKSV', 'LABKST')",
+          "rows": [
+            {
+              "avg_potassium": 4.04369024405288
+            }
+          ],
+          "elapsed_seconds": 145.15,
+          "num_calls": 3
+        },
+        {
+          "sql": "SELECT AVG(l.result_num) AS avg_potassium\nFROM g_labs l\nJOIN g_episodes e ON l.patient_ref = e.patient_ref AND l.episode_ref = e.episode_ref\nJOIN g_diagnostics d ON l.patient_ref = d.patient_ref AND l.episode_ref = d.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\nAND d.code LIKE 'I50%'\nAND l.lab_sap_ref IN ('LABRPAK', 'LAB2508', 'LABRPVK', 'LABKSC', 'LABKV', 'LABKLQ', 'LABKSV', 'LABKST')",
+          "rows": [
+            {
+              "avg_potassium": 4.04369024405288
+            }
+          ],
+          "elapsed_seconds": 145.04,
+          "num_calls": 3
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "question": "¿Cuántos ingresos por enfermedad renal crónica duraron más de una semana?",
+      "runs": [
+        {
+          "sql": "SELECT COUNT(DISTINCT e.episode_ref) AS num_ingresos\nFROM g_episodes e\nINNER JOIN g_diagnostics d ON d.patient_ref = e.patient_ref AND d.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\nAND (d.code LIKE 'N18%' OR d.code LIKE 'I12%' OR d.code LIKE 'I13%')\nAND DATEDIFF(e.end_date, e.start_date) > 7",
+          "rows": [
+            {
+              "num_ingresos": 60
+            }
+          ],
+          "elapsed_seconds": 91.19,
+          "num_calls": 2
+        },
+        {
+          "sql": "SELECT COUNT(DISTINCT e.episode_ref) AS num_ingresos\nFROM g_episodes e\nINNER JOIN g_diagnostics d ON d.patient_ref = e.patient_ref AND d.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\nAND (d.code LIKE 'N18%' OR d.code LIKE 'I12%' OR d.code LIKE 'I13%')\nAND DATEDIFF(e.end_date, e.start_date) > 7",
+          "rows": [
+            {
+              "num_ingresos": 60
+            }
+          ],
+          "elapsed_seconds": 114.12,
+          "num_calls": 2
+        },
+        {
+          "sql": "SELECT COUNT(DISTINCT e.episode_ref) AS num_ingresos\nFROM g_episodes e\nINNER JOIN g_diagnostics d ON d.patient_ref = e.patient_ref AND d.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\nAND (d.code LIKE 'N18%' OR d.code LIKE 'I12%' OR d.code LIKE 'I13%')\nAND DATEDIFF(e.end_date, e.start_date) > 7",
+          "rows": [
+            {
+              "num_ingresos": 60
+            }
+          ],
+          "elapsed_seconds": 114.59,
+          "num_calls": 2
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "question": "¿Cuántas mujeres tienen diagnóstico de fibrilación o flutter auricular?",
+      "runs": [
+        {
+          "sql": "SELECT COUNT(DISTINCT d.patient_ref) AS female_count\nFROM g_diagnostics d\nJOIN g_demographics dem ON d.patient_ref = dem.patient_ref\nWHERE dem.sex = 2\nAND (d.code LIKE 'I48%' OR d.code = '427.31')",
+          "rows": [
+            {
+              "female_count": 12
+            }
+          ],
+          "elapsed_seconds": 132.44,
+          "num_calls": 4
+        },
+        {
+          "sql": "SELECT COUNT(DISTINCT d.patient_ref) AS female_count\nFROM g_diagnostics d\nJOIN g_demographics dem ON d.patient_ref = dem.patient_ref\nWHERE dem.sex = 2\nAND (d.code LIKE 'I48%' OR d.code = '427.31')",
+          "rows": [
+            {
+              "female_count": 12
+            }
+          ],
+          "elapsed_seconds": 132.25,
+          "num_calls": 4
+        },
+        {
+          "sql": "SELECT COUNT(DISTINCT d.patient_ref) AS female_count\nFROM g_diagnostics d\nJOIN g_demographics dem ON d.patient_ref = dem.patient_ref\nWHERE dem.sex = 2\nAND (d.code LIKE 'I48%' OR d.code = '427.31')",
+          "rows": [
+            {
+              "female_count": 12
+            }
+          ],
+          "elapsed_seconds": 131.66,
+          "num_calls": 4
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "question": "¿Qué microorganismos se aislaron en hemocultivos positivos de pacientes hospitalizados y cuántos pacientes afectó cada uno?",
+      "runs": [
+        {
+          "sql": "SELECT m.micro_descr, COUNT(DISTINCT m.patient_ref) as num_pacientes\nFROM g_micro m\nJOIN g_episodes e ON m.patient_ref = e.patient_ref AND m.episode_ref = e.episode_ref\nWHERE m.mue_descr = 'Hemocultiu'\n  AND m.positive = 'X'\n  AND e.episode_type_ref = 'HOSP'\nGROUP BY m.micro_descr\nORDER BY num_pacientes DESC",
+          "rows": [
+            {
+              "micro_descr": "Estafilococ coagulasa negatiu",
+              "num_pacientes": 12
+            },
+            {
+              "micro_descr": "Staphylococcus epidermidis",
+              "num_pacientes": 7
+            },
+            {
+              "micro_descr": "Staphylococcus haemolyticus",
+              "num_pacientes": 4
+            },
+            {
+              "micro_descr": "Enterococcus faecium",
+              "num_pacientes": 3
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "num_pacientes": 3
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "num_pacientes": 3
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "num_pacientes": 2
+            },
+            {
+              "micro_descr": "Klebsiella oxytoca/Raoultella ornithynol",
+              "num_pacientes": 2
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "num_pacientes": 2
+            },
+            {
+              "micro_descr": "Cryptococcus neoformans",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Cutibacterium acnes",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Enterococcus raffinosus",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Lactobacillus sp",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Microbacterium sp",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Morganella morganii",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Serratia marcescens",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Staphylococcus capitis",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Staphylococcus hominis",
+              "num_pacientes": 1
+            }
+          ],
+          "elapsed_seconds": 134.46,
+          "num_calls": 3
+        },
+        {
+          "sql": "SELECT m.micro_descr, COUNT(DISTINCT m.patient_ref) as num_pacientes\nFROM g_micro m\nJOIN g_episodes e ON m.patient_ref = e.patient_ref AND m.episode_ref = e.episode_ref\nWHERE m.mue_descr = 'Hemocultiu'\n  AND m.positive = 'X'\n  AND e.episode_type_ref = 'HOSP'\nGROUP BY m.micro_descr\nORDER BY num_pacientes DESC",
+          "rows": [
+            {
+              "micro_descr": "Estafilococ coagulasa negatiu",
+              "num_pacientes": 12
+            },
+            {
+              "micro_descr": "Staphylococcus epidermidis",
+              "num_pacientes": 7
+            },
+            {
+              "micro_descr": "Staphylococcus haemolyticus",
+              "num_pacientes": 4
+            },
+            {
+              "micro_descr": "Enterococcus faecium",
+              "num_pacientes": 3
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "num_pacientes": 3
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "num_pacientes": 3
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "num_pacientes": 2
+            },
+            {
+              "micro_descr": "Klebsiella oxytoca/Raoultella ornithynol",
+              "num_pacientes": 2
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "num_pacientes": 2
+            },
+            {
+              "micro_descr": "Cryptococcus neoformans",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Cutibacterium acnes",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Enterococcus raffinosus",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Lactobacillus sp",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Microbacterium sp",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Morganella morganii",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Serratia marcescens",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Staphylococcus capitis",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Staphylococcus hominis",
+              "num_pacientes": 1
+            }
+          ],
+          "elapsed_seconds": 134.68,
+          "num_calls": 3
+        },
+        {
+          "sql": "SELECT m.micro_descr, COUNT(DISTINCT m.patient_ref) as num_pacientes\nFROM g_micro m\nJOIN g_episodes e ON m.patient_ref = e.patient_ref AND m.episode_ref = e.episode_ref\nWHERE m.mue_descr = 'Hemocultiu'\n  AND m.positive = 'X'\n  AND e.episode_type_ref = 'HOSP'\nGROUP BY m.micro_descr\nORDER BY num_pacientes DESC",
+          "rows": [
+            {
+              "micro_descr": "Estafilococ coagulasa negatiu",
+              "num_pacientes": 12
+            },
+            {
+              "micro_descr": "Staphylococcus epidermidis",
+              "num_pacientes": 7
+            },
+            {
+              "micro_descr": "Staphylococcus haemolyticus",
+              "num_pacientes": 4
+            },
+            {
+              "micro_descr": "Enterococcus faecium",
+              "num_pacientes": 3
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "num_pacientes": 3
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "num_pacientes": 3
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "num_pacientes": 2
+            },
+            {
+              "micro_descr": "Klebsiella oxytoca/Raoultella ornithynol",
+              "num_pacientes": 2
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "num_pacientes": 2
+            },
+            {
+              "micro_descr": "Cryptococcus neoformans",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Cutibacterium acnes",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Enterococcus raffinosus",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Lactobacillus sp",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Microbacterium sp",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Morganella morganii",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Serratia marcescens",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Staphylococcus capitis",
+              "num_pacientes": 1
+            },
+            {
+              "micro_descr": "Staphylococcus hominis",
+              "num_pacientes": 1
+            }
+          ],
+          "elapsed_seconds": 134.71,
+          "num_calls": 3
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "question": "¿Qué anticoagulantes se administraron a pacientes con fibrilación auricular y cuántos pacientes recibieron cada uno?",
+      "runs": [
+        {
+          "sql": "SELECT \n    a.atc_descr,\n    COUNT(DISTINCT a.patient_ref) AS num_pacientes\nFROM g_administrations a\nINNER JOIN g_diagnostics d ON a.patient_ref = d.patient_ref AND a.episode_ref = d.episode_ref\nWHERE d.code LIKE 'I48%'\n    AND a.atc_descr IN ('Apixaban', 'Rivaroxaban', 'Dabigatran etexilato', 'Enoxaparina', 'Acenocumarol', 'Heparina', 'Fondaparinux')\n    AND a.given = 'X'\nGROUP BY a.atc_descr\nORDER BY num_pacientes DESC",
+          "rows": [
+            {
+              "atc_descr": "Enoxaparina",
+              "num_pacientes": 8
+            },
+            {
+              "atc_descr": "Acenocumarol",
+              "num_pacientes": 4
+            },
+            {
+              "atc_descr": "Apixaban",
+              "num_pacientes": 3
+            },
+            {
+              "atc_descr": "Heparina",
+              "num_pacientes": 2
+            }
+          ],
+          "elapsed_seconds": 251.91,
+          "num_calls": 22
+        },
+        {
+          "sql": "SELECT \n    a.atc_descr,\n    COUNT(DISTINCT a.patient_ref) AS num_pacientes\nFROM g_administrations a\nINNER JOIN g_diagnostics d ON a.patient_ref = d.patient_ref AND a.episode_ref = d.episode_ref\nWHERE d.code LIKE 'I48%'\n    AND a.atc_descr IN ('Apixaban', 'Rivaroxaban', 'Dabigatran etexilato', 'Enoxaparina', 'Acenocumarol', 'Heparina', 'Fondaparinux')\n    AND a.given = 'X'\nGROUP BY a.atc_descr\nORDER BY num_pacientes DESC",
+          "rows": [
+            {
+              "atc_descr": "Enoxaparina",
+              "num_pacientes": 8
+            },
+            {
+              "atc_descr": "Acenocumarol",
+              "num_pacientes": 4
+            },
+            {
+              "atc_descr": "Apixaban",
+              "num_pacientes": 3
+            },
+            {
+              "atc_descr": "Heparina",
+              "num_pacientes": 2
+            }
+          ],
+          "elapsed_seconds": 251.33,
+          "num_calls": 22
+        },
+        {
+          "sql": "SELECT \n    a.atc_descr,\n    COUNT(DISTINCT a.patient_ref) AS num_pacientes\nFROM g_administrations a\nINNER JOIN g_diagnostics d ON a.patient_ref = d.patient_ref AND a.episode_ref = d.episode_ref\nWHERE d.code LIKE 'I48%'\n    AND a.atc_descr IN ('Apixaban', 'Rivaroxaban', 'Dabigatran etexilato', 'Enoxaparina', 'Acenocumarol', 'Heparina', 'Fondaparinux')\n    AND a.given = 'X'\nGROUP BY a.atc_descr\nORDER BY num_pacientes DESC",
+          "rows": [
+            {
+              "atc_descr": "Enoxaparina",
+              "num_pacientes": 8
+            },
+            {
+              "atc_descr": "Acenocumarol",
+              "num_pacientes": 4
+            },
+            {
+              "atc_descr": "Apixaban",
+              "num_pacientes": 3
+            },
+            {
+              "atc_descr": "Heparina",
+              "num_pacientes": 2
+            }
+          ],
+          "elapsed_seconds": 251.63,
+          "num_calls": 22
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "question": "Muestra únicamente el identificador de episodio (episode_ref) de los pacientes hospitalizados a cargo de cardiología en el año 2023.",
+      "runs": [
+        {
+          "sql": "SELECT DISTINCT e.episode_ref FROM g_episodes e\nJOIN g_movements m ON m.patient_ref = e.patient_ref AND m.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\nAND m.ou_med_ref IN ('CAR', 'BCAR', 'B-CAR')\nAND YEAR(e.start_date) = 2023\nORDER BY e.episode_ref",
+          "rows": [
+            {
+              "episode_ref": 159586762
+            },
+            {
+              "episode_ref": 565575321
+            },
+            {
+              "episode_ref": 776472421
+            },
+            {
+              "episode_ref": 817799139
+            },
+            {
+              "episode_ref": 850119941
+            },
+            {
+              "episode_ref": 966372305
+            },
+            {
+              "episode_ref": 1025078082
+            },
+            {
+              "episode_ref": 1363611289
+            },
+            {
+              "episode_ref": 1603192783
+            },
+            {
+              "episode_ref": 1609319439
+            },
+            {
+              "episode_ref": 2039069073
+            },
+            {
+              "episode_ref": 2187075421
+            },
+            {
+              "episode_ref": 2458867767
+            },
+            {
+              "episode_ref": 2618487166
+            },
+            {
+              "episode_ref": 2749766252
+            },
+            {
+              "episode_ref": 2908767805
+            },
+            {
+              "episode_ref": 3391546152
+            },
+            {
+              "episode_ref": 3494075824
+            }
+          ],
+          "elapsed_seconds": 307.43,
+          "num_calls": 8
+        },
+        {
+          "sql": "SELECT DISTINCT e.episode_ref FROM g_episodes e\nJOIN g_movements m ON m.patient_ref = e.patient_ref AND m.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\nAND m.ou_med_ref IN ('CAR', 'BCAR', 'B-CAR')\nAND YEAR(e.start_date) = 2023\nORDER BY e.episode_ref",
+          "rows": [
+            {
+              "episode_ref": 159586762
+            },
+            {
+              "episode_ref": 565575321
+            },
+            {
+              "episode_ref": 776472421
+            },
+            {
+              "episode_ref": 817799139
+            },
+            {
+              "episode_ref": 850119941
+            },
+            {
+              "episode_ref": 966372305
+            },
+            {
+              "episode_ref": 1025078082
+            },
+            {
+              "episode_ref": 1363611289
+            },
+            {
+              "episode_ref": 1603192783
+            },
+            {
+              "episode_ref": 1609319439
+            },
+            {
+              "episode_ref": 2039069073
+            },
+            {
+              "episode_ref": 2187075421
+            },
+            {
+              "episode_ref": 2458867767
+            },
+            {
+              "episode_ref": 2618487166
+            },
+            {
+              "episode_ref": 2749766252
+            },
+            {
+              "episode_ref": 2908767805
+            },
+            {
+              "episode_ref": 3391546152
+            },
+            {
+              "episode_ref": 3494075824
+            }
+          ],
+          "elapsed_seconds": 306.33,
+          "num_calls": 8
+        },
+        {
+          "sql": "SELECT DISTINCT e.episode_ref FROM g_episodes e\nJOIN g_movements m ON m.patient_ref = e.patient_ref AND m.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\nAND m.ou_med_ref IN ('CAR', 'BCAR', 'B-CAR')\nAND YEAR(e.start_date) = 2023\nORDER BY e.episode_ref",
+          "rows": [
+            {
+              "episode_ref": 159586762
+            },
+            {
+              "episode_ref": 565575321
+            },
+            {
+              "episode_ref": 776472421
+            },
+            {
+              "episode_ref": 817799139
+            },
+            {
+              "episode_ref": 850119941
+            },
+            {
+              "episode_ref": 966372305
+            },
+            {
+              "episode_ref": 1025078082
+            },
+            {
+              "episode_ref": 1363611289
+            },
+            {
+              "episode_ref": 1603192783
+            },
+            {
+              "episode_ref": 1609319439
+            },
+            {
+              "episode_ref": 2039069073
+            },
+            {
+              "episode_ref": 2187075421
+            },
+            {
+              "episode_ref": 2458867767
+            },
+            {
+              "episode_ref": 2618487166
+            },
+            {
+              "episode_ref": 2749766252
+            },
+            {
+              "episode_ref": 2908767805
+            },
+            {
+              "episode_ref": 3391546152
+            },
+            {
+              "episode_ref": 3494075824
+            }
+          ],
+          "elapsed_seconds": 306.59,
+          "num_calls": 8
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "question": "Muestra la cantidad de episodios con diagnóstico de infarto agudo de miocardio por cada mes (formato YYYY-MM), focalizándose en episodios de hospitalización que ingresan en el año 2023.",
+      "runs": [
+        {
+          "sql": "SELECT CONCAT(YEAR(e.start_date), '-', LPAD(MONTH(e.start_date), 2, '0')) AS month, COUNT(DISTINCT e.episode_ref) AS episode_count\nFROM g_diagnostics d\nJOIN g_episodes e ON d.episode_ref = e.episode_ref AND d.patient_ref = e.patient_ref\nWHERE d.code LIKE 'I21%' \n  AND e.episode_type_ref = 'HOSP' \n  AND YEAR(e.start_date) = 2023\nGROUP BY CONCAT(YEAR(e.start_date), '-', LPAD(MONTH(e.start_date), 2, '0'))\nORDER BY month",
+          "rows": [
+            {
+              "month": "2023-08",
+              "episode_count": 1
+            },
+            {
+              "month": "2023-10",
+              "episode_count": 2
+            },
+            {
+              "month": "2023-11",
+              "episode_count": 1
+            }
+          ],
+          "elapsed_seconds": 130.69,
+          "num_calls": 3
+        },
+        {
+          "sql": "SELECT CONCAT(YEAR(e.start_date), '-', LPAD(MONTH(e.start_date), 2, '0')) AS month, COUNT(DISTINCT e.episode_ref) AS episode_count\nFROM g_diagnostics d\nJOIN g_episodes e ON d.episode_ref = e.episode_ref AND d.patient_ref = e.patient_ref\nWHERE d.code LIKE 'I21%' \n  AND e.episode_type_ref = 'HOSP' \n  AND YEAR(e.start_date) = 2023\nGROUP BY CONCAT(YEAR(e.start_date), '-', LPAD(MONTH(e.start_date), 2, '0'))\nORDER BY month",
+          "rows": [
+            {
+              "month": "2023-08",
+              "episode_count": 1
+            },
+            {
+              "month": "2023-10",
+              "episode_count": 2
+            },
+            {
+              "month": "2023-11",
+              "episode_count": 1
+            }
+          ],
+          "elapsed_seconds": 131.7,
+          "num_calls": 3
+        },
+        {
+          "sql": "SELECT CONCAT(YEAR(e.start_date), '-', LPAD(MONTH(e.start_date), 2, '0')) AS month, COUNT(DISTINCT e.episode_ref) AS episode_count\nFROM g_diagnostics d\nJOIN g_episodes e ON d.episode_ref = e.episode_ref AND d.patient_ref = e.patient_ref\nWHERE d.code LIKE 'I21%' \n  AND e.episode_type_ref = 'HOSP' \n  AND YEAR(e.start_date) = 2023\nGROUP BY CONCAT(YEAR(e.start_date), '-', LPAD(MONTH(e.start_date), 2, '0'))\nORDER BY month",
+          "rows": [
+            {
+              "month": "2023-08",
+              "episode_count": 1
+            },
+            {
+              "month": "2023-10",
+              "episode_count": 2
+            },
+            {
+              "month": "2023-11",
+              "episode_count": 1
+            }
+          ],
+          "elapsed_seconds": 131.72,
+          "num_calls": 3
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "question": "Muestra una fila por cada combinación de paciente con Diabetes Mellitus (DM) y su tipo de DM. Centrate solamente en pacientes ambulatorios (consulta externa)",
+      "runs": [
+        {
+          "sql": "SELECT DISTINCT d.patient_ref, d.code, d.diag_descr\nFROM g_diagnostics d\nJOIN g_episodes e ON d.patient_ref = e.patient_ref AND d.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'AM'\nAND (d.code LIKE 'E10%' OR d.code LIKE 'E11%' OR d.code LIKE 'E13%' OR d.code = 'O24.419')\nAND d.diag_descr IS NOT NULL\nORDER BY d.patient_ref, d.diag_descr",
+          "rows": [
+            {
+              "patient_ref": 15048150,
+              "code": "O24.419",
+              "diag_descr": "Diabetes mellitus gestacional en el embarazo, con control no especificado"
+            },
+            {
+              "patient_ref": 114290368,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 474328097,
+              "code": "O24.419",
+              "diag_descr": "Diabetes mellitus gestacional en el embarazo, con control no especificado"
+            },
+            {
+              "patient_ref": 612657718,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 839970455,
+              "code": "E13.9",
+              "diag_descr": "Otra diabetes mellitus especificada sin complicaciones"
+            },
+            {
+              "patient_ref": 1147547035,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 1377127590,
+              "code": "O24.419",
+              "diag_descr": "Diabetes mellitus gestacional en el embarazo, con control no especificado"
+            },
+            {
+              "patient_ref": 1377878325,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2259462569,
+              "code": "E11.42",
+              "diag_descr": "Diabetes mellitus tipo 2 con polineuropatía diabética"
+            },
+            {
+              "patient_ref": 2259462569,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2510186366,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2526191038,
+              "code": "E11.65",
+              "diag_descr": "Diabetes mellitus tipo 2 con hiperglucemia"
+            },
+            {
+              "patient_ref": 2526191038,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2591552614,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2737511060,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2887875727,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 3028134598,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 3066613827,
+              "code": "E11.319",
+              "diag_descr": "Diabetes mellitus tipo 2 con retinopatía diabética no especificada sin edema macular"
+            },
+            {
+              "patient_ref": 3221077757,
+              "code": "E11.22",
+              "diag_descr": "Diabetes mellitus tipo 2 con nefropatía diabética crónica"
+            },
+            {
+              "patient_ref": 3221077757,
+              "code": "E11.319",
+              "diag_descr": "Diabetes mellitus tipo 2 con retinopatía diabética no especificada sin edema macular"
+            },
+            {
+              "patient_ref": 3383046025,
+              "code": "E10.29",
+              "diag_descr": "Diabetes mellitus tipo 1 con otras complicaciones diabéticas renales"
+            },
+            {
+              "patient_ref": 3468007565,
+              "code": "E11.319",
+              "diag_descr": "Diabetes mellitus tipo 2 con retinopatía diabética no especificada sin edema macular"
+            },
+            {
+              "patient_ref": 3468007565,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 3666117358,
+              "code": "E10.9",
+              "diag_descr": "Diabetes mellitus tipo 1 sin complicaciones"
+            },
+            {
+              "patient_ref": 3910435450,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 4042403150,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 4063437574,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 4067401814,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            }
+          ],
+          "elapsed_seconds": 247.96,
+          "num_calls": 3
+        },
+        {
+          "sql": "SELECT DISTINCT d.patient_ref, d.code, d.diag_descr\nFROM g_diagnostics d\nJOIN g_episodes e ON d.patient_ref = e.patient_ref AND d.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'AM'\nAND (d.code LIKE 'E10%' OR d.code LIKE 'E11%' OR d.code LIKE 'E13%' OR d.code = 'O24.419')\nAND d.diag_descr IS NOT NULL\nORDER BY d.patient_ref, d.diag_descr",
+          "rows": [
+            {
+              "patient_ref": 15048150,
+              "code": "O24.419",
+              "diag_descr": "Diabetes mellitus gestacional en el embarazo, con control no especificado"
+            },
+            {
+              "patient_ref": 114290368,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 474328097,
+              "code": "O24.419",
+              "diag_descr": "Diabetes mellitus gestacional en el embarazo, con control no especificado"
+            },
+            {
+              "patient_ref": 612657718,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 839970455,
+              "code": "E13.9",
+              "diag_descr": "Otra diabetes mellitus especificada sin complicaciones"
+            },
+            {
+              "patient_ref": 1147547035,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 1377127590,
+              "code": "O24.419",
+              "diag_descr": "Diabetes mellitus gestacional en el embarazo, con control no especificado"
+            },
+            {
+              "patient_ref": 1377878325,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2259462569,
+              "code": "E11.42",
+              "diag_descr": "Diabetes mellitus tipo 2 con polineuropatía diabética"
+            },
+            {
+              "patient_ref": 2259462569,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2510186366,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2526191038,
+              "code": "E11.65",
+              "diag_descr": "Diabetes mellitus tipo 2 con hiperglucemia"
+            },
+            {
+              "patient_ref": 2526191038,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2591552614,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2737511060,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2887875727,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 3028134598,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 3066613827,
+              "code": "E11.319",
+              "diag_descr": "Diabetes mellitus tipo 2 con retinopatía diabética no especificada sin edema macular"
+            },
+            {
+              "patient_ref": 3221077757,
+              "code": "E11.22",
+              "diag_descr": "Diabetes mellitus tipo 2 con nefropatía diabética crónica"
+            },
+            {
+              "patient_ref": 3221077757,
+              "code": "E11.319",
+              "diag_descr": "Diabetes mellitus tipo 2 con retinopatía diabética no especificada sin edema macular"
+            },
+            {
+              "patient_ref": 3383046025,
+              "code": "E10.29",
+              "diag_descr": "Diabetes mellitus tipo 1 con otras complicaciones diabéticas renales"
+            },
+            {
+              "patient_ref": 3468007565,
+              "code": "E11.319",
+              "diag_descr": "Diabetes mellitus tipo 2 con retinopatía diabética no especificada sin edema macular"
+            },
+            {
+              "patient_ref": 3468007565,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 3666117358,
+              "code": "E10.9",
+              "diag_descr": "Diabetes mellitus tipo 1 sin complicaciones"
+            },
+            {
+              "patient_ref": 3910435450,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 4042403150,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 4063437574,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 4067401814,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            }
+          ],
+          "elapsed_seconds": 246.89,
+          "num_calls": 3
+        },
+        {
+          "sql": "SELECT DISTINCT d.patient_ref, d.code, d.diag_descr\nFROM g_diagnostics d\nJOIN g_episodes e ON d.patient_ref = e.patient_ref AND d.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'AM'\nAND (d.code LIKE 'E10%' OR d.code LIKE 'E11%' OR d.code LIKE 'E13%' OR d.code = 'O24.419')\nAND d.diag_descr IS NOT NULL\nORDER BY d.patient_ref, d.diag_descr",
+          "rows": [
+            {
+              "patient_ref": 15048150,
+              "code": "O24.419",
+              "diag_descr": "Diabetes mellitus gestacional en el embarazo, con control no especificado"
+            },
+            {
+              "patient_ref": 114290368,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 474328097,
+              "code": "O24.419",
+              "diag_descr": "Diabetes mellitus gestacional en el embarazo, con control no especificado"
+            },
+            {
+              "patient_ref": 612657718,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 839970455,
+              "code": "E13.9",
+              "diag_descr": "Otra diabetes mellitus especificada sin complicaciones"
+            },
+            {
+              "patient_ref": 1147547035,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 1377127590,
+              "code": "O24.419",
+              "diag_descr": "Diabetes mellitus gestacional en el embarazo, con control no especificado"
+            },
+            {
+              "patient_ref": 1377878325,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2259462569,
+              "code": "E11.42",
+              "diag_descr": "Diabetes mellitus tipo 2 con polineuropatía diabética"
+            },
+            {
+              "patient_ref": 2259462569,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2510186366,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2526191038,
+              "code": "E11.65",
+              "diag_descr": "Diabetes mellitus tipo 2 con hiperglucemia"
+            },
+            {
+              "patient_ref": 2526191038,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2591552614,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2737511060,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 2887875727,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 3028134598,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 3066613827,
+              "code": "E11.319",
+              "diag_descr": "Diabetes mellitus tipo 2 con retinopatía diabética no especificada sin edema macular"
+            },
+            {
+              "patient_ref": 3221077757,
+              "code": "E11.22",
+              "diag_descr": "Diabetes mellitus tipo 2 con nefropatía diabética crónica"
+            },
+            {
+              "patient_ref": 3221077757,
+              "code": "E11.319",
+              "diag_descr": "Diabetes mellitus tipo 2 con retinopatía diabética no especificada sin edema macular"
+            },
+            {
+              "patient_ref": 3383046025,
+              "code": "E10.29",
+              "diag_descr": "Diabetes mellitus tipo 1 con otras complicaciones diabéticas renales"
+            },
+            {
+              "patient_ref": 3468007565,
+              "code": "E11.319",
+              "diag_descr": "Diabetes mellitus tipo 2 con retinopatía diabética no especificada sin edema macular"
+            },
+            {
+              "patient_ref": 3468007565,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 3666117358,
+              "code": "E10.9",
+              "diag_descr": "Diabetes mellitus tipo 1 sin complicaciones"
+            },
+            {
+              "patient_ref": 3910435450,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 4042403150,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 4063437574,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            },
+            {
+              "patient_ref": 4067401814,
+              "code": "E11.9",
+              "diag_descr": "Diabetes mellitus tipo 2 sin complicaciones"
+            }
+          ],
+          "elapsed_seconds": 247.07,
+          "num_calls": 3
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "question": "Muestra una fila por cada combinación de microbio y antibiótico con el nombre del microbio, el nombre del antibiótico y la cantidad de veces que esa combinación de microbio y antibiótico ha sido probada en los antibiogramas.",
+      "runs": [
+        {
+          "sql": "SELECT micro_descr, antibiotic_descr, COUNT(*) as veces_probada\nFROM g_antibiograms\nWHERE micro_descr IS NOT NULL AND antibiotic_descr IS NOT NULL\nGROUP BY micro_descr, antibiotic_descr\nORDER BY veces_probada DESC\nLIMIT 100",
+          "rows": [
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 73
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 73
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Cefuroxima",
+              "veces_probada": 73
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 73
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 73
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Amox./ c. clavulànic",
+              "veces_probada": 72
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 70
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Ertapenem",
+              "veces_probada": 70
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Meropenem",
+              "veces_probada": 70
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Pipera/tazobactam",
+              "veces_probada": 70
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Ceftazidima",
+              "veces_probada": 70
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Imipenem",
+              "veces_probada": 69
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 69
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Nitrofurantoina",
+              "veces_probada": 58
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Fosfomicina",
+              "veces_probada": 56
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Cefotaxima",
+              "veces_probada": 50
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Pipera/tazobactam",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Imipenem",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Ceftazidima",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Meropenem",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Amox./ c. clavulànic",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Cefuroxima",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Ertapenem",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Imipenem",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Meropenem",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Pipera/tazobactam",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Ceftazidima",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Cefepime",
+              "veces_probada": 35
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Cefepime",
+              "veces_probada": 30
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 29
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Cefotaxima",
+              "veces_probada": 27
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Vancomicina",
+              "veces_probada": 26
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 25
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Linezolid",
+              "veces_probada": 23
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Teicoplanina",
+              "veces_probada": 23
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Ceftriaxona",
+              "veces_probada": 21
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Oxacil.lina",
+              "veces_probada": 21
+            },
+            {
+              "micro_descr": "Enterococcus faecium",
+              "antibiotic_descr": "Vancomicina",
+              "veces_probada": 20
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Levofloxacina",
+              "veces_probada": 19
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Nitrofurantoina",
+              "veces_probada": 17
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Cefepime",
+              "veces_probada": 17
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Rifampicina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Vancomicina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Levofloxacina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Penicilina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Clindamicina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Enterococcus faecium",
+              "antibiotic_descr": "Linezolid",
+              "veces_probada": 15
+            },
+            {
+              "micro_descr": "Enterococcus faecium",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 15
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Ceftriaxona",
+              "veces_probada": 15
+            },
+            {
+              "micro_descr": "Enterococcus faecium",
+              "antibiotic_descr": "Teicoplanina",
+              "veces_probada": 14
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Eritromicina",
+              "veces_probada": 14
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Colistina",
+              "veces_probada": 13
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Pipera/tazobactam",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Ertapenem",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Cefuroxima",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Cefotaxima",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Linezolid",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Amox./ c. clavulànic",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Imipenem",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Meropenem",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Fosfomicina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Ertapenem",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Imipenem",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Meropenem",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Amox./ c. clavulànic",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Cefuroxima",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Ceftazidima",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Pipera/tazobactam",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Streptococcus pneumoniae",
+              "antibiotic_descr": "Penicilina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Ceftazidima",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Amox./ c. clavulànic",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Cefuroxima",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Ertapenem",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 9
+            }
+          ],
+          "elapsed_seconds": 154.88,
+          "num_calls": 1
+        },
+        {
+          "sql": "SELECT micro_descr, antibiotic_descr, COUNT(*) as veces_probada\nFROM g_antibiograms\nWHERE micro_descr IS NOT NULL AND antibiotic_descr IS NOT NULL\nGROUP BY micro_descr, antibiotic_descr\nORDER BY veces_probada DESC\nLIMIT 100",
+          "rows": [
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 73
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 73
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Cefuroxima",
+              "veces_probada": 73
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 73
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 73
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Amox./ c. clavulànic",
+              "veces_probada": 72
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 70
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Ertapenem",
+              "veces_probada": 70
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Meropenem",
+              "veces_probada": 70
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Pipera/tazobactam",
+              "veces_probada": 70
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Ceftazidima",
+              "veces_probada": 70
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Imipenem",
+              "veces_probada": 69
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 69
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Nitrofurantoina",
+              "veces_probada": 58
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Fosfomicina",
+              "veces_probada": 56
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Cefotaxima",
+              "veces_probada": 50
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Pipera/tazobactam",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Imipenem",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Ceftazidima",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Meropenem",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Amox./ c. clavulànic",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Cefuroxima",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Ertapenem",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Imipenem",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Meropenem",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Pipera/tazobactam",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Ceftazidima",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Cefepime",
+              "veces_probada": 35
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Cefepime",
+              "veces_probada": 30
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 29
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Cefotaxima",
+              "veces_probada": 27
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Vancomicina",
+              "veces_probada": 26
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 25
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Linezolid",
+              "veces_probada": 23
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Teicoplanina",
+              "veces_probada": 23
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Ceftriaxona",
+              "veces_probada": 21
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Oxacil.lina",
+              "veces_probada": 21
+            },
+            {
+              "micro_descr": "Enterococcus faecium",
+              "antibiotic_descr": "Vancomicina",
+              "veces_probada": 20
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Levofloxacina",
+              "veces_probada": 19
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Nitrofurantoina",
+              "veces_probada": 17
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Cefepime",
+              "veces_probada": 17
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Rifampicina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Vancomicina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Levofloxacina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Penicilina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Clindamicina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Enterococcus faecium",
+              "antibiotic_descr": "Linezolid",
+              "veces_probada": 15
+            },
+            {
+              "micro_descr": "Enterococcus faecium",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 15
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Ceftriaxona",
+              "veces_probada": 15
+            },
+            {
+              "micro_descr": "Enterococcus faecium",
+              "antibiotic_descr": "Teicoplanina",
+              "veces_probada": 14
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Eritromicina",
+              "veces_probada": 14
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Colistina",
+              "veces_probada": 13
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Pipera/tazobactam",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Ertapenem",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Cefuroxima",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Cefotaxima",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Linezolid",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Amox./ c. clavulànic",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Imipenem",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Meropenem",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Fosfomicina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Ertapenem",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Imipenem",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Meropenem",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Amox./ c. clavulànic",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Cefuroxima",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Ceftazidima",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Pipera/tazobactam",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Streptococcus pneumoniae",
+              "antibiotic_descr": "Penicilina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Ceftazidima",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Amox./ c. clavulànic",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Cefuroxima",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Ertapenem",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 9
+            }
+          ],
+          "elapsed_seconds": 155.63,
+          "num_calls": 1
+        },
+        {
+          "sql": "SELECT micro_descr, antibiotic_descr, COUNT(*) as veces_probada\nFROM g_antibiograms\nWHERE micro_descr IS NOT NULL AND antibiotic_descr IS NOT NULL\nGROUP BY micro_descr, antibiotic_descr\nORDER BY veces_probada DESC\nLIMIT 100",
+          "rows": [
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 73
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 73
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Cefuroxima",
+              "veces_probada": 73
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 73
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 73
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Amox./ c. clavulànic",
+              "veces_probada": 72
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 70
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Ertapenem",
+              "veces_probada": 70
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Meropenem",
+              "veces_probada": 70
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Pipera/tazobactam",
+              "veces_probada": 70
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Ceftazidima",
+              "veces_probada": 70
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Imipenem",
+              "veces_probada": 69
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 69
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Nitrofurantoina",
+              "veces_probada": 58
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Fosfomicina",
+              "veces_probada": 56
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Cefotaxima",
+              "veces_probada": 50
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Pipera/tazobactam",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Imipenem",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Ceftazidima",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Meropenem",
+              "veces_probada": 43
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Amox./ c. clavulànic",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Cefuroxima",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Ertapenem",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Imipenem",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Meropenem",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Pipera/tazobactam",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Ceftazidima",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 42
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Cefepime",
+              "veces_probada": 35
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Cefepime",
+              "veces_probada": 30
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 29
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Cefotaxima",
+              "veces_probada": 27
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Vancomicina",
+              "veces_probada": 26
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 25
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Linezolid",
+              "veces_probada": 23
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Teicoplanina",
+              "veces_probada": 23
+            },
+            {
+              "micro_descr": "Escherichia coli",
+              "antibiotic_descr": "Ceftriaxona",
+              "veces_probada": 21
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Oxacil.lina",
+              "veces_probada": 21
+            },
+            {
+              "micro_descr": "Enterococcus faecium",
+              "antibiotic_descr": "Vancomicina",
+              "veces_probada": 20
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Levofloxacina",
+              "veces_probada": 19
+            },
+            {
+              "micro_descr": "Enterococcus faecalis",
+              "antibiotic_descr": "Nitrofurantoina",
+              "veces_probada": 17
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Cefepime",
+              "veces_probada": 17
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Rifampicina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Vancomicina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Levofloxacina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Penicilina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Clindamicina",
+              "veces_probada": 16
+            },
+            {
+              "micro_descr": "Enterococcus faecium",
+              "antibiotic_descr": "Linezolid",
+              "veces_probada": 15
+            },
+            {
+              "micro_descr": "Enterococcus faecium",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 15
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae complex",
+              "antibiotic_descr": "Ceftriaxona",
+              "veces_probada": 15
+            },
+            {
+              "micro_descr": "Enterococcus faecium",
+              "antibiotic_descr": "Teicoplanina",
+              "veces_probada": 14
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Eritromicina",
+              "veces_probada": 14
+            },
+            {
+              "micro_descr": "Pseudomonas aeruginosa",
+              "antibiotic_descr": "Colistina",
+              "veces_probada": 13
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Pipera/tazobactam",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Ertapenem",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Cefuroxima",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Cefotaxima",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Staphylococcus aureus",
+              "antibiotic_descr": "Linezolid",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Amox./ c. clavulànic",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Imipenem",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Meropenem",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 11
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Fosfomicina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Ertapenem",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Gentamicina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Imipenem",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Meropenem",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Ampicil.lina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Amox./ c. clavulànic",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Cefuroxima",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Ceftazidima",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Enterobacter cloacae complex",
+              "antibiotic_descr": "Pipera/tazobactam",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Streptococcus pneumoniae",
+              "antibiotic_descr": "Penicilina",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Klebsiella pneumoniae",
+              "antibiotic_descr": "Ceftazidima",
+              "veces_probada": 10
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Amox./ c. clavulànic",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Amikacina",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Cefuroxima",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Ertapenem",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Tobramicina",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Ciprofloxacina",
+              "veces_probada": 9
+            },
+            {
+              "micro_descr": "Proteus mirabilis",
+              "antibiotic_descr": "Cotrimoxazol",
+              "veces_probada": 9
+            }
+          ],
+          "elapsed_seconds": 155.67,
+          "num_calls": 1
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "question": "Muestra una tabla de episodios de urgencias que sucedieron en abril de 2020 con la edad del paciente al inicio del episodio en años.",
+      "runs": [
+        {
+          "sql": "SELECT e.episode_ref, e.patient_ref, e.start_date, e.end_date, e.episode_type_ref, TIMESTAMPDIFF(YEAR, d.birth_date, e.start_date) AS age_at_start\nFROM g_episodes e\nJOIN g_demographics d ON d.patient_ref = e.patient_ref\nWHERE e.episode_type_ref = 'EM'\n  AND e.start_date >= '2020-04-01'\n  AND e.start_date < '2020-05-01'\nORDER BY e.start_date",
+          "rows": [
+            {
+              "episode_ref": 1719656883,
+              "patient_ref": 720901444,
+              "start_date": "2020-04-08 09:32:20",
+              "end_date": "2020-04-08 11:36:13",
+              "episode_type_ref": "EM",
+              "age_at_start": 70
+            },
+            {
+              "episode_ref": 1498830999,
+              "patient_ref": 2508150258,
+              "start_date": "2020-04-13 16:02:22",
+              "end_date": "2020-04-13 21:18:10",
+              "episode_type_ref": "EM",
+              "age_at_start": 41
+            },
+            {
+              "episode_ref": 3500077142,
+              "patient_ref": 1647396460,
+              "start_date": "2020-04-15 20:14:40",
+              "end_date": "2020-04-15 23:14:40",
+              "episode_type_ref": "EM",
+              "age_at_start": 73
+            },
+            {
+              "episode_ref": 3307127858,
+              "patient_ref": 2080888678,
+              "start_date": "2020-04-16 19:43:58",
+              "end_date": "2020-04-16 20:23:11",
+              "episode_type_ref": "EM",
+              "age_at_start": 82
+            },
+            {
+              "episode_ref": 3860244933,
+              "patient_ref": 2872231406,
+              "start_date": "2020-04-20 12:58:07",
+              "end_date": "2020-04-20 23:23:28",
+              "episode_type_ref": "EM",
+              "age_at_start": 84
+            },
+            {
+              "episode_ref": 73625816,
+              "patient_ref": 2872231406,
+              "start_date": "2020-04-24 08:54:43",
+              "end_date": "2020-04-24 11:37:20",
+              "episode_type_ref": "EM",
+              "age_at_start": 84
+            },
+            {
+              "episode_ref": 3672021433,
+              "patient_ref": 507763249,
+              "start_date": "2020-04-25 09:41:49",
+              "end_date": "2020-04-25 12:10:21",
+              "episode_type_ref": "EM",
+              "age_at_start": 66
+            },
+            {
+              "episode_ref": 1641600045,
+              "patient_ref": 2872231406,
+              "start_date": "2020-04-26 15:29:50",
+              "end_date": "2020-04-26 23:24:27",
+              "episode_type_ref": "EM",
+              "age_at_start": 84
+            },
+            {
+              "episode_ref": 1834620691,
+              "patient_ref": 4154034202,
+              "start_date": "2020-04-30 17:32:30",
+              "end_date": "2020-05-01 01:20:38",
+              "episode_type_ref": "EM",
+              "age_at_start": 39
+            }
+          ],
+          "elapsed_seconds": 139.09,
+          "num_calls": 1
+        },
+        {
+          "sql": "SELECT e.episode_ref, e.patient_ref, e.start_date, e.end_date, e.episode_type_ref, TIMESTAMPDIFF(YEAR, d.birth_date, e.start_date) AS age_at_start\nFROM g_episodes e\nJOIN g_demographics d ON d.patient_ref = e.patient_ref\nWHERE e.episode_type_ref = 'EM'\n  AND e.start_date >= '2020-04-01'\n  AND e.start_date < '2020-05-01'\nORDER BY e.start_date",
+          "rows": [
+            {
+              "episode_ref": 1719656883,
+              "patient_ref": 720901444,
+              "start_date": "2020-04-08 09:32:20",
+              "end_date": "2020-04-08 11:36:13",
+              "episode_type_ref": "EM",
+              "age_at_start": 70
+            },
+            {
+              "episode_ref": 1498830999,
+              "patient_ref": 2508150258,
+              "start_date": "2020-04-13 16:02:22",
+              "end_date": "2020-04-13 21:18:10",
+              "episode_type_ref": "EM",
+              "age_at_start": 41
+            },
+            {
+              "episode_ref": 3500077142,
+              "patient_ref": 1647396460,
+              "start_date": "2020-04-15 20:14:40",
+              "end_date": "2020-04-15 23:14:40",
+              "episode_type_ref": "EM",
+              "age_at_start": 73
+            },
+            {
+              "episode_ref": 3307127858,
+              "patient_ref": 2080888678,
+              "start_date": "2020-04-16 19:43:58",
+              "end_date": "2020-04-16 20:23:11",
+              "episode_type_ref": "EM",
+              "age_at_start": 82
+            },
+            {
+              "episode_ref": 3860244933,
+              "patient_ref": 2872231406,
+              "start_date": "2020-04-20 12:58:07",
+              "end_date": "2020-04-20 23:23:28",
+              "episode_type_ref": "EM",
+              "age_at_start": 84
+            },
+            {
+              "episode_ref": 73625816,
+              "patient_ref": 2872231406,
+              "start_date": "2020-04-24 08:54:43",
+              "end_date": "2020-04-24 11:37:20",
+              "episode_type_ref": "EM",
+              "age_at_start": 84
+            },
+            {
+              "episode_ref": 3672021433,
+              "patient_ref": 507763249,
+              "start_date": "2020-04-25 09:41:49",
+              "end_date": "2020-04-25 12:10:21",
+              "episode_type_ref": "EM",
+              "age_at_start": 66
+            },
+            {
+              "episode_ref": 1641600045,
+              "patient_ref": 2872231406,
+              "start_date": "2020-04-26 15:29:50",
+              "end_date": "2020-04-26 23:24:27",
+              "episode_type_ref": "EM",
+              "age_at_start": 84
+            },
+            {
+              "episode_ref": 1834620691,
+              "patient_ref": 4154034202,
+              "start_date": "2020-04-30 17:32:30",
+              "end_date": "2020-05-01 01:20:38",
+              "episode_type_ref": "EM",
+              "age_at_start": 39
+            }
+          ],
+          "elapsed_seconds": 162.62,
+          "num_calls": 1
+        },
+        {
+          "sql": "SELECT e.episode_ref, e.patient_ref, e.start_date, e.end_date, e.episode_type_ref, TIMESTAMPDIFF(YEAR, d.birth_date, e.start_date) AS age_at_start\nFROM g_episodes e\nJOIN g_demographics d ON d.patient_ref = e.patient_ref\nWHERE e.episode_type_ref = 'EM'\n  AND e.start_date >= '2020-04-01'\n  AND e.start_date < '2020-05-01'\nORDER BY e.start_date",
+          "rows": [
+            {
+              "episode_ref": 1719656883,
+              "patient_ref": 720901444,
+              "start_date": "2020-04-08 09:32:20",
+              "end_date": "2020-04-08 11:36:13",
+              "episode_type_ref": "EM",
+              "age_at_start": 70
+            },
+            {
+              "episode_ref": 1498830999,
+              "patient_ref": 2508150258,
+              "start_date": "2020-04-13 16:02:22",
+              "end_date": "2020-04-13 21:18:10",
+              "episode_type_ref": "EM",
+              "age_at_start": 41
+            },
+            {
+              "episode_ref": 3500077142,
+              "patient_ref": 1647396460,
+              "start_date": "2020-04-15 20:14:40",
+              "end_date": "2020-04-15 23:14:40",
+              "episode_type_ref": "EM",
+              "age_at_start": 73
+            },
+            {
+              "episode_ref": 3307127858,
+              "patient_ref": 2080888678,
+              "start_date": "2020-04-16 19:43:58",
+              "end_date": "2020-04-16 20:23:11",
+              "episode_type_ref": "EM",
+              "age_at_start": 82
+            },
+            {
+              "episode_ref": 3860244933,
+              "patient_ref": 2872231406,
+              "start_date": "2020-04-20 12:58:07",
+              "end_date": "2020-04-20 23:23:28",
+              "episode_type_ref": "EM",
+              "age_at_start": 84
+            },
+            {
+              "episode_ref": 73625816,
+              "patient_ref": 2872231406,
+              "start_date": "2020-04-24 08:54:43",
+              "end_date": "2020-04-24 11:37:20",
+              "episode_type_ref": "EM",
+              "age_at_start": 84
+            },
+            {
+              "episode_ref": 3672021433,
+              "patient_ref": 507763249,
+              "start_date": "2020-04-25 09:41:49",
+              "end_date": "2020-04-25 12:10:21",
+              "episode_type_ref": "EM",
+              "age_at_start": 66
+            },
+            {
+              "episode_ref": 1641600045,
+              "patient_ref": 2872231406,
+              "start_date": "2020-04-26 15:29:50",
+              "end_date": "2020-04-26 23:24:27",
+              "episode_type_ref": "EM",
+              "age_at_start": 84
+            },
+            {
+              "episode_ref": 1834620691,
+              "patient_ref": 4154034202,
+              "start_date": "2020-04-30 17:32:30",
+              "end_date": "2020-05-01 01:20:38",
+              "episode_type_ref": "EM",
+              "age_at_start": 39
+            }
+          ],
+          "elapsed_seconds": 161.35,
+          "num_calls": 1
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "question": "Muestra los episodios de hospitalización del año 2023 con al menos un movimiento en la unidad E073. Para cada episodio incluye: patient_ref, episode_ref, fecha de ingreso, fecha de alta, número de movimientos en E073 y duración total en minutos en E073. Ordena por fecha de ingreso.",
+      "runs": [
+        {
+          "sql": "SELECT \n    e.patient_ref,\n    e.episode_ref,\n    e.start_date,\n    e.end_date,\n    COUNT(m.episode_ref) AS num_movements,\n    SUM(TIMESTAMPDIFF(MINUTE, m.start_date, m.end_date)) AS total_duration_minutes\nFROM g_episodes e\nJOIN g_movements m ON m.patient_ref = e.patient_ref AND m.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\n    AND YEAR(e.start_date) = 2023\n    AND m.ou_loc_ref = 'E073'\nGROUP BY e.patient_ref, e.episode_ref, e.start_date, e.end_date\nORDER BY e.start_date",
+          "rows": [
+            {
+              "patient_ref": 1772151529,
+              "episode_ref": 3142256751,
+              "start_date": "2023-03-07 21:44:03",
+              "end_date": "2023-03-13 17:00:00",
+              "num_movements": 1,
+              "total_duration_minutes": "2688"
+            },
+            {
+              "patient_ref": 4143535895,
+              "episode_ref": 1718291010,
+              "start_date": "2023-04-23 03:07:17",
+              "end_date": "2023-05-05 16:15:00",
+              "num_movements": 2,
+              "total_duration_minutes": "4694"
+            },
+            {
+              "patient_ref": 3075678704,
+              "episode_ref": 771964546,
+              "start_date": "2023-06-15 09:00:00",
+              "end_date": "2023-07-28 12:35:00",
+              "num_movements": 1,
+              "total_duration_minutes": "6709"
+            },
+            {
+              "patient_ref": 4174873221,
+              "episode_ref": 1516388602,
+              "start_date": "2023-09-06 16:30:00",
+              "end_date": "2023-09-29 15:00:00",
+              "num_movements": 2,
+              "total_duration_minutes": "8458"
+            },
+            {
+              "patient_ref": 3831844914,
+              "episode_ref": 472634843,
+              "start_date": "2023-09-20 17:00:00",
+              "end_date": "2023-11-01 17:20:00",
+              "num_movements": 2,
+              "total_duration_minutes": "11566"
+            },
+            {
+              "patient_ref": 4174873221,
+              "episode_ref": 1173497794,
+              "start_date": "2023-10-09 16:26:24",
+              "end_date": "2023-10-27 13:39:00",
+              "num_movements": 1,
+              "total_duration_minutes": "3229"
+            },
+            {
+              "patient_ref": 1400448602,
+              "episode_ref": 942311744,
+              "start_date": "2023-10-30 19:32:59",
+              "end_date": "2023-12-08 12:42:04",
+              "num_movements": 1,
+              "total_duration_minutes": "5407"
+            },
+            {
+              "patient_ref": 3982367120,
+              "episode_ref": 776472421,
+              "start_date": "2023-11-09 01:00:35",
+              "end_date": "2024-02-28 01:59:26",
+              "num_movements": 1,
+              "total_duration_minutes": "20693"
+            },
+            {
+              "patient_ref": 3191477237,
+              "episode_ref": 2065337519,
+              "start_date": "2023-11-09 17:13:18",
+              "end_date": "2024-05-14 16:30:00",
+              "num_movements": 2,
+              "total_duration_minutes": "4935"
+            },
+            {
+              "patient_ref": 4174873221,
+              "episode_ref": 1837303861,
+              "start_date": "2023-11-28 00:12:41",
+              "end_date": "2023-12-08 17:20:00",
+              "num_movements": 2,
+              "total_duration_minutes": "2666"
+            },
+            {
+              "patient_ref": 3028134598,
+              "episode_ref": 2876285065,
+              "start_date": "2023-12-05 17:00:00",
+              "end_date": "2024-01-19 14:30:00",
+              "num_movements": 1,
+              "total_duration_minutes": "1486"
+            },
+            {
+              "patient_ref": 4174873221,
+              "episode_ref": 420332682,
+              "start_date": "2023-12-21 21:17:00",
+              "end_date": "2024-01-26 14:00:00",
+              "num_movements": 1,
+              "total_duration_minutes": "5131"
+            },
+            {
+              "patient_ref": 3482671287,
+              "episode_ref": 3458646960,
+              "start_date": "2023-12-28 00:54:44",
+              "end_date": "2024-03-14 11:55:00",
+              "num_movements": 2,
+              "total_duration_minutes": "1128"
+            },
+            {
+              "patient_ref": 1975294689,
+              "episode_ref": 771059428,
+              "start_date": "2023-12-29 21:04:15",
+              "end_date": "2024-01-17 15:45:00",
+              "num_movements": 1,
+              "total_duration_minutes": "2200"
+            }
+          ],
+          "elapsed_seconds": 265.6,
+          "num_calls": 2
+        },
+        {
+          "sql": "SELECT \n    e.patient_ref,\n    e.episode_ref,\n    e.start_date,\n    e.end_date,\n    COUNT(m.episode_ref) AS num_movements,\n    SUM(TIMESTAMPDIFF(MINUTE, m.start_date, m.end_date)) AS total_duration_minutes\nFROM g_episodes e\nJOIN g_movements m ON m.patient_ref = e.patient_ref AND m.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\n    AND YEAR(e.start_date) = 2023\n    AND m.ou_loc_ref = 'E073'\nGROUP BY e.patient_ref, e.episode_ref, e.start_date, e.end_date\nORDER BY e.start_date",
+          "rows": [
+            {
+              "patient_ref": 1772151529,
+              "episode_ref": 3142256751,
+              "start_date": "2023-03-07 21:44:03",
+              "end_date": "2023-03-13 17:00:00",
+              "num_movements": 1,
+              "total_duration_minutes": "2688"
+            },
+            {
+              "patient_ref": 4143535895,
+              "episode_ref": 1718291010,
+              "start_date": "2023-04-23 03:07:17",
+              "end_date": "2023-05-05 16:15:00",
+              "num_movements": 2,
+              "total_duration_minutes": "4694"
+            },
+            {
+              "patient_ref": 3075678704,
+              "episode_ref": 771964546,
+              "start_date": "2023-06-15 09:00:00",
+              "end_date": "2023-07-28 12:35:00",
+              "num_movements": 1,
+              "total_duration_minutes": "6709"
+            },
+            {
+              "patient_ref": 4174873221,
+              "episode_ref": 1516388602,
+              "start_date": "2023-09-06 16:30:00",
+              "end_date": "2023-09-29 15:00:00",
+              "num_movements": 2,
+              "total_duration_minutes": "8458"
+            },
+            {
+              "patient_ref": 3831844914,
+              "episode_ref": 472634843,
+              "start_date": "2023-09-20 17:00:00",
+              "end_date": "2023-11-01 17:20:00",
+              "num_movements": 2,
+              "total_duration_minutes": "11566"
+            },
+            {
+              "patient_ref": 4174873221,
+              "episode_ref": 1173497794,
+              "start_date": "2023-10-09 16:26:24",
+              "end_date": "2023-10-27 13:39:00",
+              "num_movements": 1,
+              "total_duration_minutes": "3229"
+            },
+            {
+              "patient_ref": 1400448602,
+              "episode_ref": 942311744,
+              "start_date": "2023-10-30 19:32:59",
+              "end_date": "2023-12-08 12:42:04",
+              "num_movements": 1,
+              "total_duration_minutes": "5407"
+            },
+            {
+              "patient_ref": 3982367120,
+              "episode_ref": 776472421,
+              "start_date": "2023-11-09 01:00:35",
+              "end_date": "2024-02-28 01:59:26",
+              "num_movements": 1,
+              "total_duration_minutes": "20693"
+            },
+            {
+              "patient_ref": 3191477237,
+              "episode_ref": 2065337519,
+              "start_date": "2023-11-09 17:13:18",
+              "end_date": "2024-05-14 16:30:00",
+              "num_movements": 2,
+              "total_duration_minutes": "4935"
+            },
+            {
+              "patient_ref": 4174873221,
+              "episode_ref": 1837303861,
+              "start_date": "2023-11-28 00:12:41",
+              "end_date": "2023-12-08 17:20:00",
+              "num_movements": 2,
+              "total_duration_minutes": "2666"
+            },
+            {
+              "patient_ref": 3028134598,
+              "episode_ref": 2876285065,
+              "start_date": "2023-12-05 17:00:00",
+              "end_date": "2024-01-19 14:30:00",
+              "num_movements": 1,
+              "total_duration_minutes": "1486"
+            },
+            {
+              "patient_ref": 4174873221,
+              "episode_ref": 420332682,
+              "start_date": "2023-12-21 21:17:00",
+              "end_date": "2024-01-26 14:00:00",
+              "num_movements": 1,
+              "total_duration_minutes": "5131"
+            },
+            {
+              "patient_ref": 3482671287,
+              "episode_ref": 3458646960,
+              "start_date": "2023-12-28 00:54:44",
+              "end_date": "2024-03-14 11:55:00",
+              "num_movements": 2,
+              "total_duration_minutes": "1128"
+            },
+            {
+              "patient_ref": 1975294689,
+              "episode_ref": 771059428,
+              "start_date": "2023-12-29 21:04:15",
+              "end_date": "2024-01-17 15:45:00",
+              "num_movements": 1,
+              "total_duration_minutes": "2200"
+            }
+          ],
+          "elapsed_seconds": 263.96,
+          "num_calls": 2
+        },
+        {
+          "sql": "SELECT \n    e.patient_ref,\n    e.episode_ref,\n    e.start_date,\n    e.end_date,\n    COUNT(m.episode_ref) AS num_movements,\n    SUM(TIMESTAMPDIFF(MINUTE, m.start_date, m.end_date)) AS total_duration_minutes\nFROM g_episodes e\nJOIN g_movements m ON m.patient_ref = e.patient_ref AND m.episode_ref = e.episode_ref\nWHERE e.episode_type_ref = 'HOSP'\n    AND YEAR(e.start_date) = 2023\n    AND m.ou_loc_ref = 'E073'\nGROUP BY e.patient_ref, e.episode_ref, e.start_date, e.end_date\nORDER BY e.start_date",
+          "rows": [
+            {
+              "patient_ref": 1772151529,
+              "episode_ref": 3142256751,
+              "start_date": "2023-03-07 21:44:03",
+              "end_date": "2023-03-13 17:00:00",
+              "num_movements": 1,
+              "total_duration_minutes": "2688"
+            },
+            {
+              "patient_ref": 4143535895,
+              "episode_ref": 1718291010,
+              "start_date": "2023-04-23 03:07:17",
+              "end_date": "2023-05-05 16:15:00",
+              "num_movements": 2,
+              "total_duration_minutes": "4694"
+            },
+            {
+              "patient_ref": 3075678704,
+              "episode_ref": 771964546,
+              "start_date": "2023-06-15 09:00:00",
+              "end_date": "2023-07-28 12:35:00",
+              "num_movements": 1,
+              "total_duration_minutes": "6709"
+            },
+            {
+              "patient_ref": 4174873221,
+              "episode_ref": 1516388602,
+              "start_date": "2023-09-06 16:30:00",
+              "end_date": "2023-09-29 15:00:00",
+              "num_movements": 2,
+              "total_duration_minutes": "8458"
+            },
+            {
+              "patient_ref": 3831844914,
+              "episode_ref": 472634843,
+              "start_date": "2023-09-20 17:00:00",
+              "end_date": "2023-11-01 17:20:00",
+              "num_movements": 2,
+              "total_duration_minutes": "11566"
+            },
+            {
+              "patient_ref": 4174873221,
+              "episode_ref": 1173497794,
+              "start_date": "2023-10-09 16:26:24",
+              "end_date": "2023-10-27 13:39:00",
+              "num_movements": 1,
+              "total_duration_minutes": "3229"
+            },
+            {
+              "patient_ref": 1400448602,
+              "episode_ref": 942311744,
+              "start_date": "2023-10-30 19:32:59",
+              "end_date": "2023-12-08 12:42:04",
+              "num_movements": 1,
+              "total_duration_minutes": "5407"
+            },
+            {
+              "patient_ref": 3982367120,
+              "episode_ref": 776472421,
+              "start_date": "2023-11-09 01:00:35",
+              "end_date": "2024-02-28 01:59:26",
+              "num_movements": 1,
+              "total_duration_minutes": "20693"
+            },
+            {
+              "patient_ref": 3191477237,
+              "episode_ref": 2065337519,
+              "start_date": "2023-11-09 17:13:18",
+              "end_date": "2024-05-14 16:30:00",
+              "num_movements": 2,
+              "total_duration_minutes": "4935"
+            },
+            {
+              "patient_ref": 4174873221,
+              "episode_ref": 1837303861,
+              "start_date": "2023-11-28 00:12:41",
+              "end_date": "2023-12-08 17:20:00",
+              "num_movements": 2,
+              "total_duration_minutes": "2666"
+            },
+            {
+              "patient_ref": 3028134598,
+              "episode_ref": 2876285065,
+              "start_date": "2023-12-05 17:00:00",
+              "end_date": "2024-01-19 14:30:00",
+              "num_movements": 1,
+              "total_duration_minutes": "1486"
+            },
+            {
+              "patient_ref": 4174873221,
+              "episode_ref": 420332682,
+              "start_date": "2023-12-21 21:17:00",
+              "end_date": "2024-01-26 14:00:00",
+              "num_movements": 1,
+              "total_duration_minutes": "5131"
+            },
+            {
+              "patient_ref": 3482671287,
+              "episode_ref": 3458646960,
+              "start_date": "2023-12-28 00:54:44",
+              "end_date": "2024-03-14 11:55:00",
+              "num_movements": 2,
+              "total_duration_minutes": "1128"
+            },
+            {
+              "patient_ref": 1975294689,
+              "episode_ref": 771059428,
+              "start_date": "2023-12-29 21:04:15",
+              "end_date": "2024-01-17 15:45:00",
+              "num_movements": 1,
+              "total_duration_minutes": "2200"
+            }
+          ],
+          "elapsed_seconds": 264.17,
+          "num_calls": 2
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "question": "Muestra el número de evaluaciones CAM-ICU registradas en cada unidad UCI ('E016', 'E103', 'E014', 'E015', 'E037', 'E057', 'E073', 'E043') por año. Clasifica los resultados en positivos (DELIRIO_CAM-ICU_2), negativos (DELIRIO_CAM-ICU_1) y otros (DELIRIO_CAM-ICU_3). Una fila por combinación unidad-año con columnas: ou_loc_ref, yr, total_cam, n_positive, n_negative, n_other.",
+      "runs": [
+        {
+          "sql": "",
+          "rows": [],
+          "elapsed_seconds": 345.12,
+          "num_calls": 10
+        },
+        {
+          "sql": "",
+          "rows": [],
+          "elapsed_seconds": 345.54,
+          "num_calls": 10
+        },
+        {
+          "sql": "",
+          "rows": [],
+          "elapsed_seconds": 345.56,
+          "num_calls": 10
+        }
+      ]
+    }
+  ]
+}
