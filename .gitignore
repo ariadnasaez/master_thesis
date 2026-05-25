@@ -16,6 +16,9 @@ database/*.csv
 *.sqlite
 *.sqlite3
 AWSCLIV2.pkg
+_test_output.json
+_test_schema.txt
+
 
 # IDE / editor
 .vscode/

@@ -37,7 +37,7 @@ if AGENT_BACKEND == "bedrock":
         warmup_model,
     )
 else:
-    from agent import (
+    from agent_ollama import (
         DEFAULT_MODEL,
         build_ollama_tools,
         build_system_prompt,
