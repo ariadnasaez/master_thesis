@@ -15,6 +15,7 @@ database/*.csv
 *.db
 *.sqlite
 *.sqlite3
+AWSCLIV2.pkg
 
 # IDE / editor
 .vscode/
