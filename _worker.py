@@ -21,7 +21,7 @@ AGENT_BACKEND = os.getenv("AGENT_BACKEND", "ollama")
 if AGENT_BACKEND == "bedrock":
     from agent_bedrock import build_ollama_tools, build_system_prompt, parse_schema_cache, run_agent_loop_async
 else:
-    from agent import build_ollama_tools, build_system_prompt, parse_schema_cache, run_agent_loop_async
+    from agent_ollama import build_ollama_tools, build_system_prompt, parse_schema_cache, run_agent_loop_async
 
 
 async def run(question: str, schema_text: str, output_path: str) -> None:

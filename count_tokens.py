@@ -17,7 +17,7 @@ import boto3
 from mcp.client.stdio import stdio_client, StdioServerParameters
 from mcp.client.session import ClientSession
 
-from agent import build_system_prompt, build_ollama_tools
+from agent_ollama import build_system_prompt, build_ollama_tools
 
 REGION = os.getenv("BEDROCK_REGION", "us-east-2")
 

@@ -6,7 +6,7 @@ import asyncio
 from mcp.client.stdio import stdio_client, StdioServerParameters
 from mcp.client.session import ClientSession
 
-from agent import (
+from agent_ollama import (
     build_ollama_tools,
     build_system_prompt,
     parse_schema_cache,
