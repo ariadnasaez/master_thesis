@@ -43,14 +43,15 @@ master_thesis/
 ├── generate.py            # Generation phase — runs agent on the golden dataset
 ├── _worker.py             # Single-question subprocess worker (used by generate.py)
 ├── count_tokens.py        # Measures system-prompt token counts via Bedrock API
+├── import_csvs_database.py # Loads CSV exports into the local MySQL database
 ├── golden_dataset.json    # 30-question evaluation dataset with reference SQL + results
 ├── generation_results/    # Raw agent outputs per model (JSON, one file per run)
 ├── evaluation/
 │   ├── evaluate.py        # Scoring phase — Jaccard similarity metrics
 │   ├── evaluation_plots.ipynb
-│   └── evaluation_results/
+│   ├── evaluation_results/ # Jaccard scores per model (JSON)
+│   └── notebook_figures/  # Exported plots from the evaluation notebook
 ├── ontology/              # OWL/RDF ontology files for lookup_ontology tool
-├── database/              # CSV exports of all database tables
 └── requirements.txt
 ```
 
